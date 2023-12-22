@@ -17,46 +17,27 @@ limitations under the License.
 package v1alpha1
 
 import (
+	operatorv1 "github.com/zncdata-labs/operator-go/pkg/operators/v1alphav1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
-// DatabaseConnectionSpec defines the desired state of DatabaseConnection
-type DatabaseConnectionSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of DatabaseConnection. Edit databaseconnection_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
-}
-
-// DatabaseConnectionStatus defines the observed state of DatabaseConnection
-type DatabaseConnectionStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-}
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
 // DatabaseConnection is the Schema for the databaseconnections API
 type DatabaseConnection struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   DatabaseConnectionSpec   `json:"spec,omitempty"`
-	Status DatabaseConnectionStatus `json:"status,omitempty"`
+	metav1.TypeMeta               `json:",inline"`
+	metav1.ObjectMeta             `json:"metadata,omitempty"`
+	operatorv1.DatabaseConnection `json:",inline"`
 }
 
 //+kubebuilder:object:root=true
 
 // DatabaseConnectionList contains a list of DatabaseConnection
 type DatabaseConnectionList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []DatabaseConnection `json:"items"`
+	metav1.TypeMeta                   `json:",inline"`
+	metav1.ListMeta                   `json:"metadata,omitempty"`
+	operatorv1.DatabaseConnectionList `json:",inline"`
 }
 
 func init() {

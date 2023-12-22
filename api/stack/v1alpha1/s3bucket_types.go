@@ -17,46 +17,27 @@ limitations under the License.
 package v1alpha1
 
 import (
+	operatorv1 "github.com/zncdata-labs/operator-go/pkg/operators/v1alphav1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
-// S3BucketSpec defines the desired state of S3Bucket
-type S3BucketSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of S3Bucket. Edit s3bucket_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
-}
-
-// S3BucketStatus defines the observed state of S3Bucket
-type S3BucketStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-}
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
 // S3Bucket is the Schema for the s3buckets API
 type S3Bucket struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   S3BucketSpec   `json:"spec,omitempty"`
-	Status S3BucketStatus `json:"status,omitempty"`
+	metav1.TypeMeta     `json:",inline"`
+	metav1.ObjectMeta   `json:"metadata,omitempty"`
+	operatorv1.S3Bucket `json:",inline"`
 }
 
 //+kubebuilder:object:root=true
 
 // S3BucketList contains a list of S3Bucket
 type S3BucketList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []S3Bucket `json:"items"`
+	metav1.TypeMeta         `json:",inline"`
+	metav1.ListMeta         `json:"metadata,omitempty"`
+	operatorv1.S3BucketList `json:",inline"`
 }
 
 func init() {

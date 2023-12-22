@@ -4,7 +4,6 @@
 resources:
 - bases/stack.zncdata.net_databaseconnections.yaml
 - bases/stack.zncdata.net_databases.yaml
-- bases/stack.zncdata.net_redisconnections.yaml
 - bases/stack.zncdata.net_s3buckets.yaml
 - bases/stack.zncdata.net_s3connections.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
@@ -14,7 +13,6 @@ patchesStrategicMerge:
 # patches here are for enabling the conversion webhook for each CRD
 #- patches/webhook_in_databaseconnections.yaml
 #- patches/webhook_in_databases.yaml
-#- patches/webhook_in_redisconnections.yaml
 #- patches/webhook_in_s3buckets.yaml
 #- patches/webhook_in_s3connections.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
@@ -23,7 +21,6 @@ patchesStrategicMerge:
 # patches here are for enabling the CA injection for each CRD
 #- patches/cainjection_in_databaseconnections.yaml
 #- patches/cainjection_in_databases.yaml
-#- patches/cainjection_in_redisconnections.yaml
 #- patches/cainjection_in_s3buckets.yaml
 #- patches/cainjection_in_s3connections.yaml
 #+kubebuilder:scaffold:crdkustomizecainjectionpatch

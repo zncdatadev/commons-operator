@@ -40,24 +40,6 @@ type DatabaseList struct {
 	operatorv1.DatabaseList `json:",inline"`
 }
 
-//// +kubebuilder:object:root=true
-//// +kubebuilder:subresource:status
-//
-//type Database struct {
-//	metav1.TypeMeta   `json:",inline"`
-//	metav1.ObjectMeta `json:"metadata,omitempty"`
-//
-//	commons_operator.Database `json:",inline"`
-//}
-//
-//// +kubebuilder:object:root=true
-//
-//type DatabaseList struct {
-//	metav1.TypeMeta               `json:",inline"`
-//	metav1.ListMeta               `json:"metadata,omitempty"`
-//	commons_operator.DatabaseList `json:",inline"`
-//}
-
 func init() {
 	SchemeBuilder.Register(&Database{}, &DatabaseList{})
 }

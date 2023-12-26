@@ -1,0 +1,12 @@
+apiVersion: stack.zncdata.net/v1alpha1
+kind: DatabaseConnection
+metadata:
+  labels:
+    app.kubernetes.io/name: databaseconnection
+    app.kubernetes.io/instance: databaseconnection-sample
+    app.kubernetes.io/part-of: commons-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: commons-operator
+  name: databaseconnection-sample
+spec:
+  # TODO(user): Add fields here

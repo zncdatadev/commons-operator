@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package stack
+package controller
 
 import (
 	"context"
@@ -24,29 +24,29 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	stackv1alpha1 "github.com/zncdata-labs/commons-operator/api/stack/v1alpha1"
+	stackv1alpha1 "github.com/zncdata-labs/commons-operator/api/v1alpha1"
 )
 
-// S3BucketReconciler reconciles a S3Bucket object
-type S3BucketReconciler struct {
+// S3ConnectionReconciler reconciles a S3Connection object
+type S3ConnectionReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=stack.zncdata.net,resources=s3buckets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=stack.zncdata.net,resources=s3buckets/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=stack.zncdata.net,resources=s3buckets/finalizers,verbs=update
+//+kubebuilder:rbac:groups=stack.zncdata.net,resources=s3connections,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=stack.zncdata.net,resources=s3connections/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=stack.zncdata.net,resources=s3connections/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the S3Bucket object against the actual cluster state, and then
+// the S3Connection object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
-func (r *S3BucketReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *S3ConnectionReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
@@ -55,8 +55,8 @@ func (r *S3BucketReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *S3BucketReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *S3ConnectionReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&stackv1alpha1.S3Bucket{}).
+		For(&stackv1alpha1.S3Connection{}).
 		Complete(r)
 }

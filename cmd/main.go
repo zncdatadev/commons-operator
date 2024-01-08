@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	stackv1alpha1 "github.com/zncdata-labs/commons-operator/api/stack/v1alpha1"
-	stackcontroller "github.com/zncdata-labs/commons-operator/internal/controller/stack"
+	stackv1alpha1 "github.com/zncdata-labs/commons-operator/api/v1alpha1"
+	"github.com/zncdata-labs/commons-operator/internal/controller"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -87,14 +87,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&stackcontroller.DatabaseConnectionReconciler{
+	if err = (&controller.DatabaseConnectionReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DatabaseConnection")
 		os.Exit(1)
 	}
-	if err = (&stackcontroller.DatabaseReconciler{
+	if err = (&controller.DatabaseReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
@@ -102,14 +102,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&stackcontroller.S3BucketReconciler{
+	if err = (&controller.S3BucketReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "S3Bucket")
 		os.Exit(1)
 	}
-	if err = (&stackcontroller.S3ConnectionReconciler{
+	if err = (&controller.S3ConnectionReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {

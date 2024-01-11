@@ -14,7 +14,7 @@ spec:
     singular: database
   scope: Namespaced
   versions:
-  - name: v1alhpa1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Database is the Schema for the databases API

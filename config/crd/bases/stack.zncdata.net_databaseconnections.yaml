@@ -14,7 +14,7 @@ spec:
     singular: databaseconnection
   scope: Namespaced
   versions:
-  - name: v1alhpa1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: DatabaseConnection is the Schema for the databaseconnections
@@ -87,9 +87,14 @@ spec:
                     description: RedisProvider defines the desired connection info
                       of Redis
                     properties:
+                      credential:
+                        description: DatabaseConnectionCredentialSpec include ExistSecret,
+                          it is encrypted by base64.
+                        properties:
+                          existingSecret:
+                            type: string
+                        type: object
                       host:
-                        type: string
-                      password:
                         type: string
                       port:
                         type: string

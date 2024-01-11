@@ -31,12 +31,12 @@ spec:
   - commons operator zncdata-labs
   links:
   - name: Commons Operator
-    url: https://commons-operator.domain
+    url: https://github.com/zncdata-labs/operator-go
   maintainers:
   - email: huagang517@126.com
     name: wanghuagang
   maturity: alpha
   provider:
     name: zncdata-labs
-    url: www.zncdata.com
+    url: https://www.zncdata.com
   version: 0.0.0

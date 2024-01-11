@@ -26,3 +26,5 @@ Dockerfile.cross
 *~
 
 .vscode/
+bundle
+bundle.Dockerfile

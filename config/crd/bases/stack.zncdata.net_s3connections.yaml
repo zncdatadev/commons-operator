@@ -14,7 +14,7 @@ spec:
     singular: s3connection
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - name: v1alhpa1
     schema:
       openAPIV3Schema:
         description: S3Connection is the Schema for the s3connections API
@@ -46,9 +46,15 @@ spec:
                   secretKey:
                     type: string
                 type: object
+              endpoint:
+                type: string
+              region:
+                type: string
+              ssl:
+                type: boolean
             type: object
           status:
-            description: ZncdataStatus defines the common state of Zncdata
+            description: Status defines the common status
             properties:
               conditions:
                 items:

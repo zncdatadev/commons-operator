@@ -1,0 +1,42 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: commons-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions: {}
+  description: commons operator
+  displayName: commons-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - commons operator zncdata-labs
+  links:
+  - name: Commons Operator
+    url: https://commons-operator.domain
+  maintainers:
+  - email: huagang517@126.com
+    name: wanghuagang
+  maturity: alpha
+  provider:
+    name: zncdata-labs
+    url: www.zncdata.com
+  version: 0.0.0

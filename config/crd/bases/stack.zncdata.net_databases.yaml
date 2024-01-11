@@ -14,7 +14,7 @@ spec:
     singular: database
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - name: v1alhpa1
     schema:
       openAPIV3Schema:
         description: Database is the Schema for the databases API
@@ -35,9 +35,9 @@ spec:
             description: DatabaseSpec defines the desired connection info of Database
             properties:
               credential:
-                description: DatabaseCredentialSpec include  Username and Password
+                description: 'DatabaseCredentialSpec include: Username and Password
                   or ExistSecret. ExistSecret include Username and Password ,it is
-                  encrypted by base64.
+                  encrypted by base64.'
                 properties:
                   existingSecret:
                     type: string
@@ -52,7 +52,7 @@ spec:
                 type: string
             type: object
           status:
-            description: ZncdataStatus defines the common state of Zncdata
+            description: Status defines the common status
             properties:
               conditions:
                 items:

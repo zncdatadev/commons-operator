@@ -14,7 +14,7 @@ spec:
     singular: databaseconnection
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - name: v1alhpa1
     schema:
       openAPIV3Schema:
         description: DatabaseConnection is the Schema for the databaseconnections
@@ -97,7 +97,7 @@ spec:
                 type: object
             type: object
           status:
-            description: ZncdataStatus defines the common state of Zncdata
+            description: Status defines the common status
             properties:
               conditions:
                 items:

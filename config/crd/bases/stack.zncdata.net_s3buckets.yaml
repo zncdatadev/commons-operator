@@ -14,7 +14,7 @@ spec:
     singular: s3bucket
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - name: v1alhpa1
     schema:
       openAPIV3Schema:
         description: S3Bucket is the Schema for the s3buckets API
@@ -46,7 +46,7 @@ spec:
                 type: string
             type: object
           status:
-            description: ZncdataStatus defines the common state of Zncdata
+            description: Status defines the common status
             properties:
               conditions:
                 items:

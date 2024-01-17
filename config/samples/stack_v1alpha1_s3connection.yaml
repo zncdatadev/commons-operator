@@ -1,0 +1,17 @@
+apiVersion: stack.zncdata.net/v1alpha1
+kind: S3Connection
+metadata:
+  labels:
+    app.kubernetes.io/name: s3connection
+    app.kubernetes.io/instance: s3connection-sample
+    app.kubernetes.io/part-of: commons-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: commons-operator
+  name: s3connection-sample
+spec:
+  endpoint: http://minio:9000
+  region: us-east-1
+  ssl: false
+  pathStyle: true
+  credential:
+    existSecret: s3connection-sample-root-1

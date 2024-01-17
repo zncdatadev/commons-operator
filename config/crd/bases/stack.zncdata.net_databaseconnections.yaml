@@ -14,7 +14,7 @@ spec:
     singular: databaseconnection
   scope: Namespaced
   versions:
-  - name: v1alhpa1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: DatabaseConnection is the Schema for the databaseconnections
@@ -38,22 +38,36 @@ spec:
               default:
                 type: boolean
               provider:
-                description: DatabaseProvider defines all types database provider
-                  of DatabaseConnection
+                description: DatabaseConnectionProvider defines the enum provider
+                  for DataConnection. You can choose one of mysql, postgres, redis,
+                  and provider is required.
                 properties:
                   mysql:
                     description: MysqlProvider defines the desired connection info
                       of Mysql
                     properties:
                       credential:
-                        description: DatabaseConnectionCredentialSpec include ExistSecret,
-                          it is encrypted by base64.
+                        description: 'CredentialSpec include: Username and Password
+                          or ExistSecret.'
                         properties:
                           existingSecret:
+                            description: ExistSecret is a Secret name, created by
+                              user. It includes Username and Password, it is encrypted
+                              by base64. If ExistSecret is not empty, Username and
+                              Password will be ignored.
+                            type: string
+                          password:
+                            description: Password is the password for the database.
+                            type: string
+                          username:
+                            description: Username is the username for the database.
                             type: string
                         type: object
                       driver:
-                        default: mysql
+                        default: com.mysql.cj.jdbc.Driver
+                        description: If you want to use mysql8+ , you should set driver
+                          to com.mysql.cj.jdbc.Driver, otherwise you should set driver
+                          to com.mysql.jdbc.Driver.
                         type: string
                       host:
                         type: string
@@ -67,14 +81,24 @@ spec:
                       of Postgres
                     properties:
                       credential:
-                        description: DatabaseConnectionCredentialSpec include ExistSecret,
-                          it is encrypted by base64.
+                        description: 'CredentialSpec include: Username and Password
+                          or ExistSecret.'
                         properties:
                           existingSecret:
+                            description: ExistSecret is a Secret name, created by
+                              user. It includes Username and Password, it is encrypted
+                              by base64. If ExistSecret is not empty, Username and
+                              Password will be ignored.
+                            type: string
+                          password:
+                            description: Password is the password for the database.
+                            type: string
+                          username:
+                            description: Username is the username for the database.
                             type: string
                         type: object
                       driver:
-                        default: postgres
+                        default: org.postgresql.Driver
                         type: string
                       host:
                         type: string
@@ -87,9 +111,24 @@ spec:
                     description: RedisProvider defines the desired connection info
                       of Redis
                     properties:
+                      credential:
+                        description: 'CredentialSpec include: Username and Password
+                          or ExistSecret.'
+                        properties:
+                          existingSecret:
+                            description: ExistSecret is a Secret name, created by
+                              user. It includes Username and Password, it is encrypted
+                              by base64. If ExistSecret is not empty, Username and
+                              Password will be ignored.
+                            type: string
+                          password:
+                            description: Password is the password for the database.
+                            type: string
+                          username:
+                            description: Username is the username for the database.
+                            type: string
+                        type: object
                       host:
-                        type: string
-                      password:
                         type: string
                       port:
                         type: string
@@ -97,9 +136,8 @@ spec:
                 type: object
             type: object
           status:
-            description: Status defines the common status
             properties:
-              conditions:
+              condition:
                 items:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
@@ -165,26 +203,6 @@ spec:
                   - reason
                   - status
                   - type
-                  type: object
-                type: array
-              generation:
-                format: int64
-                type: integer
-              name:
-                type: string
-              type:
-                type: string
-              urls:
-                items:
-                  description: URL is a URL with a name
-                  properties:
-                    name:
-                      type: string
-                    url:
-                      type: string
-                  required:
-                  - name
-                  - url
                   type: object
                 type: array
             type: object

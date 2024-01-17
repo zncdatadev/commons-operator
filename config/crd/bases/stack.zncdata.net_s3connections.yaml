@@ -14,7 +14,7 @@ spec:
     singular: s3connection
   scope: Namespaced
   versions:
-  - name: v1alhpa1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: S3Connection is the Schema for the s3connections API
@@ -36,27 +36,30 @@ spec:
             properties:
               credential:
                 description: S3Credential include  AccessKey and SecretKey or ExistingSecret.
-                  ExistingSecret include AccessKey and SecretKey ,it is encrypted
-                  by base64.
                 properties:
                   accessKey:
                     type: string
                   existSecret:
+                    description: ExistingSecret include AccessKey and SecretKey ,it
+                      is encrypted by base64. If ExistingSecret is not empty, AccessKey
+                      and SecretKey will be ignored.
                     type: string
                   secretKey:
                     type: string
                 type: object
               endpoint:
                 type: string
+              pathStyle:
+                default: false
+                type: boolean
               region:
                 type: string
               ssl:
                 type: boolean
             type: object
           status:
-            description: Status defines the common status
             properties:
-              conditions:
+              condition:
                 items:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
@@ -122,26 +125,6 @@ spec:
                   - reason
                   - status
                   - type
-                  type: object
-                type: array
-              generation:
-                format: int64
-                type: integer
-              name:
-                type: string
-              type:
-                type: string
-              urls:
-                items:
-                  description: URL is a URL with a name
-                  properties:
-                    name:
-                      type: string
-                    url:
-                      type: string
-                  required:
-                  - name
-                  - url
                   type: object
                 type: array
             type: object

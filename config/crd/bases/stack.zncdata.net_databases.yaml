@@ -14,7 +14,7 @@ spec:
     singular: database
   scope: Namespaced
   versions:
-  - name: v1alhpa1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Database is the Schema for the databases API
@@ -35,26 +35,30 @@ spec:
             description: DatabaseSpec defines the desired connection info of Database
             properties:
               credential:
-                description: 'DatabaseCredentialSpec include: Username and Password
-                  or ExistSecret. ExistSecret include Username and Password ,it is
-                  encrypted by base64.'
+                description: Credential is the credential for the database. It contains
+                  Username and Password, or ExistSecret.
                 properties:
                   existingSecret:
+                    description: ExistSecret is a Secret name, created by user. It
+                      includes Username and Password, it is encrypted by base64. If
+                      ExistSecret is not empty, Username and Password will be ignored.
                     type: string
                   password:
+                    description: Password is the password for the database.
                     type: string
                   username:
+                    description: Username is the username for the database.
                     type: string
                 type: object
-              name:
+              databaseName:
                 type: string
               reference:
+                description: Name of DatabaseConnection CR to use for this database.
                 type: string
             type: object
           status:
-            description: Status defines the common status
             properties:
-              conditions:
+              condition:
                 items:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
@@ -120,26 +124,6 @@ spec:
                   - reason
                   - status
                   - type
-                  type: object
-                type: array
-              generation:
-                format: int64
-                type: integer
-              name:
-                type: string
-              type:
-                type: string
-              urls:
-                items:
-                  description: URL is a URL with a name
-                  properties:
-                    name:
-                      type: string
-                    url:
-                      type: string
-                  required:
-                  - name
-                  - url
                   type: object
                 type: array
             type: object

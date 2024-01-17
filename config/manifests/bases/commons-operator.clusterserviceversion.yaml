@@ -8,9 +8,15 @@ metadata:
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
-  customresourcedefinitions: {}
-  description: commons operator
-  displayName: commons-operator
+  customresourcedefinitions:
+    owned:
+    - description: DatabaseConnection is the Schema for the databaseconnections API
+      displayName: Database Connection
+      kind: DatabaseConnection
+      name: databaseconnections.stack.zncdata.net
+      version: v1alpha1
+  description: zncdata-labs commons operator
+  displayName: commons operator
   icon:
   - base64data: ""
     mediatype: ""
@@ -38,5 +44,5 @@ spec:
   maturity: alpha
   provider:
     name: zncdata-labs
-    url: www.zncdata.com
+    url: https://github.com/zncdata-labs/commons-operator
   version: 0.0.0

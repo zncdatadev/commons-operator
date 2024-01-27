@@ -15,6 +15,7 @@ spec:
   scope: Namespaced
   versions:
   - name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: DatabaseConnection is the Schema for the databaseconnections
@@ -41,16 +42,14 @@ spec:
                 description: DatabaseConnectionProvider defines the enum provider
                   for DataConnection. You can choose one of mysql, postgres, redis,
                   and provider is required.
-                enum:
-                - mysql
-                - postgres
-                - redis
                 properties:
                   mysql:
                     description: MysqlProvider defines the desired connection info
                       of Mysql
                     properties:
                       credential:
+                        description: 'CredentialSpec include: Username and Password
+                          or ExistSecret.'
                         description: 'CredentialSpec include: Username and Password
                           or ExistSecret.'
                         properties:
@@ -65,9 +64,23 @@ spec:
                             type: string
                           username:
                             description: Username is the username for the database.
+                            description: ExistSecret is a Secret name, created by
+                              user. It includes Username and Password, it is encrypted
+                              by base64. If ExistSecret is not empty, Username and
+                              Password will be ignored.
+                            type: string
+                          password:
+                            description: Password is the password for the database.
+                            type: string
+                          username:
+                            description: Username is the username for the database.
                             type: string
                         type: object
                       driver:
+                        default: com.mysql.cj.jdbc.Driver
+                        description: If you want to use mysql8+ , you should set driver
+                          to com.mysql.cj.jdbc.Driver, otherwise you should set driver
+                          to com.mysql.jdbc.Driver.
                         default: com.mysql.cj.jdbc.Driver
                         description: If you want to use mysql8+ , you should set driver
                           to com.mysql.cj.jdbc.Driver, otherwise you should set driver
@@ -87,8 +100,20 @@ spec:
                       credential:
                         description: 'CredentialSpec include: Username and Password
                           or ExistSecret.'
+                        description: 'CredentialSpec include: Username and Password
+                          or ExistSecret.'
                         properties:
                           existingSecret:
+                            description: ExistSecret is a Secret name, created by
+                              user. It includes Username and Password, it is encrypted
+                              by base64. If ExistSecret is not empty, Username and
+                              Password will be ignored.
+                            type: string
+                          password:
+                            description: Password is the password for the database.
+                            type: string
+                          username:
+                            description: Username is the username for the database.
                             description: ExistSecret is a Secret name, created by
                               user. It includes Username and Password, it is encrypted
                               by base64. If ExistSecret is not empty, Username and
@@ -102,6 +127,7 @@ spec:
                             type: string
                         type: object
                       driver:
+                        default: org.postgresql.Driver
                         default: org.postgresql.Driver
                         type: string
                       host:
@@ -132,6 +158,23 @@ spec:
                             description: Username is the username for the database.
                             type: string
                         type: object
+                      credential:
+                        description: 'CredentialSpec include: Username and Password
+                          or ExistSecret.'
+                        properties:
+                          existingSecret:
+                            description: ExistSecret is a Secret name, created by
+                              user. It includes Username and Password, it is encrypted
+                              by base64. If ExistSecret is not empty, Username and
+                              Password will be ignored.
+                            type: string
+                          password:
+                            description: Password is the password for the database.
+                            type: string
+                          username:
+                            description: Username is the username for the database.
+                            type: string
+                        type: object
                       host:
                         type: string
                       port:
@@ -141,6 +184,7 @@ spec:
             type: object
           status:
             properties:
+              condition:
               condition:
                 items:
                   description: "Condition contains details for one aspect of the current

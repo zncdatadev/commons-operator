@@ -31,7 +31,7 @@ jobs:
         path: TestResults-${{ matrix.go-version }}.json
 
   golang-lint:
-    name: golang-lint
+    name: Golang Lint
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
@@ -74,7 +74,7 @@ jobs:
         # install-mode: "goinstall"
 
   markdown-lint:
-    name: Lint Code Base
+    name: Markdown Lint
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout Code

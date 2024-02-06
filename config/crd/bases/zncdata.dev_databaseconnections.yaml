@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: databaseconnections.stack.zncdata.net
+  name: databaseconnections.zncdata.dev
 spec:
-  group: stack.zncdata.net
+  group: zncdata.dev
   names:
     kind: DatabaseConnection
     listKind: DatabaseConnectionList
@@ -14,7 +14,6 @@ spec:
     singular: databaseconnection
   scope: Namespaced
   versions:
-  - name: v1alpha1
   - name: v1alpha1
     schema:
       openAPIV3Schema:
@@ -48,22 +47,10 @@ spec:
                       of Mysql
                     properties:
                       credential:
-                        description: 'CredentialSpec include: Username and Password
-                          or ExistSecret.'
-                        description: 'CredentialSpec include: Username and Password
-                          or ExistSecret.'
+                        description: 'DatabaseCredentialSpec include: Username and
+                          Password or ExistSecret.'
                         properties:
                           existingSecret:
-                            description: ExistSecret is a Secret name, created by
-                              user. It includes Username and Password, it is encrypted
-                              by base64. If ExistSecret is not empty, Username and
-                              Password will be ignored.
-                            type: string
-                          password:
-                            description: Password is the password for the database.
-                            type: string
-                          username:
-                            description: Username is the username for the database.
                             description: ExistSecret is a Secret name, created by
                               user. It includes Username and Password, it is encrypted
                               by base64. If ExistSecret is not empty, Username and
@@ -77,14 +64,7 @@ spec:
                             type: string
                         type: object
                       driver:
-                        default: com.mysql.cj.jdbc.Driver
-                        description: If you want to use mysql8+ , you should set driver
-                          to com.mysql.cj.jdbc.Driver, otherwise you should set driver
-                          to com.mysql.jdbc.Driver.
-                        default: com.mysql.cj.jdbc.Driver
-                        description: If you want to use mysql8+ , you should set driver
-                          to com.mysql.cj.jdbc.Driver, otherwise you should set driver
-                          to com.mysql.jdbc.Driver.
+                        default: mysql
                         type: string
                       host:
                         type: string
@@ -98,22 +78,10 @@ spec:
                       of Postgres
                     properties:
                       credential:
-                        description: 'CredentialSpec include: Username and Password
-                          or ExistSecret.'
-                        description: 'CredentialSpec include: Username and Password
-                          or ExistSecret.'
+                        description: 'DatabaseCredentialSpec include: Username and
+                          Password or ExistSecret.'
                         properties:
                           existingSecret:
-                            description: ExistSecret is a Secret name, created by
-                              user. It includes Username and Password, it is encrypted
-                              by base64. If ExistSecret is not empty, Username and
-                              Password will be ignored.
-                            type: string
-                          password:
-                            description: Password is the password for the database.
-                            type: string
-                          username:
-                            description: Username is the username for the database.
                             description: ExistSecret is a Secret name, created by
                               user. It includes Username and Password, it is encrypted
                               by base64. If ExistSecret is not empty, Username and
@@ -128,7 +96,6 @@ spec:
                         type: object
                       driver:
                         default: org.postgresql.Driver
-                        default: org.postgresql.Driver
                         type: string
                       host:
                         type: string
@@ -141,40 +108,6 @@ spec:
                     description: RedisProvider defines the desired connection info
                       of Redis
                     properties:
-                      credential:
-                        description: 'CredentialSpec include: Username and Password
-                          or ExistSecret.'
-                        properties:
-                          existingSecret:
-                            description: ExistSecret is a Secret name, created by
-                              user. It includes Username and Password, it is encrypted
-                              by base64. If ExistSecret is not empty, Username and
-                              Password will be ignored.
-                            type: string
-                          password:
-                            description: Password is the password for the database.
-                            type: string
-                          username:
-                            description: Username is the username for the database.
-                            type: string
-                        type: object
-                      credential:
-                        description: 'CredentialSpec include: Username and Password
-                          or ExistSecret.'
-                        properties:
-                          existingSecret:
-                            description: ExistSecret is a Secret name, created by
-                              user. It includes Username and Password, it is encrypted
-                              by base64. If ExistSecret is not empty, Username and
-                              Password will be ignored.
-                            type: string
-                          password:
-                            description: Password is the password for the database.
-                            type: string
-                          username:
-                            description: Username is the username for the database.
-                            type: string
-                        type: object
                       host:
                         type: string
                       port:
@@ -184,7 +117,6 @@ spec:
             type: object
           status:
             properties:
-              condition:
               condition:
                 items:
                   description: "Condition contains details for one aspect of the current

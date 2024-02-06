@@ -5,7 +5,7 @@ metadata:
   name: manager-role
 rules:
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - databaseconnections
     verbs:
@@ -17,13 +17,13 @@ rules:
       - update
       - watch
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - databaseconnections/finalizers
     verbs:
       - update
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - databaseconnections/status
     verbs:
@@ -32,7 +32,7 @@ rules:
       - update
 
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - databases
     verbs:
@@ -44,13 +44,13 @@ rules:
       - update
       - watch
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - databases/finalizers
     verbs:
       - update
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - databases/status
     verbs:
@@ -59,7 +59,7 @@ rules:
       - update
 
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - s3connections
     verbs:
@@ -71,13 +71,13 @@ rules:
       - update
       - watch
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - s3connections/finalizers
     verbs:
       - update
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - s3connections/status
     verbs:
@@ -86,7 +86,7 @@ rules:
       - update
 
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - s3buckets
     verbs:
@@ -98,13 +98,13 @@ rules:
       - update
       - watch
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - s3buckets/finalizers
     verbs:
       - update
   - apiGroups:
-      - stack.zncdata.net
+      - zncdata.dev
     resources:
       - s3buckets/status
     verbs:

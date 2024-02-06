@@ -13,7 +13,7 @@ spec:
     - description: DatabaseConnection is the Schema for the databaseconnections API
       displayName: Database Connection
       kind: DatabaseConnection
-      name: databaseconnections.stack.zncdata.net
+      name: databaseconnections.zncdata.dev
       version: v1alpha1
   description: zncdata-labs commons operator
   displayName: commons operator

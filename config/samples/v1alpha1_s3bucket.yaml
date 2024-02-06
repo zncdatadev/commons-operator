@@ -1,4 +1,4 @@
-apiVersion: stack.zncdata.net/v1alpha1
+apiVersion: zncdata.dev/v1alpha1
 kind: S3Bucket
 metadata:
   labels:

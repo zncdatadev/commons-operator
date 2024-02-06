@@ -2,10 +2,10 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-- bases/stack.zncdata.net_databaseconnections.yaml
-- bases/stack.zncdata.net_databases.yaml
-- bases/stack.zncdata.net_s3buckets.yaml
-- bases/stack.zncdata.net_s3connections.yaml
+- bases/zncdata.dev_databaseconnections.yaml
+- bases/zncdata.dev_databases.yaml
+- bases/zncdata.dev_s3buckets.yaml
+- bases/zncdata.dev_s3connections.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:

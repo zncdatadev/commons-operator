@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: databases.stack.zncdata.net
+  name: s3connections.zncdata.dev
 spec:
-  group: stack.zncdata.net
+  group: zncdata.dev
   names:
-    kind: Database
-    listKind: DatabaseList
-    plural: databases
-    singular: database
+    kind: S3Connection
+    listKind: S3ConnectionList
+    plural: s3connections
+    singular: s3connection
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Database is the Schema for the databases API
+        description: S3Connection is the Schema for the s3connections API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -32,29 +32,31 @@ spec:
           metadata:
             type: object
           spec:
-            description: DatabaseSpec defines the desired connection info of Database
+            description: S3ConnectionSpec defines the desired credential of S3Connection
             properties:
               credential:
-                description: Credential is the credential for the database. It contains
-                  Username and Password, or ExistSecret.
+                description: S3Credential include `ACCESS_KEY` and `SECRET_KEY` or
+                  ExistingSecret.
                 properties:
-                  existingSecret:
-                    description: ExistSecret is a Secret name, created by user. It
-                      includes Username and Password, it is encrypted by base64. If
-                      ExistSecret is not empty, Username and Password will be ignored.
+                  accessKey:
                     type: string
-                  password:
-                    description: Password is the password for the database.
+                  existSecret:
+                    description: ExistingSecret include `ACCESS_KEY` and `SECRET_KEY`
+                      ,it is encrypted by base64. If ExistingSecret is not empty,
+                      `ACCESS_KEY` and `SECRET_KEY` will be ignored.
                     type: string
-                  username:
-                    description: Username is the username for the database.
+                  secretKey:
                     type: string
                 type: object
-              databaseName:
+              endpoint:
                 type: string
-              reference:
-                description: Name of DatabaseConnection CR to use for this database.
+              pathStyle:
+                default: false
+                type: boolean
+              region:
                 type: string
+              ssl:
+                type: boolean
             type: object
           status:
             properties:

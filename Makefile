@@ -30,7 +30,7 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# zncdata.net/commons-operator-bundle:$VERSION and zncdata.net/commons-operator-catalog:$VERSION.
+# zncdata.dev/commons-operator-bundle:$VERSION and zncdata.dev/commons-operator-catalog:$VERSION.
 IMAGE_TAG_BASE ?= $(REGISTRY)/commons-operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
@@ -93,7 +93,7 @@ help: ## Display this help.
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="github.com/zncdata-labs/operator-go/pkg/apis/commons/..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="/Users/kevin/workspace/develop/golang/src/github.com/zncdata-labs/operator-go/pkg/apis/commons/..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.

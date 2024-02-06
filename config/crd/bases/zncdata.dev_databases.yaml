@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: s3buckets.stack.zncdata.net
+  name: databases.zncdata.dev
 spec:
-  group: stack.zncdata.net
+  group: zncdata.dev
   names:
-    kind: S3Bucket
-    listKind: S3BucketList
-    plural: s3buckets
-    singular: s3bucket
+    kind: Database
+    listKind: DatabaseList
+    plural: databases
+    singular: database
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: S3Bucket is the Schema for the s3buckets API
+        description: Database is the Schema for the databases API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -32,24 +32,28 @@ spec:
           metadata:
             type: object
           spec:
-            description: S3BucketSpec defines the desired fields of S3Bucket
+            description: DatabaseSpec defines the desired connection info of Database
             properties:
-              bucketName:
-                type: string
               credential:
-                description: S3Credential include  AccessKey and SecretKey or ExistingSecret.
+                description: Credential is the credential for the database. It contains
+                  Username and Password, or ExistSecret.
                 properties:
-                  accessKey:
+                  existingSecret:
+                    description: ExistSecret is a Secret name, created by user. It
+                      includes Username and Password, it is encrypted by base64. If
+                      ExistSecret is not empty, Username and Password will be ignored.
                     type: string
-                  existSecret:
-                    description: ExistingSecret include AccessKey and SecretKey ,it
-                      is encrypted by base64. If ExistingSecret is not empty, AccessKey
-                      and SecretKey will be ignored.
+                  password:
+                    description: Password is the password for the database.
                     type: string
-                  secretKey:
+                  username:
+                    description: Username is the username for the database.
                     type: string
                 type: object
+              databaseName:
+                type: string
               reference:
+                description: Name of DatabaseConnection CR to use for this database.
                 type: string
             type: object
           status:

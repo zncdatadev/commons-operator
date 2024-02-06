@@ -12,7 +12,7 @@ metadata:
   name: s3connection-editor-role
 rules:
 - apiGroups:
-  - stack.zncdata.net
+  - zncdata.dev
   resources:
   - s3connections
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - stack.zncdata.net
+  - zncdata.dev
   resources:
   - s3connections/status
   verbs:

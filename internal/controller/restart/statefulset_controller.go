@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	logger = ctrl.Log.WithName("controllers").WithName("Rester")
+	restartLogger = ctrl.Log.WithName("controllers").WithName("StatefulSetRestart")
 )
 
 const (
@@ -33,7 +33,7 @@ type StatefulSetReconciler struct {
 
 func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
-	logger.V(1).Info("Reconciling StatefulSet", "req", req)
+	restartLogger.V(1).Info("Reconciling StatefulSet", "req", req)
 
 	sts := &appv1.StatefulSet{}
 
@@ -41,7 +41,7 @@ func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	logger.Info("StatefulSet", "Name", sts.Name, "Namespace", sts.Namespace)
+	restartLogger.Info("StatefulSet", "Name", sts.Name, "Namespace", sts.Namespace)
 
 	handler := &StatefulSetHandler{
 		Client: r.Client,
@@ -71,7 +71,7 @@ func (r *StatefulSetReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		list := &appv1.StatefulSetList{}
 		err := r.List(ctx, list, client.MatchingLabels{RestartertLabelName: RestartertLabelValue})
 		if err != nil {
-			logger.Error(err, "Failed to list StatefulSets")
+			restartLogger.Error(err, "Failed to list StatefulSets")
 		}
 
 		var requests []reconcile.Request
@@ -203,7 +203,7 @@ func (h *StatefulSetHandler) UpdateRef(ctx context.Context) error {
 	}
 
 	for _, configMap := range configMaps {
-		annotationName := "configmap.restarter.stackable.tech/" + configMap.Name
+		annotationName := "configmap.restarter.zncdata.dev/" + configMap.Name
 		annotationValue := string(configMap.UID) + "/" + configMap.ResourceVersion
 		annotations[annotationName] = annotationValue
 	}
@@ -214,7 +214,7 @@ func (h *StatefulSetHandler) UpdateRef(ctx context.Context) error {
 	}
 
 	for _, secret := range secrets {
-		annotationName := "secret.restarter.stackable.tech/" + secret.Name
+		annotationName := "secret.restarter.zncdata.dev/" + secret.Name
 		annotationValue := string(secret.UID) + "/" + secret.ResourceVersion
 		annotations[annotationName] = annotationValue
 	}

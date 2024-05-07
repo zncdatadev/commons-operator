@@ -33,6 +33,8 @@ import (
 
 	zdsv1alpha1 "github.com/zncdata-labs/operator-go/pkg/apis/commons/v1alpha1"
 	//+kubebuilder:scaffold:imports
+
+	"github.com/zncdata-labs/commons-operator/internal/controller/pod_enrichment"
 )
 
 var (
@@ -83,6 +85,14 @@ func main() {
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
+		os.Exit(1)
+	}
+
+	if err := (&pod_enrichment.PodEnrichmentReconciler{
+		Client: mgr.GetClient(),
+		Schema: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "PodEnrichment")
 		os.Exit(1)
 	}
 

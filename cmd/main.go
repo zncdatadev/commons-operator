@@ -31,10 +31,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	"github.com/zncdata-labs/commons-operator/internal/controller/pod_enrichment"
+	"github.com/zncdata-labs/commons-operator/internal/controller/restart"
+
 	zdsv1alpha1 "github.com/zncdata-labs/operator-go/pkg/apis/commons/v1alpha1"
 	//+kubebuilder:scaffold:imports
-
-	"github.com/zncdata-labs/commons-operator/internal/controller/pod_enrichment"
 )
 
 var (
@@ -97,6 +98,14 @@ func main() {
 	}
 
 	//+kubebuilder:scaffold:builder
+
+	if err := (&restart.StatefulSetReconciler{
+		Client: mgr.GetClient(),
+		Schema: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "StatefulSetReconciler")
+		os.Exit(1)
+	}
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")

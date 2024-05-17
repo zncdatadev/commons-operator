@@ -30,3 +30,7 @@ bundle
 bundle.Dockerfile
 
 api
+
+# catalog
+catalog
+catalog.Dockerfile

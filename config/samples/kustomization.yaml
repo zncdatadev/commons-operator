@@ -3,5 +3,5 @@ resources:
 - v1alpha1_databaseconnection.yaml
 - v1alpha1_database.yaml
 - v1alpha1_s3bucket.yaml
-- v1alhpa1_s3connection.yaml
+- v1alpha1_s3connection.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

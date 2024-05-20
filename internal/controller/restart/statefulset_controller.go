@@ -31,6 +31,14 @@ type StatefulSetReconciler struct {
 	Schema *runtime.Scheme
 }
 
+//+kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=serviceaccounts,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;create;update;patch;delete
+
 func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
 	restartLogger.V(1).Info("Reconciling StatefulSet", "req", req)
@@ -43,12 +51,12 @@ func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	restartLogger.Info("StatefulSet", "Name", sts.Name, "Namespace", sts.Namespace)
 
-	handler := &StatefulSetHandler{
+	h := &StatefulSetHandler{
 		Client: r.Client,
 		Sts:    sts.DeepCopy(),
 	}
 
-	err := handler.UpdateRef(ctx)
+	err := h.UpdateRef(ctx)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

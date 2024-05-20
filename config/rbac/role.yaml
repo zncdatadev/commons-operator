@@ -4,110 +4,87 @@ kind: ClusterRole
 metadata:
   name: manager-role
 rules:
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - databaseconnections
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - databaseconnections/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - databaseconnections/status
-    verbs:
-      - get
-      - patch
-      - update
-
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - databases
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - databases/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - databases/status
-    verbs:
-      - get
-      - patch
-      - update
-
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - s3connections
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - s3connections/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - s3connections/status
-    verbs:
-      - get
-      - patch
-      - update
-
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - s3buckets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - s3buckets/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - zncdata.dev
-    resources:
-      - s3buckets/status
-    verbs:
-      - get
-      - patch
-      - update
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

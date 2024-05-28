@@ -1,6 +1,5 @@
----
 defaultChannel: stable
-description: |+
+description: |
   # commons-operator
   // TODO(user): Add simple overview of use/purpose
 
@@ -81,7 +80,7 @@ description: |+
 
   ## License
 
-  Copyright 2023 zncdata-labs.
+  Copyright 2023 zncdatadev.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -102,7 +101,7 @@ schema: olm.channel
 package: commons-operator
 name: stable
 entries:
-  - name: commons-operator.v0.0.1
+- name: commons-operator.v0.0.1
 ---
 schema: olm.bundle
 image: quay.io/zncdatadev/commons-operator-bundle:v0.0.1

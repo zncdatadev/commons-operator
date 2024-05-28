@@ -15,7 +15,7 @@ spec:
       kind: DatabaseConnection
       name: databaseconnections.zncdata.dev
       version: v1alpha1
-  description: zncdata-labs commons operator
+  description: zncdatadev commons operator
   displayName: commons operator
   icon:
   - base64data: ""
@@ -34,15 +34,15 @@ spec:
   - supported: true
     type: AllNamespaces
   keywords:
-  - commons operator zncdata-labs
+  - commons operator zncdatadev
   links:
   - name: Commons Operator
-    url: https://github.com/zncdata-labs/operator-go
+    url: https://github.com/zncdatadev/operator-go
   maintainers:
   - email: huagang517@126.com
     name: wanghuagang
   maturity: alpha
   provider:
-    name: zncdata-labs
-    url: https://github.com/zncdata-labs/commons-operator
+    name: zncdatadev
+    url: https://github.com/zncdatadev/commons-operator
   version: 0.0.0

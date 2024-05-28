@@ -9,7 +9,7 @@ spec:
     securityContextConfig: restricted
   image: registry.cn-hangzhou.aliyuncs.com/luwei-dev/commons-operator-catalog:latest
   displayName: commons catalog
-  publisher: zncdata-labs
+  publisher: zncdatadev
   updateStrategy:
     registryPoll:
       interval: 5m

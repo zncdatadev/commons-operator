@@ -9,7 +9,7 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: commons-operator
-repo: github.com/zncdata-labs/commons-operator
+repo: github.com/zncdatadev/commons-operator
 resources:
 - api:
     crdVersion: v1
@@ -17,6 +17,6 @@ resources:
   controller: true
   domain: zncdata.dev
   kind: DatabaseConnection
-  path: github.com/zncdata-labs/commons-operator/api/v1alpha1
+  path: github.com/zncdatadev/commons-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

@@ -2,12 +2,10 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
   name: commons-catalog
-  namespace: olm
+  namespace: kubedatastack-operator
 spec:
   sourceType: grpc
-  grpcPodConfig:
-    securityContextConfig: restricted
-  image: registry.cn-hangzhou.aliyuncs.com/luwei-dev/commons-operator-catalog:latest
+  image: quay.io/zncdatadev/commons-operator-catalog:latest
   displayName: commons catalog
   publisher: zncdatadev
   updateStrategy:

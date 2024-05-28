@@ -7,5 +7,5 @@ spec:
   channel: stable
   name: commons-operator
   source: commons-catalog
-  sourceNamespace: olm
+  sourceNamespace: kubedatastack-operator
   installPlanApproval: Automated

@@ -1,5 +1,5 @@
 /*
-Copyright 2023 zncdata-labs.
+Copyright 2023 zncdatadev.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"strings"
+
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -34,10 +35,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/zncdata-labs/commons-operator/internal/controller/pod_enrichment"
-	"github.com/zncdata-labs/commons-operator/internal/controller/restart"
+	"github.com/zncdatadev/commons-operator/internal/controller/pod_enrichment"
+	"github.com/zncdatadev/commons-operator/internal/controller/restart"
 
-	zdsv1alpha1 "github.com/zncdata-labs/operator-go/pkg/apis/commons/v1alpha1"
+	kdsv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/commons/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -49,7 +50,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(zdsv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(kdsv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 

@@ -28,9 +28,9 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# zncdata.dev/commons-operator-bundle:$VERSION and zncdata.dev/commons-operator-catalog:$VERSION.
+# quay.io/zncdatadev/commons-operator-bundle:$VERSION and quay.io/zncdatadev/commons-operator-catalog:$VERSION.
 
-REGISTRY ?= quay.io/zncdata
+REGISTRY ?= quay.io/zncdatadev
 PROJECT_NAME = commons-operator
 
 IMAGE_TAG_BASE ?= $(REGISTRY)/$(PROJECT_NAME)

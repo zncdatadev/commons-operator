@@ -18,16 +18,17 @@ metadata:
   namespace: system
   labels:
     control-plane: controller-manager
-    app.kubernetes.io/name: deployment
+    app.kubernetes.io/name: commons-operator
     app.kubernetes.io/instance: controller-manager
     app.kubernetes.io/component: manager
-    app.kubernetes.io/created-by: commons-operator
+    app.kubernetes.io/created-by: operator-lifecycle-manager
     app.kubernetes.io/part-of: commons-operator
     app.kubernetes.io/managed-by: kustomize
 spec:
   selector:
     matchLabels:
       control-plane: controller-manager
+      app.kubernetes.io/name: commons-operator
   replicas: 1
   template:
     metadata:
@@ -35,6 +36,7 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         control-plane: controller-manager
+        app.kubernetes.io/name: commons-operator
     spec:
       # TODO(user): Uncomment the following code to configure the nodeAffinity expression
       # according to the platforms which are supported by your solution.
@@ -73,19 +75,19 @@ spec:
         image: controller:latest
         name: manager
         env:
-          - name: WATCH_NAMESPACES
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.annotations['olm.targetNamespaces']
-          - name: OPERATOR_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
+        - name: WATCH_NAMESPACES
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['olm.targetNamespaces']
+        - name: OPERATOR_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-              - "ALL"
+            - "ALL"
         livenessProbe:
           httpGet:
             path: /healthz

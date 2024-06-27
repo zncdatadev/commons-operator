@@ -40,10 +40,134 @@ spec:
           spec:
             description: AuthenticationClassSpec defines the desired state of AuthenticationClass
             properties:
-              foo:
-                description: Foo is an example field of AuthenticationClass. Edit
-                  authenticationclass_types.go to remove/update
-                type: string
+              provider:
+                properties:
+                  ldap:
+                    properties:
+                      credential:
+                        properties:
+                          scopes:
+                            properties:
+                              node:
+                                type: string
+                              pod:
+                                type: string
+                              services:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          secretClass:
+                            type: string
+                        required:
+                        - secretClass
+                        type: object
+                      hostname:
+                        type: string
+                      ldapFieldNames:
+                        properties:
+                          email:
+                            type: string
+                          givenName:
+                            type: string
+                          group:
+                            type: string
+                          surname:
+                            type: string
+                          uid:
+                            type: string
+                        type: object
+                      port:
+                        type: integer
+                      searchBase:
+                        description: 'LDAP search base, for example: ou=users,dc=example,dc=org.'
+                        type: string
+                      searchFilter:
+                        description: 'LDAP search filter, for example: (uid=%s).'
+                        type: string
+                      tls:
+                        properties:
+                          verification:
+                            properties:
+                              none:
+                                type: object
+                              server:
+                                properties:
+                                  caCert:
+                                    properties:
+                                      secretClass:
+                                        type: string
+                                      webPIK:
+                                        type: string
+                                    type: object
+                                required:
+                                - caCert
+                                type: object
+                            type: object
+                        type: object
+                    required:
+                    - credential
+                    - hostname
+                    type: object
+                  oidc:
+                    properties:
+                      hostname:
+                        type: string
+                      port:
+                        type: integer
+                      principalClaim:
+                        type: string
+                      providerHint:
+                        enum:
+                        - oidc
+                        - keycloak
+                        - dexidp
+                        - authentik
+                        type: string
+                      rootPath:
+                        type: string
+                      scopes:
+                        items:
+                          type: string
+                        type: array
+                      tls:
+                        properties:
+                          verification:
+                            properties:
+                              none:
+                                type: object
+                              server:
+                                properties:
+                                  caCert:
+                                    properties:
+                                      secretClass:
+                                        type: string
+                                      webPIK:
+                                        type: string
+                                    type: object
+                                required:
+                                - caCert
+                                type: object
+                            type: object
+                        type: object
+                    required:
+                    - hostname
+                    - principalClaim
+                    - providerHint
+                    type: object
+                  static:
+                    properties:
+                      credential:
+                        type: string
+                    required:
+                    - credential
+                    type: object
+                  tls:
+                    properties:
+                      secretClass:
+                        type: string
+                    type: object
+                type: object
             type: object
           status:
             description: AuthenticationClassStatus defines the observed state of AuthenticationClass

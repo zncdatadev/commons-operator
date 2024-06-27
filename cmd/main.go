@@ -39,6 +39,13 @@ import (
 	"github.com/zncdatadev/commons-operator/internal/controller/restart"
 
 	kdsv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/commons/v1alpha1"
+
+	authenticationv1alpha1 "github.com/zncdatadev/commons-operator/api/authentication/v1alpha1"
+	databasev1alpha1 "github.com/zncdatadev/commons-operator/api/database/v1alpha1"
+	s3v1alpha1 "github.com/zncdatadev/commons-operator/api/s3/v1alpha1"
+	authenticationcontroller "github.com/zncdatadev/commons-operator/internal/controller/authentication"
+	databasecontroller "github.com/zncdatadev/commons-operator/internal/controller/database"
+	s3controller "github.com/zncdatadev/commons-operator/internal/controller/s3"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -51,6 +58,9 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(kdsv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(authenticationv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(databasev1alpha1.AddToScheme(scheme))
+	utilruntime.Must(s3v1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -119,6 +129,41 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&authenticationcontroller.AuthenticationClassReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "AuthenticationClass")
+		os.Exit(1)
+	}
+	if err = (&databasecontroller.DatabaseReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Database")
+		os.Exit(1)
+	}
+	if err = (&s3controller.S3ConnectionReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "S3Connection")
+		os.Exit(1)
+	}
+	if err = (&s3controller.S3BucketReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "S3Bucket")
+		os.Exit(1)
+	}
+	if err = (&databasecontroller.DatabaseConnectionReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "DatabaseConnection")
+		os.Exit(1)
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err := (&restart.StatefulSetReconciler{

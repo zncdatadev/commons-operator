@@ -1,27 +1,27 @@
-# permissions for end users to view databases.
+# permissions for end users to view s3buckets.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: database-viewer-role
+    app.kubernetes.io/instance: s3bucket-viewer-role
     app.kubernetes.io/component: rbac
     app.kubernetes.io/created-by: commons-operator
     app.kubernetes.io/part-of: commons-operator
     app.kubernetes.io/managed-by: kustomize
-  name: database-viewer-role
+  name: s3bucket-viewer-role
 rules:
 - apiGroups:
-  - zncdata.dev
+  - s3.zncdata.dev
   resources:
-  - databases
+  - s3buckets
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - zncdata.dev
+  - s3.zncdata.dev
   resources:
-  - databases/status
+  - s3buckets/status
   verbs:
   - get

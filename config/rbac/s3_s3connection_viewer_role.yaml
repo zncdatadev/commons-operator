@@ -1,31 +1,27 @@
-# permissions for end users to edit databaseconnections.
+# permissions for end users to view s3connections.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: databaseconnection-editor-role
+    app.kubernetes.io/instance: s3connection-viewer-role
     app.kubernetes.io/component: rbac
     app.kubernetes.io/created-by: commons-operator
     app.kubernetes.io/part-of: commons-operator
     app.kubernetes.io/managed-by: kustomize
-  name: databaseconnection-editor-role
+  name: s3connection-viewer-role
 rules:
 - apiGroups:
-  - zncdata.dev
+  - s3.zncdata.dev
   resources:
-  - databaseconnections
+  - s3connections
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
-  - zncdata.dev
+  - s3.zncdata.dev
   resources:
-  - databaseconnections/status
+  - s3connections/status
   verbs:
   - get

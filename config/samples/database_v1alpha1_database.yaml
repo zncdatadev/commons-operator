@@ -1,4 +1,4 @@
-apiVersion: zncdata.dev/v1alpha1
+apiVersion: database.zncdata.dev/v1alpha1
 kind: Database
 metadata:
   labels:
@@ -9,7 +9,4 @@ metadata:
     app.kubernetes.io/created-by: commons-operator
   name: database-sample
 spec:
-  databaseName: znc_prod
-  reference: databaseconnection-sample
-  credential:
-    existingSecret: database-sample-pg-user-1
+  # TODO(user): Add fields here

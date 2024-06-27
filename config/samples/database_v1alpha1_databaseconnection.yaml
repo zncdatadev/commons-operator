@@ -1,4 +1,4 @@
-apiVersion: zncdata.dev/v1alpha1
+apiVersion: database.zncdata.dev/v1alpha1
 kind: DatabaseConnection
 metadata:
   labels:
@@ -9,12 +9,4 @@ metadata:
     app.kubernetes.io/created-by: commons-operator
   name: databaseconnection-sample
 spec:
-  provider:
-    postgres:
-      driver: org.postgresql.Driver
-      host: postgresql
-      port: 5432
-      ssl: false
-      credential:
-        existingSecret: databaseconnect-sample-pg-root-1
-
+  # TODO(user): Add fields here

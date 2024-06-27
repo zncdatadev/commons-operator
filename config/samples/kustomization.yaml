@@ -1,7 +1,8 @@
 ## Append samples of your project ##
 resources:
-- v1alpha1_databaseconnection.yaml
-- v1alpha1_database.yaml
-- v1alpha1_s3bucket.yaml
-- v1alpha1_s3connection.yaml
+- authentication_v1alpha1_authenticationclass.yaml
+- database_v1alpha1_database.yaml
+- s3_v1alpha1_s3connection.yaml
+- s3_v1alpha1_s3bucket.yaml
+- database_v1alpha1_databaseconnection.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

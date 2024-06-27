@@ -1,26 +1,30 @@
-# permissions for end users to view s3buckets.
+# permissions for end users to edit s3buckets.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: s3bucket-viewer-role
+    app.kubernetes.io/instance: s3bucket-editor-role
     app.kubernetes.io/component: rbac
     app.kubernetes.io/created-by: commons-operator
     app.kubernetes.io/part-of: commons-operator
     app.kubernetes.io/managed-by: kustomize
-  name: s3bucket-viewer-role
+  name: s3bucket-editor-role
 rules:
 - apiGroups:
-  - zncdata.dev
+  - s3.zncdata.dev
   resources:
   - s3buckets
   verbs:
+  - create
+  - delete
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
-  - zncdata.dev
+  - s3.zncdata.dev
   resources:
   - s3buckets/status
   verbs:

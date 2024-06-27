@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	databasev1alpha1 "github.com/zncdatadev/commons-operator/api/database/v1alpha1"
+	databasev1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/database/v1alpha1"
 )
 
 var _ = Describe("Database Controller", func() {

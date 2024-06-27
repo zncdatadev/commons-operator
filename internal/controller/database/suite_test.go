@@ -32,7 +32,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	databasev1alpha1 "github.com/zncdatadev/commons-operator/api/database/v1alpha1"
+	databasev1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/database/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 

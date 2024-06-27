@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	databasev1alpha1 "github.com/zncdatadev/commons-operator/api/database/v1alpha1"
+	databasev1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/database/v1alpha1"
 )
 
 // DatabaseConnectionReconciler reconciles a DatabaseConnection object

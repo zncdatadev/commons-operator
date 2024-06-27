@@ -40,12 +40,12 @@ import (
 
 	kdsv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/commons/v1alpha1"
 
-	authenticationv1alpha1 "github.com/zncdatadev/commons-operator/api/authentication/v1alpha1"
-	databasev1alpha1 "github.com/zncdatadev/commons-operator/api/database/v1alpha1"
-	s3v1alpha1 "github.com/zncdatadev/commons-operator/api/s3/v1alpha1"
 	authenticationcontroller "github.com/zncdatadev/commons-operator/internal/controller/authentication"
 	databasecontroller "github.com/zncdatadev/commons-operator/internal/controller/database"
 	s3controller "github.com/zncdatadev/commons-operator/internal/controller/s3"
+	authenticationv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1"
+	databasev1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/database/v1alpha1"
+	s3v1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/s3/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 

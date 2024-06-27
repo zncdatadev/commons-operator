@@ -32,7 +32,7 @@ import (
 
 	kdsv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/commons/v1alpha1"
 
-	authenticationv1alpha1 "github.com/zncdatadev/commons-operator/api/authentication/v1alpha1"
+	authenticationv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 

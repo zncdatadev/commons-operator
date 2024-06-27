@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	authenticationv1alpha1 "github.com/zncdatadev/commons-operator/api/authentication/v1alpha1"
+	authenticationv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1"
 )
 
 var _ = Describe("AuthenticationClass Controller", func() {

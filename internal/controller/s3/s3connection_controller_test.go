@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	s3v1alpha1 "github.com/zncdatadev/commons-operator/api/s3/v1alpha1"
+	s3v1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/s3/v1alpha1"
 )
 
 var _ = Describe("S3Connection Controller", func() {

@@ -5,7 +5,7 @@ go 1.22.3
 require (
 	github.com/onsi/ginkgo/v2 v2.17.1
 	github.com/onsi/gomega v1.32.0
-	github.com/zncdatadev/operator-go v0.6.0
+	github.com/zncdatadev/operator-go v0.7.0
 	k8s.io/api v0.30.2
 	k8s.io/apimachinery v0.30.2
 	k8s.io/client-go v0.30.2

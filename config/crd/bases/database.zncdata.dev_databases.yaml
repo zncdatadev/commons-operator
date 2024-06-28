@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.15.0
-  name: s3connections.zncdata.dev
+  name: databases.database.zncdata.dev
 spec:
-  group: zncdata.dev
+  group: database.zncdata.dev
   names:
-    kind: S3Connection
-    listKind: S3ConnectionList
-    plural: s3connections
-    singular: s3connection
+    kind: Database
+    listKind: DatabaseList
+    plural: databases
+    singular: database
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: S3Connection is the Schema for the s3connections API
+        description: Database is the Schema for the databases API
         properties:
           apiVersion:
             description: |-
@@ -37,53 +37,31 @@ spec:
           metadata:
             type: object
           spec:
-            description: S3ConnectionSpec defines the desired credential of S3Connection
+            description: DatabaseSpec defines the desired connection info of Database
             properties:
               credential:
-                description: S3Credential include `ACCESS_KEY` and `SECRET_KEY` or
-                  ExistingSecret.
+                description: |-
+                  Credential is the credential for the database.
+                  It contains Username and Password, or ExistSecret.
                 properties:
-                  accessKey:
-                    type: string
-                  existSecret:
+                  existingSecret:
                     description: |-
-                      ExistingSecret include `ACCESS_KEY` and `SECRET_KEY` ,it is encrypted by base64.
-                      If ExistingSecret is not empty, `ACCESS_KEY` and `SECRET_KEY` will be ignored.
+                      ExistSecret is a Secret name, created by user.
+                      It includes Username and Password, it is encrypted by base64.
+                      If ExistSecret is not empty, Username and Password will be ignored.
                     type: string
-                  secretKey:
+                  password:
+                    description: Password is the password for the database.
+                    type: string
+                  username:
+                    description: Username is the username for the database.
                     type: string
                 type: object
-              endpoint:
+              databaseName:
                 type: string
-              pathStyle:
-                default: false
-                type: boolean
-              region:
+              reference:
+                description: Name of DatabaseConnection CR to use for this database.
                 type: string
-              ssl:
-                type: boolean
-              tls:
-                properties:
-                  verification:
-                    properties:
-                      none:
-                        type: object
-                      server:
-                        properties:
-                          caCert:
-                            properties:
-                              secretClass:
-                                type: string
-                              webPIK:
-                                type: string
-                            type: object
-                        required:
-                        - caCert
-                        type: object
-                    type: object
-                type: object
-            required:
-            - credential
             type: object
           status:
             properties:

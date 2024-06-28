@@ -1,27 +1,27 @@
-# permissions for end users to view s3connections.
+# permissions for end users to view databaseconnections.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: s3connection-viewer-role
+    app.kubernetes.io/instance: databaseconnection-viewer-role
     app.kubernetes.io/component: rbac
     app.kubernetes.io/created-by: commons-operator
     app.kubernetes.io/part-of: commons-operator
     app.kubernetes.io/managed-by: kustomize
-  name: s3connection-viewer-role
+  name: databaseconnection-viewer-role
 rules:
 - apiGroups:
-  - zncdata.dev
+  - database.zncdata.dev
   resources:
-  - s3connections
+  - databaseconnections
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - zncdata.dev
+  - database.zncdata.dev
   resources:
-  - s3connections/status
+  - databaseconnections/status
   verbs:
   - get

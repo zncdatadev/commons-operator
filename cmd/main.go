@@ -37,8 +37,6 @@ import (
 
 	"github.com/zncdatadev/commons-operator/internal/controller/pod_enrichment"
 	"github.com/zncdatadev/commons-operator/internal/controller/restart"
-
-	kdsv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/commons/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -49,9 +47,8 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-
-	utilruntime.Must(kdsv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
+
 }
 
 func main() {

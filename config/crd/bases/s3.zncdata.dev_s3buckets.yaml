@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.15.0
-  name: databases.zncdata.dev
+  name: s3buckets.s3.zncdata.dev
 spec:
-  group: zncdata.dev
+  group: s3.zncdata.dev
   names:
-    kind: Database
-    listKind: DatabaseList
-    plural: databases
-    singular: database
+    kind: S3Bucket
+    listKind: S3BucketList
+    plural: s3buckets
+    singular: s3bucket
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Database is the Schema for the databases API
+        description: S3Bucket is the Schema for the s3buckets API
         properties:
           apiVersion:
             description: |-
@@ -37,30 +37,31 @@ spec:
           metadata:
             type: object
           spec:
-            description: DatabaseSpec defines the desired connection info of Database
+            description: S3BucketSpec defines the desired fields of S3Bucket
             properties:
-              credential:
-                description: |-
-                  Credential is the credential for the database.
-                  It contains Username and Password, or ExistSecret.
-                properties:
-                  existingSecret:
-                    description: |-
-                      ExistSecret is a Secret name, created by user.
-                      It includes Username and Password, it is encrypted by base64.
-                      If ExistSecret is not empty, Username and Password will be ignored.
-                    type: string
-                  password:
-                    description: Password is the password for the database.
-                    type: string
-                  username:
-                    description: Username is the username for the database.
-                    type: string
-                type: object
-              databaseName:
+              bucketName:
                 type: string
+              credential:
+                description: S3Credential include `ACCESS_KEY` and `SECRET_KEY` or
+                  ExistingSecret.
+                properties:
+                  scope:
+                    properties:
+                      node:
+                        type: boolean
+                      pod:
+                        type: boolean
+                      services:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  secretClass:
+                    type: string
+                required:
+                - secretClass
+                type: object
               reference:
-                description: Name of DatabaseConnection CR to use for this database.
                 type: string
             type: object
           status:

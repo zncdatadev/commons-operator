@@ -1,0 +1,179 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.15.0
+  name: authenticationclasses.authentication.zncdata.dev
+spec:
+  group: authentication.zncdata.dev
+  names:
+    kind: AuthenticationClass
+    listKind: AuthenticationClassList
+    plural: authenticationclasses
+    singular: authenticationclass
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: AuthenticationClass is the Schema for the authenticationclasses
+          API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AuthenticationClassSpec defines the desired state of AuthenticationClass
+            properties:
+              provider:
+                properties:
+                  ldap:
+                    properties:
+                      credential:
+                        properties:
+                          scopes:
+                            properties:
+                              node:
+                                type: string
+                              pod:
+                                type: string
+                              services:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          secretClass:
+                            type: string
+                        required:
+                        - secretClass
+                        type: object
+                      hostname:
+                        type: string
+                      ldapFieldNames:
+                        properties:
+                          email:
+                            type: string
+                          givenName:
+                            type: string
+                          group:
+                            type: string
+                          surname:
+                            type: string
+                          uid:
+                            type: string
+                        type: object
+                      port:
+                        type: integer
+                      searchBase:
+                        description: 'LDAP search base, for example: ou=users,dc=example,dc=org.'
+                        type: string
+                      searchFilter:
+                        description: 'LDAP search filter, for example: (uid=%s).'
+                        type: string
+                      tls:
+                        properties:
+                          verification:
+                            properties:
+                              none:
+                                type: object
+                              server:
+                                properties:
+                                  caCert:
+                                    properties:
+                                      secretClass:
+                                        type: string
+                                      webPIK:
+                                        type: string
+                                    type: object
+                                required:
+                                - caCert
+                                type: object
+                            type: object
+                        type: object
+                    required:
+                    - credential
+                    - hostname
+                    type: object
+                  oidc:
+                    properties:
+                      hostname:
+                        type: string
+                      port:
+                        type: integer
+                      principalClaim:
+                        type: string
+                      providerHint:
+                        enum:
+                        - oidc
+                        - keycloak
+                        - dexidp
+                        - authentik
+                        type: string
+                      rootPath:
+                        type: string
+                      scopes:
+                        items:
+                          type: string
+                        type: array
+                      tls:
+                        properties:
+                          verification:
+                            properties:
+                              none:
+                                type: object
+                              server:
+                                properties:
+                                  caCert:
+                                    properties:
+                                      secretClass:
+                                        type: string
+                                      webPIK:
+                                        type: string
+                                    type: object
+                                required:
+                                - caCert
+                                type: object
+                            type: object
+                        type: object
+                    required:
+                    - hostname
+                    - principalClaim
+                    - providerHint
+                    type: object
+                  static:
+                    properties:
+                      credential:
+                        type: string
+                    required:
+                    - credential
+                    type: object
+                  tls:
+                    properties:
+                      secretClass:
+                        type: string
+                    type: object
+                type: object
+            type: object
+          status:
+            description: AuthenticationClassStatus defines the observed state of AuthenticationClass
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

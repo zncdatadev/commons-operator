@@ -16,6 +16,32 @@ spec:
       kind: DatabaseConnection
       name: databaseconnections.zncdata.dev
       version: v1alpha1
+    - description: AuthenticationClass is the Schema for the authenticationclasses
+        API
+      displayName: Authentication Class
+      kind: AuthenticationClass
+      name: authenticationclasses.authentication.zncdata.dev
+      version: v1alpha1
+    - description: DatabaseConnection is the Schema for the databaseconnections API
+      displayName: Database Connection
+      kind: DatabaseConnection
+      name: databaseconnections.database.zncdata.dev
+      version: v1alpha1
+    - description: Database is the Schema for the databases API
+      displayName: Database
+      kind: Database
+      name: databases.database.zncdata.dev
+      version: v1alpha1
+    - description: S3Bucket is the Schema for the s3buckets API
+      displayName: S3 Bucket
+      kind: S3Bucket
+      name: s3buckets.s3.zncdata.dev
+      version: v1alpha1
+    - description: S3Connection is the Schema for the s3connections API
+      displayName: S3 Connection
+      kind: S3Connection
+      name: s3connections.s3.zncdata.dev
+      version: v1alpha1
   description: zncdatadev commons operator
   displayName: commons operator
   icon:

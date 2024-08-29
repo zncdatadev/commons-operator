@@ -103,7 +103,7 @@ schema: olm.channel
 package: commons-operator
 name: stable
 entries:
-- name: commons-operator.v0.0.1
+- name: commons-operator.v0.0.0-dev
 ---
 schema: olm.bundle
-image: quay.io/zncdatadev/commons-operator-bundle:v0.0.1
+image: quay.io/zncdatadev/commons-operator-bundle:0.0.0-dev

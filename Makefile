@@ -310,15 +310,11 @@ catalog: opm ## Build a catalog manifests.
 catalog-validate: opm ## Validate a catalog manifests.
 	$(OPM) validate catalog
 
-#.PHONY: catalog-render
-#catalog-render: opm ## render a bundle to catalog.
-#	$(OPM) render $(BUNDLE_IMGS) --output=yaml >> catalog/catalog.yaml
 
 .PHONY: catalog-build
 catalog-build: catalog-validate ## Build a catalog image.
 	$(CONTAINER_TOOL) build -t ${CATALOG_IMG} -f catalog.Dockerfile .
 
-# Push the catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
@@ -327,5 +323,5 @@ catalog-push: ## Push a catalog image.
 catalog-buildx: catalog-validate ## Build and push a catalog image for cross-platform support
 	- $(CONTAINER_TOOL) buildx create --name project-v3-builder
 	$(CONTAINER_TOOL) buildx use project-v3-builder
-	$(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) -f catalog.Dockerfile --tag ${CATALOG_IMG} .
-	$(CONTAINER_TOOL) buildx rm project-v3-builder
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) -f catalog.Dockerfile --tag ${CATALOG_IMG} .
+	- $(CONTAINER_TOOL) buildx rm project-v3-builder

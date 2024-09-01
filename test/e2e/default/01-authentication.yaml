@@ -1,13 +1,7 @@
 apiVersion: authentication.zncdata.dev/v1alpha1
 kind: AuthenticationClass
 metadata:
-  labels:
-    app.kubernetes.io/name: authenticationclass
-    app.kubernetes.io/instance: authenticationclass-sample
-    app.kubernetes.io/part-of: commons-operator
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: commons-operator
-  name: authenticationclass-sample
+  name: authenticationclass
 spec:
   provider:
     oidc:
@@ -43,7 +37,7 @@ spec:
         email: mail
         uid: cn
       searchBase: ou=people,dc=example,dc=com
-      searchFilter: (uid={username})
+      searchFilter: \(uid={username}\)
       tls:
         verification:
           none: {}

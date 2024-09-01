@@ -1,13 +1,9 @@
+
+---
 apiVersion: s3.zncdata.dev/v1alpha1
 kind: S3Connection
 metadata:
-  labels:
-    app.kubernetes.io/name: s3connection
-    app.kubernetes.io/instance: s3connection-sample
-    app.kubernetes.io/part-of: commons-operator
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: commons-operator
-  name: s3connection-sample
+  name: s3connection
 spec:
   credential:
     secretClass: s3-credentials
@@ -21,3 +17,14 @@ spec:
     pathStyle: false
     tls:
       secretClass: tls
+
+---
+apiVersion: s3.zncdata.dev/v1alpha1
+kind: S3Bucket
+metadata:
+  name: s3bucket
+spec:
+  bucketName: s3bucket
+  credential:
+    secretClass: s3-credentials
+  reference: s3-connection

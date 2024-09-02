@@ -103,8 +103,7 @@ help: ## Display this help.
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	go get github.com/zncdatadev/operator-go@v0.8.3
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="github.com/zncdatadev/operator-go/pkg/apis/database/..." output:crd:artifacts:config=config/crd/bases
+	go get github.com/zncdatadev/operator-go@v0.9.0
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="github.com/zncdatadev/operator-go/pkg/apis/s3/..." output:crd:artifacts:config=config/crd/bases
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="github.com/zncdatadev/operator-go/pkg/apis/authentication/..." output:crd:artifacts:config=config/crd/bases
 
@@ -120,6 +119,23 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
+
+GOLANGCI_LINT = $(shell pwd)/bin/golangci-lint
+GOLANGCI_LINT_VERSION ?= v1.60.3
+golangci-lint:
+	@[ -f $(GOLANGCI_LINT) ] || { \
+	set -e ;\
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell dirname $(GOLANGCI_LINT)) $(GOLANGCI_LINT_VERSION) ;\
+	}
+
+.PHONY: lint
+lint: golangci-lint ## Run golangci-lint linter & yamllint
+	$(GOLANGCI_LINT) run --timeout 5m
+
+.PHONY: lint-fix
+lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
+	$(GOLANGCI_LINT) run --fix
+
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./... -coverprofile cover.out
@@ -127,7 +143,7 @@ test: manifests generate fmt vet envtest ## Run tests.
 ##@ Build
 
 .PHONY: build
-build: manifests generate fmt vet ## Build manager binary.
+build: manifests generate fmt vet lint ## Build manager binary.
 	go build -o bin/manager cmd/main.go
 
 .PHONY: run
@@ -325,3 +341,77 @@ catalog-buildx: catalog-validate ## Build and push a catalog image for cross-pla
 	$(CONTAINER_TOOL) buildx use project-v3-builder
 	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) -f catalog.Dockerfile --tag ${CATALOG_IMG} .
 	- $(CONTAINER_TOOL) buildx rm project-v3-builder
+
+
+##@ E2E
+
+# kind
+KIND_VERSION ?= v0.23.0
+
+KINDTEST_K8S_VERSION ?= 1.26.14
+
+KIND_IMAGE ?= kindest/node:v${KINDTEST_K8S_VERSION}
+
+KIND_KUBECONFIG ?= ./kind-kubeconfig-$(KINDTEST_K8S_VERSION)
+KIND_CLUSTER_NAME ?= ${PROJECT_NAME}-$(KINDTEST_K8S_VERSION)
+
+.PHONY: kind
+KIND = $(LOCALBIN)/kind
+kind: ## Download kind locally if necessary.
+ifeq (,$(shell which $(KIND)))
+ifeq (,$(shell which kind 2>/dev/null))
+	@{ \
+	set -e ;\
+	go install sigs.k8s.io/kind@$(KIND_VERSION) ;\
+	}
+KIND = $(GOBIN)/bin/kind
+else
+KIND = $(shell which kind)
+endif
+endif
+
+OLM_VERSION ?= v0.28.0
+KIND_CONFIG ?= test/e2e/kind-config.yaml
+
+# Create a kind cluster, install ingress-nginx, and wait for it to be available.
+.PHONY: kind-create
+kind-create: kind ## Create a kind cluster.
+	$(KIND) create cluster --config $(KIND_CONFIG) --image $(KIND_IMAGE) --name $(KIND_CLUSTER_NAME) --kubeconfig $(KIND_KUBECONFIG) --wait 120s
+	KUBECONFIG=$(KIND_KUBECONFIG) make kind-setup
+
+.PHONY: kind-setup
+kind-setup: kind ## setup kind cluster base environment
+	@echo "Setup kind cluster base environment, install ingress-nginx and OLM"
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+	kubectl -n ingress-nginx wait deployment ingress-nginx-controller --for=condition=available --timeout=300s
+	curl -sSL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/$(OLM_VERSION)/install.sh | bash -s $(OLM_VERSION)
+
+.PHONY: kind-delete
+kind-delete: kind ## Delete a kind cluster.
+	$(KIND) delete cluster --name $(KIND_CLUSTER_NAME)
+
+# chainsaw
+
+CHAINSAW_VERSION ?= v0.2.6
+CHAINSAW = $(LOCALBIN)/chainsaw
+
+.PHONY: chainsaw
+chainsaw: $(CHAINSAW) ## Download chainsaw locally if necessary.
+$(CHAINSAW): $(LOCALBIN)
+	test -s $(LOCALBIN)/chainsaw && $(LOCALBIN)/chainsaw version | grep -q $(CHAINSAW_VERSION) || \
+	GOBIN=$(LOCALBIN) go install github.com/kyverno/chainsaw@$(CHAINSAW_VERSION)
+
+.PHONY: chainsaw-setup
+chainsaw-setup: manifests kustomize ## Run the chainsaw setup
+	@echo "\nSetup chainsaw test environment"
+	make docker-build
+	$(KIND) --name $(KIND_CLUSTER_NAME) load docker-image $(IMG)
+	KUBECONFIG=$(KIND_KUBECONFIG) make deploy
+
+.PHONY: chainsaw-test
+chainsaw-test: chainsaw ## Run the chainsaw test
+	KUBECONFIG=$(KIND_KUBECONFIG) $(CHAINSAW) test --cluster cluster-1=$(KIND_KUBECONFIG) --test-dir ./test/e2e/
+
+.PHONY: chainsaw-cleanup
+chainsaw-cleanup: manifests kustomize ## Run the chainsaw cleanup
+	KUBECONFIG=$(KIND_KUBECONFIG) make undeploy

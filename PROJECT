@@ -26,15 +26,6 @@ resources:
     namespaced: true
   controller: true
   domain: zncdata.dev
-  group: database
-  kind: Database
-  path: github.com/zncdatadev/commons-operator/api/database/v1alpha1
-  version: v1alpha1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: zncdata.dev
   group: s3
   kind: S3Connection
   path: github.com/zncdatadev/commons-operator/api/s3/v1alpha1
@@ -47,14 +38,5 @@ resources:
   group: s3
   kind: S3Bucket
   path: github.com/zncdatadev/commons-operator/api/s3/v1alpha1
-  version: v1alpha1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: zncdata.dev
-  group: database
-  kind: DatabaseConnection
-  path: github.com/zncdatadev/commons-operator/api/database/v1alpha1
   version: v1alpha1
 version: "3"

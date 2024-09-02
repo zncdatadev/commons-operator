@@ -9,4 +9,7 @@ metadata:
     app.kubernetes.io/created-by: commons-operator
   name: s3bucket-sample
 spec:
-  # TODO(user): Add fields here
+  bucketName: s3bucket-sample
+  credential:
+    secretClass: s3-credentials
+  reference: s3-connection

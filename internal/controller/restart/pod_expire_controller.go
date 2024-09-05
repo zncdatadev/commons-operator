@@ -71,6 +71,6 @@ func (r *PodExpireReconciler) EvictPod(ctx context.Context, pod *corev1.Pod) err
 
 func (r *PodExpireReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.Pod{}).
+		For(&corev1.Pod{}).Named("podExpire").
 		Complete(r)
 }

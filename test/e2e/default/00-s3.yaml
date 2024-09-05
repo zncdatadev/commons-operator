@@ -1,22 +1,27 @@
-
 ---
 apiVersion: s3.zncdata.dev/v1alpha1
 kind: S3Connection
 metadata:
   name: s3connection
 spec:
-  credential:
+  credentials:
     secretClass: s3-credentials
     scope:
       node: false
       pod: true
       services:
       - foo
-    endpoint: s3.example.com
-    region: us-west-1
-    pathStyle: false
-    tls:
-      secretClass: tls
+  host: s3.example.com
+  port: 443
+  tls:
+    verification:
+      none: {}
+      server:
+        caCert:
+          secretClass: tls
+          webPki: {}
+      mutual:
+        certSecretClass: tls
 
 ---
 apiVersion: s3.zncdata.dev/v1alpha1
@@ -24,7 +29,5 @@ kind: S3Bucket
 metadata:
   name: s3bucket
 spec:
-  bucketName: s3bucket
-  credential:
-    secretClass: s3-credentials
-  reference: s3-connection
+  bucketName: mybucket
+  connection: s3connection

@@ -39,12 +39,13 @@ spec:
           spec:
             description: S3ConnectionSpec defines the desired credential of S3Connection
             properties:
-              credential:
+              credentials:
                 description: Provides access credentials for S3Connection through
                   SecretClass. SecretClass only needs to include the ACCESS_KEY and
                   SECRET_KEY fields.
                 properties:
                   scope:
+                    description: SecretClass scope
                     properties:
                       node:
                         type: boolean
@@ -60,29 +61,40 @@ spec:
                 required:
                 - secretClass
                 type: object
-              endpoint:
+              host:
                 type: string
               pathStyle:
                 default: false
                 type: boolean
-              region:
-                type: string
-              ssl:
-                type: boolean
+              port:
+                type: integer
               tls:
                 properties:
                   verification:
+                    description: |-
+                      TLSPrivider defines the TLS provider for authentication.
+                      You can specify the none or server or mutual verification.
                     properties:
+                      mutual:
+                        properties:
+                          certSecretClass:
+                            type: string
+                        required:
+                        - certSecretClass
+                        type: object
                       none:
                         type: object
                       server:
                         properties:
                           caCert:
+                            description: |-
+                              CACert is the CA certificate for server verification.
+                              You can specify the secret class or the webPki.
                             properties:
                               secretClass:
                                 type: string
-                              webPIK:
-                                type: string
+                              webPki:
+                                type: object
                             type: object
                         required:
                         - caCert
@@ -90,7 +102,7 @@ spec:
                     type: object
                 type: object
             required:
-            - credential
+            - credentials
             type: object
           status:
             properties:

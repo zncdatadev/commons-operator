@@ -9,7 +9,5 @@ metadata:
     app.kubernetes.io/created-by: commons-operator
   name: s3bucket-sample
 spec:
-  bucketName: s3bucket-sample
-  credential:
-    secretClass: s3-credentials
-  reference: s3-connection
+  bucketName: mybucket
+  connection: s3connection-sample

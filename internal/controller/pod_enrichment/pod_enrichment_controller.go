@@ -71,7 +71,7 @@ func (r *PodEnrichmentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.Pod{}).
+		For(&corev1.Pod{}).Named("podEnrichment").
 		WithEventFilter(pred).
 		Complete(r)
 }

@@ -260,12 +260,17 @@ endif
 # These images MUST exist in a registry and be pull-able.
 BUNDLE_IMGS ?= $(BUNDLE_IMG)
 
+# make bundle need api dir must need based on project's root directory
+# currently, use vendor to fix the issue
+# detail: https://github.com/zncdatadev/commons-operator/issues/61
 .PHONY: bundle
 bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metadata, then validate generated files.
-	$(OPERATOR_SDK) generate kustomize manifests -q
+	go mod vendor -o .vendor	# use .vendor to avoid conflict with the project's vendor directory
+	$(OPERATOR_SDK) generate kustomize manifests -q --apis-dir=.vendor/github.com/zncdatadev/operator-go/pkg/apis/
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle --select-optional suite=operatorframework --optional-values=k8s-version=1.26
+	rm -rf .vendor
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.

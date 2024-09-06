@@ -44,14 +44,15 @@ spec:
                 properties:
                   ldap:
                     properties:
-                      credential:
+                      bindCredentials:
                         properties:
-                          scopes:
+                          scope:
+                            description: SecretClass scope
                             properties:
                               node:
-                                type: string
+                                type: boolean
                               pod:
-                                type: string
+                                type: boolean
                               services:
                                 items:
                                   type: string
@@ -80,33 +81,48 @@ spec:
                       port:
                         type: integer
                       searchBase:
-                        description: 'LDAP search base, for example: ou=users,dc=example,dc=org.'
+                        description: 'LDAP search base, for example: ou=users,dc=example,dc=com.'
                         type: string
                       searchFilter:
-                        description: 'LDAP search filter, for example: (uid=%s).'
+                        description: 'LDAP search filter, for example: (ou=teams,dc=example,dc=com).'
                         type: string
                       tls:
                         properties:
                           verification:
+                            description: |-
+                              TLSPrivider defines the TLS provider for authentication.
+                              You can specify the none or server or mutual verification.
                             properties:
+                              mutual:
+                                properties:
+                                  certSecretClass:
+                                    type: string
+                                required:
+                                - certSecretClass
+                                type: object
                               none:
                                 type: object
                               server:
                                 properties:
                                   caCert:
+                                    description: |-
+                                      CACert is the CA certificate for server verification.
+                                      You can specify the secret class or the webPki.
                                     properties:
                                       secretClass:
                                         type: string
-                                      webPIK:
-                                        type: string
+                                      webPki:
+                                        type: object
                                     type: object
                                 required:
                                 - caCert
                                 type: object
                             type: object
+                        required:
+                        - verification
                         type: object
                     required:
-                    - credential
+                    - bindCredentials
                     - hostname
                     type: object
                   oidc:
@@ -117,7 +133,7 @@ spec:
                         type: integer
                       principalClaim:
                         type: string
-                      providerHint:
+                      provisioner:
                         enum:
                         - oidc
                         - keycloak
@@ -133,39 +149,61 @@ spec:
                       tls:
                         properties:
                           verification:
+                            description: |-
+                              TLSPrivider defines the TLS provider for authentication.
+                              You can specify the none or server or mutual verification.
                             properties:
+                              mutual:
+                                properties:
+                                  certSecretClass:
+                                    type: string
+                                required:
+                                - certSecretClass
+                                type: object
                               none:
                                 type: object
                               server:
                                 properties:
                                   caCert:
+                                    description: |-
+                                      CACert is the CA certificate for server verification.
+                                      You can specify the secret class or the webPki.
                                     properties:
                                       secretClass:
                                         type: string
-                                      webPIK:
-                                        type: string
+                                      webPki:
+                                        type: object
                                     type: object
                                 required:
                                 - caCert
                                 type: object
                             type: object
+                        required:
+                        - verification
                         type: object
                     required:
                     - hostname
                     - principalClaim
-                    - providerHint
+                    - provisioner
                     type: object
                   static:
                     properties:
-                      credential:
-                        type: string
+                      userCredentialsSecret:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                        - name
+                        type: object
                     required:
-                    - credential
+                    - userCredentialsSecret
                     type: object
                   tls:
                     properties:
-                      secretClass:
+                      clientCertSecretClass:
                         type: string
+                    required:
+                    - clientCertSecretClass
                     type: object
                 type: object
             type: object

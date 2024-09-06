@@ -41,27 +41,7 @@ spec:
             properties:
               bucketName:
                 type: string
-              credential:
-                description: S3Credential include `ACCESS_KEY` and `SECRET_KEY` or
-                  ExistingSecret.
-                properties:
-                  scope:
-                    properties:
-                      node:
-                        type: boolean
-                      pod:
-                        type: boolean
-                      services:
-                        items:
-                          type: string
-                        type: array
-                    type: object
-                  secretClass:
-                    type: string
-                required:
-                - secretClass
-                type: object
-              reference:
+              connection:
                 type: string
             type: object
           status:

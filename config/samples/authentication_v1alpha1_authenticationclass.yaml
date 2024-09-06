@@ -14,7 +14,7 @@ spec:
       hostname: keycloak.example.com
       port: 8080
       rootPath: /auth
-      providerHint: keycloak
+      provisioner: keycloak
       scopes:
       - openid
       - email
@@ -26,16 +26,24 @@ spec:
           server:
             caCert:
               secretClass: tls
-              webPIK: ca.crt
+              webPIK: {}
+          mutual:
+            certSecretClass: tls
     tls:
-      secretClass: tls
+      clientCertSecretClass: tls
     static:
-      credential: static-credentials
+      userCredentialsSecret:
+        name: static-credentials
     ldap:
       hostname: ldap.example.com
       port: 389
-      credential:
+      bindCredentials:
         secretClass: ldap-credentials
+        scope:
+          node: false
+          pod: true
+          services:
+          - foo
       ldapFieldNames:
         surname: cn
         givenName: cn
@@ -50,4 +58,6 @@ spec:
           server:
             caCert:
               secretClass: tls
-              webPIK: ca.crt
+              webPIK: {}
+          mutual:
+            certSecretClass: tls

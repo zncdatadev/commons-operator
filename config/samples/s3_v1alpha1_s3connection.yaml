@@ -9,15 +9,22 @@ metadata:
     app.kubernetes.io/created-by: commons-operator
   name: s3connection-sample
 spec:
-  credential:
+  credentials:
     secretClass: s3-credentials
     scope:
       node: false
       pod: true
       services:
       - foo
-    endpoint: s3.example.com
+    host: s3.example.com
+    port: 443
     region: us-west-1
-    pathStyle: false
     tls:
-      secretClass: tls
+      verification:
+        none: {}
+        server:
+          caCert:
+            secretClass: tls
+            webPIK: {}
+        mutual:
+          certSecretClass: tls

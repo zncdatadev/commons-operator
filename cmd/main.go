@@ -37,7 +37,13 @@ import (
 
 	"github.com/zncdatadev/commons-operator/internal/controller/pod_enrichment"
 	"github.com/zncdatadev/commons-operator/internal/controller/restart"
+
 	//+kubebuilder:scaffold:imports
+
+	// Now we need to import the constants package to fix olm bundle generate error
+	// later refactoring with constants feature, we will use it.
+	_ "github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1"
+	_ "github.com/zncdatadev/operator-go/pkg/apis/s3/v1alpha1"
 )
 
 var (

@@ -34,3 +34,5 @@ api
 # catalog
 catalog
 catalog.Dockerfile
+
+kind-kubeconfig*

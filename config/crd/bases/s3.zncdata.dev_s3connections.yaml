@@ -40,9 +40,10 @@ spec:
             description: S3ConnectionSpec defines the desired credential of S3Connection
             properties:
               credentials:
-                description: Provides access credentials for S3Connection through
-                  SecretClass. SecretClass only needs to include the ACCESS_KEY and
-                  SECRET_KEY fields.
+                description: |-
+                  Provides access credentials for S3Connection through SecretClass. SecretClass only needs to include:
+                   - ACCESS_KEY
+                   - SECRET_KEY
                 properties:
                   scope:
                     description: SecretClass scope

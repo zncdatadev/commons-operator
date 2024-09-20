@@ -45,6 +45,11 @@ spec:
                   ldap:
                     properties:
                       bindCredentials:
+                        description: |-
+                          Provide ldap credentials mounts for Pods via k8s-search secret-class.
+                          The secret searched by k8s-search must contain the following data:
+                           - user: bind user, e.g. cn=admin,dc=example,dc=com
+                           - password: bind password
                         properties:
                           scope:
                             description: SecretClass scope
@@ -191,6 +196,9 @@ spec:
                       userCredentialsSecret:
                         properties:
                           name:
+                            description: |-
+                              The secret name that contains the user credentials.
+                              The data contained in secret is related to the data required for the specific product certification function.
                             type: string
                         required:
                         - name

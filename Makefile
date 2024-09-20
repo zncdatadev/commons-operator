@@ -103,7 +103,7 @@ help: ## Display this help.
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	go get github.com/zncdatadev/operator-go@v0.9.2
+	go get github.com/zncdatadev/operator-go@v0.10.0
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="github.com/zncdatadev/operator-go/pkg/apis/s3/..." output:crd:artifacts:config=config/crd/bases
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="github.com/zncdatadev/operator-go/pkg/apis/authentication/..." output:crd:artifacts:config=config/crd/bases
 

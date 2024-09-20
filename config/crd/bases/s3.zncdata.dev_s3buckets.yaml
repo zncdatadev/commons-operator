@@ -42,7 +42,80 @@ spec:
               bucketName:
                 type: string
               connection:
-                type: string
+                properties:
+                  inline:
+                    description: S3ConnectionSpec defines the desired credential of
+                      S3Connection
+                    properties:
+                      credentials:
+                        description: |-
+                          Provides access credentials for S3Connection through SecretClass. SecretClass only needs to include:
+                           - ACCESS_KEY
+                           - SECRET_KEY
+                        properties:
+                          scope:
+                            description: SecretClass scope
+                            properties:
+                              node:
+                                type: boolean
+                              pod:
+                                type: boolean
+                              services:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          secretClass:
+                            type: string
+                        required:
+                        - secretClass
+                        type: object
+                      host:
+                        type: string
+                      pathStyle:
+                        default: false
+                        type: boolean
+                      port:
+                        type: integer
+                      tls:
+                        properties:
+                          verification:
+                            description: |-
+                              TLSPrivider defines the TLS provider for authentication.
+                              You can specify the none or server or mutual verification.
+                            properties:
+                              mutual:
+                                properties:
+                                  certSecretClass:
+                                    type: string
+                                required:
+                                - certSecretClass
+                                type: object
+                              none:
+                                type: object
+                              server:
+                                properties:
+                                  caCert:
+                                    description: |-
+                                      CACert is the CA certificate for server verification.
+                                      You can specify the secret class or the webPki.
+                                    properties:
+                                      secretClass:
+                                        type: string
+                                      webPki:
+                                        type: object
+                                    type: object
+                                required:
+                                - caCert
+                                type: object
+                            type: object
+                        type: object
+                    required:
+                    - credentials
+                    type: object
+                  reference:
+                    type: string
+                type: object
             type: object
           status:
             properties:

@@ -30,4 +30,5 @@ metadata:
   name: s3bucket
 spec:
   bucketName: mybucket
-  connection: s3connection
+  connection:
+    reference: s3connection

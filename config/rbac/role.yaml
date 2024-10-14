@@ -5,62 +5,33 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - pods/eviction
+  verbs:
+  - create
+- apiGroups:
   - apps
   resources:
   - statefulsets
   verbs:
-  - create
-  - delete
   - get
   - list
   - patch
-  - update
   - watch
-- apiGroups:
-  - authentication.zncdata.dev
-  resources:
-  - authenticationclasses
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - authentication.zncdata.dev
-  resources:
-  - authenticationclasses/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - authentication.zncdata.dev
-  resources:
-  - authenticationclasses/status
-  verbs:
-  - get
-  - patch
-  - update
 - apiGroups:
   - ""
   resources:
   - configmaps
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - ""
   resources:
   - pods
   verbs:
-  - create
-  - delete
   - get
   - list
   - patch
@@ -71,98 +42,6 @@ rules:
   resources:
   - secrets
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
-- apiGroups:
-  - ""
-  resources:
-  - serviceaccounts
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - rolebindings
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - roles
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - s3.zncdata.dev
-  resources:
-  - s3buckets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - s3.zncdata.dev
-  resources:
-  - s3buckets/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - s3.zncdata.dev
-  resources:
-  - s3buckets/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - s3.zncdata.dev
-  resources:
-  - s3connections
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - s3.zncdata.dev
-  resources:
-  - s3connections/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - s3.zncdata.dev
-  resources:
-  - s3connections/status
-  verbs:
-  - get
-  - patch
-  - update

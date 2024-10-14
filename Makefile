@@ -106,6 +106,7 @@ manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and Cust
 	go get github.com/zncdatadev/operator-go@v0.10.0
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="github.com/zncdatadev/operator-go/pkg/apis/s3/..." output:crd:artifacts:config=config/crd/bases
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="github.com/zncdatadev/operator-go/pkg/apis/authentication/..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) rbac:roleName=manager-role webhook paths="./..."
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.

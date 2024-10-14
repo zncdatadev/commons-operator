@@ -44,3 +44,5 @@ kind-kubeconfig*
 # So we temporarily use `go mod vendor` to copy dependencies to the root directory to specify the api module for the operator-sdk.
 # We do not need the vendor directory in the root directory, so we ignore it.
 .vendor
+
+deploy/helm/commons-operator-*

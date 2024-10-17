@@ -1,0 +1,32 @@
+
+name: Publish helm chart
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'deploy/helm/**'
+
+permissions:
+  contents: read
+
+
+jobs:
+  upload-helm-chart:
+    # if: ${{ github.repository_owner == 'zncdatadev' }}
+    permissions:
+      contents: write  # for helm/chart-releaser-action to push chart release and create a release
+    name: Publish helm chart
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Helm tool installer
+      uses: azure/setup-helm@v4.2.0
+    # TODO: Sign the chart
+    - name: Run chart-releaser
+      uses: helm/chart-releaser-action@v1.6.0
+      env:
+        CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

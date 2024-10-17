@@ -46,3 +46,6 @@ kind-kubeconfig*
 .vendor
 
 deploy/helm/commons-operator-*
+
+# Ignore chart-release directory
+.cr-**

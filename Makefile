@@ -370,11 +370,22 @@ HELM = $(shell which helm)
 endif
 endif
 
-.PHONY: helm-chart
-helm-chart: helm kustomize ## Create a helm chart.
+.PHONY: helm-update
+helm-chart: helm manifests kustomize ## Create a helm chart.
 	$(KUSTOMIZE) build config/crd > deploy/helm/$(PROJECT_NAME)/crds/crds.yaml
-	$(HELM) verify deploy/helm/$(PROJECT_NAME)
 
+.PHONY: helm-lint
+helm-lint: helm-chart ## Lint the helm chart.
+	$(HELM) lint deploy/helm/$(PROJECT_NAME)
+
+.PHONY: helm-install
+helm-install: helm-chart ## Install the helm chart.
+	$(HELM) upgrade --install --create-namespace --namespace kubedata-operators --wait $(PROJECT_NAME) deploy/helm/$(PROJECT_NAME)
+
+.PHONY: helm-uninstall
+helm-uninstall: ## Uninstall the helm chart.
+	$(HELM) uninstall --namespace kubedata-operators $(PROJECT_NAME)
+	kubectl delete -f deploy/helm/$(PROJECT_NAME)/crds/crds.yaml
 
 ##@ E2E
 
@@ -406,25 +417,16 @@ endif
 OLM_VERSION ?= v0.28.0
 KIND_CONFIG ?= test/e2e/kind-config.yaml
 
-# Create a kind cluster, install ingress-nginx, and wait for it to be available.
+# Create a kind cluster
 .PHONY: kind-create
 kind-create: kind ## Create a kind cluster.
 	$(KIND) create cluster --config $(KIND_CONFIG) --image $(KIND_IMAGE) --name $(KIND_CLUSTER_NAME) --kubeconfig $(KIND_KUBECONFIG) --wait 120s
-	KUBECONFIG=$(KIND_KUBECONFIG) make kind-setup
-
-.PHONY: kind-setup
-kind-setup: kind ## setup kind cluster base environment
-	@echo "Setup kind cluster base environment, install ingress-nginx and OLM"
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-	kubectl -n ingress-nginx wait deployment ingress-nginx-controller --for=condition=available --timeout=300s
-	curl -sSL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/$(OLM_VERSION)/install.sh | bash -s $(OLM_VERSION)
 
 .PHONY: kind-delete
 kind-delete: kind ## Delete a kind cluster.
 	$(KIND) delete cluster --name $(KIND_CLUSTER_NAME)
 
 # chainsaw
-
 CHAINSAW_VERSION ?= v0.2.8
 CHAINSAW = $(LOCALBIN)/chainsaw
 
@@ -454,16 +456,15 @@ $(CHAINSAW): $(LOCALBIN)
 	}
 
 .PHONY: chainsaw-setup
-chainsaw-setup: manifests kustomize ## Run the chainsaw setup
-	@echo "\nSetup chainsaw test environment"
+chainsaw-setup: ## Run the chainsaw setup
 	make docker-build
 	$(KIND) --name $(KIND_CLUSTER_NAME) load docker-image $(IMG)
-	KUBECONFIG=$(KIND_KUBECONFIG) make deploy
+	KUBECONFIG=$(KIND_KUBECONFIG) make helm-install
 
 .PHONY: chainsaw-test
 chainsaw-test: chainsaw ## Run the chainsaw test
 	KUBECONFIG=$(KIND_KUBECONFIG) $(CHAINSAW) test --cluster cluster-1=$(KIND_KUBECONFIG) --test-dir ./test/e2e/
 
 .PHONY: chainsaw-cleanup
-chainsaw-cleanup: manifests kustomize ## Run the chainsaw cleanup
-	KUBECONFIG=$(KIND_KUBECONFIG) make undeploy
+chainsaw-cleanup: ## Run the chainsaw cleanup
+	KUBECONFIG=$(KIND_KUBECONFIG) make helm-uninstall

@@ -1,3 +1,5 @@
+# Deploy a dev version snapshot of helm chart to GitHub releases, the target version is 0.0.0-dev.
+# When re-deploy, the previous release will be replaced.
 
 name: Publish helm chart
 
@@ -7,6 +9,9 @@ on:
       - main
     paths:
       - 'deploy/helm/**'
+
+env:
+  CHART_VERSION: 0.0.0-dev
 
 permissions:
   contents: read
@@ -23,10 +28,27 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+    - name: Configure Git
+      run: |
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
     - name: Helm tool installer
       uses: azure/setup-helm@v4.2.0
+    - name: Check chart version
+      run: |
+        chart_version=$(yq eval '.version' deploy/helm/commons-operator/Chart.yaml)
+        if [ "$chart_version" != "$CHART_VERSION" ]; then
+          echo "Chart version is not $CHART_VERSION, please update it to $CHART_VERSION"
+          exit 1
+        fi
     # TODO: Sign the chart
     - name: Run chart-releaser
       uses: helm/chart-releaser-action@v1.6.0
+      with:
+        # set paramers to chart-releaser-action, it check chart update with git diff
+        charts_dir: deploy/helm
+        mark_as_latest: false
       env:
+        # set directly parameters to chart-releaser cli
         CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        CR_INDEX_PATH: "./index.yaml"

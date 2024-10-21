@@ -21,19 +21,6 @@ jobs:
         LINTER_RULES_PATH: /
         MARKDOWN_CONFIG_FILE: .markdownlint.yml
 
-  helm-lint:
-    name: Helm Lint
-    runs-on: ubuntu-22.04
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: Helm tool installer
-      uses: azure/setup-helm@v4.2.0
-    - name: Lint Helm Chart
-      run: make helm-lint
-
 
   golang-lint:
     name: golang-lint

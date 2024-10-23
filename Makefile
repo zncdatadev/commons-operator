@@ -370,22 +370,14 @@ HELM = $(shell which helm)
 endif
 endif
 
-.PHONY: helm-update
-helm-chart: helm manifests kustomize ## Create a helm chart.
-	$(KUSTOMIZE) build config/crd > deploy/helm/$(PROJECT_NAME)/crds/crds.yaml
-
-.PHONY: helm-lint
-helm-lint: helm-chart ## Lint the helm chart.
-	$(HELM) lint deploy/helm/$(PROJECT_NAME)
-
 .PHONY: helm-install
-helm-install: helm-chart ## Install the helm chart.
-	$(HELM) upgrade --install --create-namespace --namespace kubedata-operators --wait $(PROJECT_NAME) deploy/helm/$(PROJECT_NAME)
+helm-install: ## Install the helm chart.
+	$(HELM) repo add kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
+	$(HELM) upgrade --install --create-namespace --namespace kubedoop-operators --wait $(PROJECT_NAME) kubedoop/$(PROJECT_NAME) --version 0.0.0-dev
 
 .PHONY: helm-uninstall
 helm-uninstall: ## Uninstall the helm chart.
-	$(HELM) uninstall --namespace kubedata-operators $(PROJECT_NAME)
-	kubectl delete -f deploy/helm/$(PROJECT_NAME)/crds/crds.yaml
+	$(HELM) uninstall --namespace kubedoop-operators $(PROJECT_NAME)
 
 ##@ E2E
 
@@ -401,7 +393,7 @@ KIND_CLUSTER_NAME ?= ${PROJECT_NAME}-$(KINDTEST_K8S_VERSION)
 
 .PHONY: kind
 KIND = $(LOCALBIN)/kind
-kind: ## Download kind locally if necessary.
+kind: ## Download kind locally if necessary.kind
 ifeq (,$(shell which $(KIND)))
 ifeq (,$(shell which kind 2>/dev/null))
 	@{ \
@@ -414,7 +406,6 @@ KIND = $(shell which kind)
 endif
 endif
 
-OLM_VERSION ?= v0.28.0
 KIND_CONFIG ?= test/e2e/kind-config.yaml
 
 # Create a kind cluster
@@ -430,9 +421,9 @@ kind-delete: kind ## Delete a kind cluster.
 CHAINSAW_VERSION ?= v0.2.8
 CHAINSAW = $(LOCALBIN)/chainsaw
 
-# Use `grep 0.2.6 > /dev/null` instead of `grep -q 0.2.6`. It will not be able to determine the version number, 
+# Use `grep 0.2.6 > /dev/null` instead of `grep -q 0.2.6`. It will not be able to determine the version number,
 # although the execution in the shell is normal, but in the makefile does fail to understand the mechanism in the makefile
-# The operation ends by using `touch` to change the time of the file so that its timestamp is further back than the directory, 
+# The operation ends by using `touch` to change the time of the file so that its timestamp is further back than the directory,
 # so that no subsequent logic is performed after the `chainsaw` check is successful in relying on the `$(CHAINSAW)` target.
 .PHONY: chainsaw
 chainsaw: $(CHAINSAW) ## Download chainsaw locally if necessary.

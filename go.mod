@@ -4,8 +4,8 @@ go 1.23.0
 
 require (
 	github.com/zncdatadev/operator-go v0.10.0
-	k8s.io/api v0.31.1
-	k8s.io/apimachinery v0.31.1
+	k8s.io/api v0.31.2
+	k8s.io/apimachinery v0.31.2
 	k8s.io/client-go v0.31.1
 	sigs.k8s.io/controller-runtime v0.19.1
 )

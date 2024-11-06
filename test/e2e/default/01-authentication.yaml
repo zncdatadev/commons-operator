@@ -8,7 +8,7 @@ spec:
       hostname: keycloak.example.com
       port: 8080
       rootPath: /auth
-      provisioner: keycloak
+      provisionerHint: keycloak
       scopes:
       - openid
       - email

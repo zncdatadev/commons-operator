@@ -11,10 +11,16 @@ spec:
     kind: AuthenticationClass
     listKind: AuthenticationClassList
     plural: authenticationclasses
+    shortNames:
+    - authclass
     singular: authenticationclass
-  scope: Namespaced
+  scope: Cluster
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: AuthenticationClass is the Schema for the authenticationclasses
@@ -138,12 +144,9 @@ spec:
                         type: integer
                       principalClaim:
                         type: string
-                      provisioner:
+                      provisionerHint:
                         enum:
-                        - oidc
                         - keycloak
-                        - dexidp
-                        - authentik
                         type: string
                       rootPath:
                         type: string
@@ -189,7 +192,7 @@ spec:
                     required:
                     - hostname
                     - principalClaim
-                    - provisioner
+                    - provisionerHint
                     type: object
                   static:
                     properties:

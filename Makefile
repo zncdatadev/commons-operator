@@ -122,7 +122,7 @@ vet: ## Run go vet against code.
 
 
 GOLANGCI_LINT = $(shell pwd)/bin/golangci-lint
-GOLANGCI_LINT_VERSION ?= v1.60.3
+GOLANGCI_LINT_VERSION ?= v1.61.0
 golangci-lint:
 	@[ -f $(GOLANGCI_LINT) ] || { \
 	set -e ;\
@@ -370,15 +370,6 @@ HELM = $(shell which helm)
 endif
 endif
 
-.PHONY: helm-install
-helm-install: ## Install the helm chart.
-	$(HELM) repo add kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
-	$(HELM) upgrade --install --create-namespace --namespace kubedoop-operators --wait $(PROJECT_NAME) kubedoop/$(PROJECT_NAME) --version 0.0.0-dev
-
-.PHONY: helm-uninstall
-helm-uninstall: ## Uninstall the helm chart.
-	$(HELM) uninstall --namespace kubedoop-operators $(PROJECT_NAME)
-
 ##@ E2E
 
 # kind
@@ -450,7 +441,7 @@ $(CHAINSAW): $(LOCALBIN)
 chainsaw-setup: ## Run the chainsaw setup
 	make docker-build
 	$(KIND) --name $(KIND_CLUSTER_NAME) load docker-image $(IMG)
-	KUBECONFIG=$(KIND_KUBECONFIG) make helm-install
+	KUBECONFIG=$(KIND_KUBECONFIG) make deploy
 
 .PHONY: chainsaw-test
 chainsaw-test: chainsaw ## Run the chainsaw test
@@ -458,4 +449,4 @@ chainsaw-test: chainsaw ## Run the chainsaw test
 
 .PHONY: chainsaw-cleanup
 chainsaw-cleanup: ## Run the chainsaw cleanup
-	KUBECONFIG=$(KIND_KUBECONFIG) make helm-uninstall
+	KUBECONFIG=$(KIND_KUBECONFIG) make undeploy

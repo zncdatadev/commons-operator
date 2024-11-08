@@ -144,7 +144,7 @@ spec:
                         type: integer
                       principalClaim:
                         type: string
-                      provisionerHint:
+                      providerHint:
                         enum:
                         - keycloak
                         type: string
@@ -192,7 +192,7 @@ spec:
                     required:
                     - hostname
                     - principalClaim
-                    - provisionerHint
+                    - providerHint
                     type: object
                   static:
                     properties:

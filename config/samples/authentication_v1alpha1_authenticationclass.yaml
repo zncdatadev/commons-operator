@@ -2,11 +2,8 @@ apiVersion: authentication.zncdata.dev/v1alpha1
 kind: AuthenticationClass
 metadata:
   labels:
-    app.kubernetes.io/name: authenticationclass
-    app.kubernetes.io/instance: authenticationclass-sample
-    app.kubernetes.io/part-of: commons-operator
+    app.kubernetes.io/name: commons-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: commons-operator
   name: authenticationclass-sample
 spec:
   provider:

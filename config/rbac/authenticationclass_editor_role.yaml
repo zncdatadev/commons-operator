@@ -3,11 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: authenticationclass-editor-role
-    app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: commons-operator
-    app.kubernetes.io/part-of: commons-operator
+    app.kubernetes.io/name: commons-operator
     app.kubernetes.io/managed-by: kustomize
   name: authenticationclass-editor-role
 rules:

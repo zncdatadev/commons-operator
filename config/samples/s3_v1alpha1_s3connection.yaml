@@ -2,11 +2,8 @@ apiVersion: s3.zncdata.dev/v1alpha1
 kind: S3Connection
 metadata:
   labels:
-    app.kubernetes.io/name: s3connection
-    app.kubernetes.io/instance: s3connection-sample
-    app.kubernetes.io/part-of: commons-operator
+    app.kubernetes.io/name: commons-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: commons-operator
   name: s3connection-sample
 spec:
   credentials:

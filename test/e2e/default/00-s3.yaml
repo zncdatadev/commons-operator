@@ -1,5 +1,5 @@
 ---
-apiVersion: s3.zncdata.dev/v1alpha1
+apiVersion: s3.kubedoop.dev/v1alpha1
 kind: S3Connection
 metadata:
   name: s3connection
@@ -24,7 +24,7 @@ spec:
         certSecretClass: tls
 
 ---
-apiVersion: s3.zncdata.dev/v1alpha1
+apiVersion: s3.kubedoop.dev/v1alpha1
 kind: S3Bucket
 metadata:
   name: s3bucket

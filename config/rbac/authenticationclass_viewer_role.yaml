@@ -8,7 +8,7 @@ metadata:
   name: authenticationclass-viewer-role
 rules:
 - apiGroups:
-  - authentication.zncdata.dev
+  - authentication.kubedoop.dev
   resources:
   - authenticationclasses
   verbs:
@@ -16,7 +16,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - authentication.zncdata.dev
+  - authentication.kubedoop.dev
   resources:
   - authenticationclasses/status
   verbs:

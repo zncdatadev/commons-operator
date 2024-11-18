@@ -45,7 +45,7 @@ func (r *PodExpireReconciler) EvictPod(ctx context.Context, pod *corev1.Pod) err
 	var minTime *time.Time
 
 	for key, value := range annotations {
-		if strings.HasPrefix(key, "restarter.zncdata.dv/expires-at.") {
+		if strings.HasPrefix(key, "restarter.kubedoop.dev/expires-at.") {
 			t, err := time.Parse(time.RFC3339, value)
 			if err != nil {
 				return fmt.Errorf("failed to parse time: %w", err)

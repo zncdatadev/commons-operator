@@ -8,7 +8,7 @@ metadata:
   name: s3bucket-viewer-role
 rules:
 - apiGroups:
-  - s3.zncdata.dev
+  - s3.kubedoop.dev
   resources:
   - s3buckets
   verbs:
@@ -16,7 +16,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - s3.zncdata.dev
+  - s3.kubedoop.dev
   resources:
   - s3buckets/status
   verbs:

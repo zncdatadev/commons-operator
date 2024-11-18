@@ -74,7 +74,7 @@ func (p *PodHandler) UpdateNodeAddrToPodMeta(ctx context.Context, nodeAddress st
 		annonations = make(map[string]string)
 	}
 
-	annonations["enrichment.zncdata.dev/node-address"] = nodeAddress
+	annonations["enrichment.kubedoop.dev/node-address"] = nodeAddress
 
 	p.Pod.SetAnnotations(annonations)
 	if err := p.Client.Update(ctx, p.Pod); err != nil {

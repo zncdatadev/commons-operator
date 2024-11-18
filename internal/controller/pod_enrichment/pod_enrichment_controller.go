@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	PodEnrichmentLabelName  = "enrichment.zncdata.dev/enable"
+	PodEnrichmentLabelName  = "enrichment.kubedoop.dev/enable"
 	PodEnrichmentLabelValue = "true"
 )
 

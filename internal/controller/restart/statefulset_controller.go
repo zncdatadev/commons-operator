@@ -21,7 +21,7 @@ var (
 )
 
 const (
-	RestartertLabelName  = "restarter.zncdata.dev/enable"
+	RestartertLabelName  = "restarter.kubedoop.dev/enable"
 	RestartertLabelValue = "true"
 )
 
@@ -208,7 +208,7 @@ func (h *StatefulSetHandler) UpdateRef(ctx context.Context) error {
 	}
 
 	for _, configMap := range configMaps {
-		annotationName := "configmap.restarter.zncdata.dev/" + configMap.Name
+		annotationName := "configmap.restarter.kubedoop.dev/" + configMap.Name
 		annotationValue := string(configMap.UID) + "/" + configMap.ResourceVersion
 		annotations[annotationName] = annotationValue
 	}
@@ -219,7 +219,7 @@ func (h *StatefulSetHandler) UpdateRef(ctx context.Context) error {
 	}
 
 	for _, secret := range secrets {
-		annotationName := "secret.restarter.zncdata.dev/" + secret.Name
+		annotationName := "secret.restarter.kubedoop.dev/" + secret.Name
 		annotationValue := string(secret.UID) + "/" + secret.ResourceVersion
 		annotations[annotationName] = annotationValue
 	}

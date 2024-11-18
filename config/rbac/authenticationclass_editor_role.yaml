@@ -8,7 +8,7 @@ metadata:
   name: authenticationclass-editor-role
 rules:
 - apiGroups:
-  - authentication.zncdata.dev
+  - authentication.kubedoop.dev
   resources:
   - authenticationclasses
   verbs:
@@ -20,7 +20,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - authentication.zncdata.dev
+  - authentication.kubedoop.dev
   resources:
   - authenticationclasses/status
   verbs:

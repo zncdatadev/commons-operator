@@ -64,36 +64,36 @@ jobs:
         path: TestResults-${{ matrix.go-version }}.json
 
 
-  # chainsaw-test:
-  #   name: Chainsaw Test
-  #   runs-on: ubuntu-22.04
-  #   strategy:
-  #     matrix:
-  #       k8s-version: ['1.26.15', '1.27.16']
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - uses: actions/setup-go@v4
-  #     with:
-  #       go-version: '1.23'
-  #       cache: false
-  #   - name: Create KinD clustet pur
-  #     env:
-  #       KINDTEST_K8S_VERSION: ${{ matrix.k8s-version}}
-  #       KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-  #       KIND_KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-  #     run: make kind-create
-  #   - name: Chainsaw test setup
-  #     env:
-  #       KINDTEST_K8S_VERSION: ${{ matrix.k8s-version }}
-  #       KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-  #       KIND_KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-  #     run: make chainsaw-setup
-  #   - name: Test with Chainsaw
-  #     env:
-  #       KINDTEST_K8S_VERSION: ${{ matrix.k8s-version }}
-  #       KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-  #       KIND_KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-  #     run: make chainsaw-test
+  chainsaw-test:
+    name: Chainsaw Test
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        k8s-version: ['1.26.15', '1.27.16']
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+        cache: false
+    - name: Create KinD clustet pur
+      env:
+        KINDTEST_K8S_VERSION: ${{ matrix.k8s-version}}
+        KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
+        KIND_KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
+      run: make kind-create
+    - name: Chainsaw test setup
+      env:
+        KINDTEST_K8S_VERSION: ${{ matrix.k8s-version }}
+        KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
+        KIND_KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
+      run: make chainsaw-setup
+    - name: Test with Chainsaw
+      env:
+        KINDTEST_K8S_VERSION: ${{ matrix.k8s-version }}
+        KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
+        KIND_KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
+      run: make chainsaw-test
 
 
   deploy-operator:
@@ -123,15 +123,3 @@ jobs:
     - name: Build and push operator
       run: |
         make docker-buildx
-    - name: Build and push operator bundle
-      run: |
-        make bundle
-        make bundle-buildx
-    - name: Build and push catalog
-      run: |
-        make catalog
-        make catalog-buildx
-    - name: Build and push catalog
-      run: |
-        make catalog
-        make catalog-buildx

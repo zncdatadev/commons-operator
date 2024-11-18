@@ -6,9 +6,6 @@ domain: zncdata.dev
 layout:
 - go.kubebuilder.io/v4
 multigroup: true
-plugins:
-  manifests.sdk.operatorframework.io/v2: {}
-  scorecard.sdk.operatorframework.io/v2: {}
 projectName: commons-operator
 repo: github.com/zncdatadev/commons-operator
 resources:

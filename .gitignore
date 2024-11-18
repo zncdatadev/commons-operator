@@ -26,14 +26,8 @@ Dockerfile.cross
 *~
 
 .vscode/
-bundle
-bundle.Dockerfile
 
 api
-
-# catalog
-catalog
-catalog.Dockerfile
 
 kind-kubeconfig*
 

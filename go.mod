@@ -3,10 +3,10 @@ module github.com/zncdatadev/commons-operator
 go 1.23.2
 
 require (
-	github.com/zncdatadev/operator-go v0.11.3-0.20241115113917-ec9cd3f2b74f
-	k8s.io/api v0.31.2
-	k8s.io/apimachinery v0.31.2
-	k8s.io/client-go v0.31.2
+	github.com/zncdatadev/operator-go v0.12.0
+	k8s.io/api v0.31.3
+	k8s.io/apimachinery v0.31.3
+	k8s.io/client-go v0.31.3
 	sigs.k8s.io/controller-runtime v0.19.1
 )
 

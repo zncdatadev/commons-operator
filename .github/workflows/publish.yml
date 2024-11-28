@@ -10,7 +10,7 @@ jobs:
   publish-image:
     name: Publish Image
     if: ${{ github.repository_owner == 'zncdatadev' }}
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
     steps:
       - name: Clone the code
         uses: actions/checkout@v4

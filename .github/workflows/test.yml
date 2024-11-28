@@ -28,7 +28,7 @@ jobs:
 
   chainsaw-test:
     name: Chainsaw Test
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         k8s-version: ['1.26.15', '1.27.16']

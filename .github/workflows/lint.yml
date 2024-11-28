@@ -10,18 +10,15 @@ jobs:
     name: Markdown Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Clone the code
         uses: actions/checkout@v4
 
-      - name: Lint Code Base
-        uses: github/super-linter@v4
-        env:
-          VALIDATE_MARKDOWN: true
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LINTER_RULES_PATH: /
-          MARKDOWN_CONFIG_FILE: .markdownlint.yml
+      - name: Run markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v18
+        with:
+          globs: |
+            README.*.md
+            docs/*.md
 
 
   golang-lint:

@@ -2,7 +2,7 @@ package pod_enrichment
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -63,7 +63,7 @@ func (p *PodHandler) GetNodeAddress(ctx context.Context) (string, error) {
 		}
 	}
 
-	return "", errors.New("node address not found")
+	return "", fmt.Errorf("Node %s has no address", node.Name)
 }
 
 func (p *PodHandler) UpdateNodeAddrToPodMeta(ctx context.Context, nodeAddress string) error {

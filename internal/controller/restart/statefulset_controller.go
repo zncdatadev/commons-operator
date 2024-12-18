@@ -5,7 +5,6 @@ import (
 
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -23,6 +22,9 @@ var (
 const (
 	RestartertLabelName  = "restarter.kubedoop.dev/enable"
 	RestartertLabelValue = "true"
+
+	ConfigMapRestartAnnotationPrefix = "configmap.restarter.kubedoop.dev/"
+	SecretRestartAnnotationPrefix    = "secret.restarter.kubedoop.dev/"
 )
 
 type StatefulSetReconciler struct {
@@ -37,9 +39,6 @@ type StatefulSetReconciler struct {
 // +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;update;patch
 
 func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
-	restartLogger.V(1).Info("Reconciling StatefulSet", "req", req)
-
 	sts := &appv1.StatefulSet{}
 
 	if err := r.Get(ctx, req.NamespacedName, sts); err != nil {
@@ -53,7 +52,7 @@ func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		Sts:    sts.DeepCopy(),
 	}
 
-	err := h.UpdateRef(ctx)
+	err := h.updateRef(ctx)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -62,40 +61,33 @@ func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 }
 
 func (r *StatefulSetReconciler) SetupWithManager(mgr ctrl.Manager) error {
-
-	pred, err := predicate.LabelSelectorPredicate(metav1.LabelSelector{
-		MatchLabels: map[string]string{
-			RestartertLabelName: RestartertLabelValue,
-		},
+	labelPredicate := predicate.NewTypedPredicateFuncs(func(obj client.Object) bool {
+		return obj.GetLabels()[RestartertLabelName] == RestartertLabelValue
 	})
-	if err != nil {
-		return err
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&appv1.StatefulSet{}, builder.WithPredicates(labelPredicate)).
+		Watches(&corev1.ConfigMap{}, handler.EnqueueRequestsFromMapFunc(r.findAffectedStatefulSets)).
+		Watches(&corev1.Secret{}, handler.EnqueueRequestsFromMapFunc(r.findAffectedStatefulSets)).
+		Complete(r)
+}
+
+func (r *StatefulSetReconciler) findAffectedStatefulSets(ctx context.Context, obj client.Object) []reconcile.Request {
+	list := &appv1.StatefulSetList{}
+	if err := r.List(ctx, list, client.MatchingLabels{RestartertLabelName: RestartertLabelValue}); err != nil {
+		restartLogger.Error(err, "Failed to list StatefulSets")
+		return nil
 	}
 
-	mapFunc := handler.MapFunc(func(ctx context.Context, a client.Object) []reconcile.Request {
-		list := &appv1.StatefulSetList{}
-		err := r.List(ctx, list, client.MatchingLabels{RestartertLabelName: RestartertLabelValue})
-		if err != nil {
-			restartLogger.Error(err, "Failed to list StatefulSets")
-		}
-
-		var requests []reconcile.Request
-		for _, item := range list.Items {
-			requests = append(requests, reconcile.Request{
-				NamespacedName: types.NamespacedName{
-					Namespace: item.Namespace,
-					Name:      item.Name,
-				},
-			})
-		}
-		return requests
-	})
-
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&appv1.StatefulSet{}, builder.WithPredicates(pred)).
-		Watches(&corev1.ConfigMap{}, handler.EnqueueRequestsFromMapFunc(mapFunc)).
-		Watches(&corev1.Secret{}, handler.EnqueueRequestsFromMapFunc(mapFunc)).
-		Complete(r)
+	requests := make([]reconcile.Request, 0, len(list.Items))
+	for _, sts := range list.Items {
+		requests = append(requests, reconcile.Request{
+			NamespacedName: types.NamespacedName{
+				Name:      sts.Name,
+				Namespace: sts.Namespace,
+			},
+		})
+	}
+	return requests
 }
 
 type StatefulSetHandler struct {
@@ -103,43 +95,58 @@ type StatefulSetHandler struct {
 	Sts    *appv1.StatefulSet
 }
 
-func (h *StatefulSetHandler) GetRefSecrets(ctx context.Context) ([]corev1.Secret, error) {
-	secrets := []corev1.Secret{}
+func (h *StatefulSetHandler) getRefSecretRefs() []string {
+	secrets := make([]string, 0)
 	for _, volume := range h.Sts.Spec.Template.Spec.Volumes {
 		if volume.Secret != nil {
-			secret, err := h.GetSecret(ctx, volume.Secret.SecretName, h.Sts.Namespace)
-			if err != nil {
-				return nil, err
-			}
-			secrets = append(secrets, *secret)
+			secrets = append(secrets, volume.Secret.SecretName)
 		}
 	}
 	for _, container := range h.Sts.Spec.Template.Spec.InitContainers {
 		for _, env := range container.Env {
 			if env.ValueFrom != nil && env.ValueFrom.SecretKeyRef != nil {
-				secret, err := h.GetSecret(ctx, env.ValueFrom.SecretKeyRef.Name, h.Sts.Namespace)
-				if err != nil {
-					return nil, err
-				}
-				secrets = append(secrets, *secret)
+				secrets = append(secrets, env.ValueFrom.SecretKeyRef.Name)
 			}
 		}
 	}
 	for _, container := range h.Sts.Spec.Template.Spec.Containers {
 		for _, env := range container.Env {
 			if env.ValueFrom != nil && env.ValueFrom.SecretKeyRef != nil {
-				secret, err := h.GetSecret(ctx, env.ValueFrom.SecretKeyRef.Name, h.Sts.Namespace)
-				if err != nil {
-					return nil, err
-				}
-				secrets = append(secrets, *secret)
+				secrets = append(secrets, env.ValueFrom.SecretKeyRef.Name)
 			}
 		}
 	}
-	return secrets, nil
+	return secrets
 }
 
-func (h *StatefulSetHandler) GetSecret(ctx context.Context, name, namespace string) (*corev1.Secret, error) {
+func (h *StatefulSetHandler) getRefConfigMapRefs() []string {
+	configMaps := make([]string, 0)
+	for _, volume := range h.Sts.Spec.Template.Spec.Volumes {
+		if volume.ConfigMap != nil {
+			return append(configMaps, volume.ConfigMap.Name)
+		}
+	}
+
+	for _, container := range h.Sts.Spec.Template.Spec.InitContainers {
+		for _, env := range container.Env {
+			if env.ValueFrom != nil && env.ValueFrom.ConfigMapKeyRef != nil {
+				return append(configMaps, env.ValueFrom.ConfigMapKeyRef.Name)
+			}
+		}
+	}
+
+	for _, container := range h.Sts.Spec.Template.Spec.Containers {
+		for _, env := range container.Env {
+			if env.ValueFrom != nil && env.ValueFrom.ConfigMapKeyRef != nil {
+				return append(configMaps, env.ValueFrom.ConfigMapKeyRef.Name)
+			}
+		}
+	}
+
+	return configMaps
+}
+
+func (h *StatefulSetHandler) getSecret(ctx context.Context, name, namespace string) (*corev1.Secret, error) {
 	obj := &corev1.Secret{}
 	err := h.Client.Get(ctx, types.NamespacedName{Namespace: namespace, Name: name}, obj)
 	if err != nil {
@@ -148,7 +155,7 @@ func (h *StatefulSetHandler) GetSecret(ctx context.Context, name, namespace stri
 	return obj, nil
 }
 
-func (h *StatefulSetHandler) GetConfigMap(ctx context.Context, name, namespace string) (*corev1.ConfigMap, error) {
+func (h *StatefulSetHandler) getConfigMap(ctx context.Context, name, namespace string) (*corev1.ConfigMap, error) {
 	obj := &corev1.ConfigMap{}
 	err := h.Client.Get(ctx, types.NamespacedName{Namespace: namespace, Name: name}, obj)
 	if err != nil {
@@ -157,80 +164,45 @@ func (h *StatefulSetHandler) GetConfigMap(ctx context.Context, name, namespace s
 	return obj, nil
 }
 
-func (h *StatefulSetHandler) GetRefConfigMaps(ctx context.Context) ([]corev1.ConfigMap, error) {
-	configMaps := []corev1.ConfigMap{}
-	for _, volume := range h.Sts.Spec.Template.Spec.Volumes {
-		if volume.ConfigMap != nil {
-			configMap, err := h.GetConfigMap(ctx, volume.ConfigMap.Name, h.Sts.Namespace)
-			if err != nil {
-				return nil, err
-			}
-			configMaps = append(configMaps, *configMap)
+func (h *StatefulSetHandler) updateRef(ctx context.Context) error {
+	annotations := make(map[string]string)
+
+	configMapRefs := h.getRefConfigMapRefs()
+	for _, configMap := range configMapRefs {
+		obj, err := h.getConfigMap(ctx, configMap, h.Sts.Namespace)
+		if err != nil {
+			return err
 		}
-	}
-
-	for _, container := range h.Sts.Spec.Template.Spec.InitContainers {
-		for _, env := range container.Env {
-			if env.ValueFrom != nil && env.ValueFrom.ConfigMapKeyRef != nil {
-				configMap, err := h.GetConfigMap(ctx, env.ValueFrom.ConfigMapKeyRef.Name, h.Sts.Namespace)
-				if err != nil {
-					return nil, err
-				}
-				configMaps = append(configMaps, *configMap)
-			}
-		}
-	}
-
-	for _, container := range h.Sts.Spec.Template.Spec.Containers {
-		for _, env := range container.Env {
-			if env.ValueFrom != nil && env.ValueFrom.ConfigMapKeyRef != nil {
-				configMap, err := h.GetConfigMap(ctx, env.ValueFrom.ConfigMapKeyRef.Name, h.Sts.Namespace)
-				if err != nil {
-					return nil, err
-				}
-				configMaps = append(configMaps, *configMap)
-			}
-		}
-	}
-
-	return configMaps, nil
-}
-
-func (h *StatefulSetHandler) UpdateRef(ctx context.Context) error {
-	configMaps, err := h.GetRefConfigMaps(ctx)
-	if err != nil {
-		return err
-	}
-	annotations := h.Sts.Spec.Template.GetAnnotations()
-
-	if annotations == nil {
-		annotations = make(map[string]string)
-	}
-
-	for _, configMap := range configMaps {
-		annotationName := "configmap.restarter.kubedoop.dev/" + configMap.Name
-		annotationValue := string(configMap.UID) + "/" + configMap.ResourceVersion
+		annotationName := ConfigMapRestartAnnotationPrefix + obj.Name
+		annotationValue := string(obj.UID) + "/" + obj.ResourceVersion
 		annotations[annotationName] = annotationValue
 	}
 
-	secrets, err := h.GetRefSecrets(ctx)
-	if err != nil {
-		return err
-	}
-
-	for _, secret := range secrets {
-		annotationName := "secret.restarter.kubedoop.dev/" + secret.Name
-		annotationValue := string(secret.UID) + "/" + secret.ResourceVersion
+	secretRefs := h.getRefSecretRefs()
+	for _, secret := range secretRefs {
+		obj, err := h.getSecret(ctx, secret, h.Sts.Namespace)
+		if err != nil {
+			return err
+		}
+		annotationName := SecretRestartAnnotationPrefix + obj.Name
+		annotationValue := string(obj.UID) + "/" + obj.ResourceVersion
 		annotations[annotationName] = annotationValue
 	}
 
-	h.Sts.Spec.Template.SetAnnotations(annotations)
-
-	err = h.Client.Update(ctx, h.Sts)
-
-	if err != nil {
-		return err
+	if len(annotations) == 0 {
+		restartLogger.V(5).Info("No ConfigMap or Secret references found, skip it", "StatefulSet", h.Sts.Name, "Namespace", h.Sts.Namespace)
+		return nil
 	}
 
-	return nil
+	patch := client.MergeFrom(h.Sts.DeepCopy())
+	if h.Sts.Annotations == nil {
+		h.Sts.Annotations = make(map[string]string)
+	}
+
+	for k, v := range annotations {
+		h.Sts.Annotations[k] = v
+	}
+
+	restartLogger.Info("Update StatefulSet annotations", "Name", h.Sts.Name, "Namespace", h.Sts.Namespace, "Annotations", annotations)
+	return h.Client.Patch(ctx, h.Sts, patch)
 }

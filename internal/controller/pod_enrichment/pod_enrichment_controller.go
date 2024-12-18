@@ -2,6 +2,8 @@ package pod_enrichment
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -15,6 +17,18 @@ import (
 const (
 	PodEnrichmentLabelName  = "enrichment.kubedoop.dev/enable"
 	PodEnrichmentLabelValue = "true"
+
+	PodenrichmentNodeAddressAnnotationName = "enrichment.kubedoop.dev/node-address"
+)
+
+var (
+	OrderedAddressTypes = []corev1.NodeAddressType{
+		corev1.NodeHostName,
+		corev1.NodeExternalDNS,
+		corev1.NodeInternalDNS,
+		corev1.NodeExternalIP,
+		corev1.NodeInternalIP,
+	}
 )
 
 var (
@@ -29,13 +43,10 @@ type PodEnrichmentReconciler struct {
 // +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;update;patch
 
 func (r *PodEnrichmentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
-	logger.Info("Reconciling PodEnrichment")
-
 	pod := &corev1.Pod{}
 	if err := r.Get(ctx, req.NamespacedName, pod); err != nil {
 		if apierrors.IsNotFound(err) {
-			logger.Info("Pod not found", "pod", req.NamespacedName)
+			logger.V(5).Info("Pod not found", "pod", req.NamespacedName)
 			return ctrl.Result{}, nil
 		}
 		logger.Error(err, "Failed to get Pod", "pod", req.NamespacedName)
@@ -49,7 +60,7 @@ func (r *PodEnrichmentReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	if result, err := handler.Reconcile(ctx); err != nil {
 		logger.Error(err, "Failed to reconcile Pod", "pod", req.NamespacedName)
 		return result, err
-	} else if result.Requeue || result.RequeueAfter > 0 {
+	} else if !result.IsZero() {
 		return result, nil
 	}
 
@@ -71,4 +82,81 @@ func (r *PodEnrichmentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&corev1.Pod{}).Named("podEnrichment").
 		WithEventFilter(pred).
 		Complete(r)
+}
+
+type PodHandler struct {
+	Client client.Client
+	Pod    *corev1.Pod
+}
+
+func NewPodHandler(client client.Client, pod *corev1.Pod) *PodHandler {
+	return &PodHandler{
+		Client: client,
+		Pod:    pod,
+	}
+}
+
+func (p *PodHandler) scheduled() bool {
+	if p.Pod.Spec.NodeName == "" {
+		logger.Info("Pod is not scheduled", "pod", p.Pod.Name, "namespace", p.Pod.Namespace)
+		return false
+	}
+	return true
+}
+
+func (p *PodHandler) getNodeAddress(ctx context.Context) (string, error) {
+	node := &corev1.Node{}
+
+	if err := p.Client.Get(ctx, client.ObjectKey{Name: p.Pod.Spec.NodeName}, node); err != nil {
+		return "", err
+	}
+
+	addressMap := make(map[corev1.NodeAddressType]string)
+
+	for _, address := range node.Status.Addresses {
+		addressMap[address.Type] = address.Address
+	}
+
+	for _, addressType := range OrderedAddressTypes {
+		if address, ok := addressMap[addressType]; ok {
+			return address, nil
+		}
+	}
+
+	return "", fmt.Errorf("Node %s has no address", node.Name)
+}
+
+func (p *PodHandler) updateNodeAddrToPodMeta(ctx context.Context, nodeAddress string) error {
+
+	annonations := p.Pod.GetAnnotations()
+
+	if annonations == nil {
+		annonations = make(map[string]string)
+	}
+
+	annonations[PodenrichmentNodeAddressAnnotationName] = nodeAddress
+
+	p.Pod.SetAnnotations(annonations)
+	if err := p.Client.Update(ctx, p.Pod); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *PodHandler) Reconcile(ctx context.Context) (ctrl.Result, error) {
+	if !p.scheduled() {
+		return ctrl.Result{RequeueAfter: time.Second * 2}, nil
+	}
+
+	nodeAddress, err := p.getNodeAddress(ctx)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	if err := p.updateNodeAddrToPodMeta(ctx, nodeAddress); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	return ctrl.Result{}, nil
 }

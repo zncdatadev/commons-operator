@@ -173,8 +173,8 @@ func (h *StatefulSetHandler) updateRef(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		annotationName := ConfigMapRestartAnnotationPrefix + obj.Name
-		annotationValue := string(obj.UID) + "/" + obj.ResourceVersion
+		annotationName := GenStatefulSetRestartAnnotationKey(obj)
+		annotationValue := GenStatefulSetRestartAnnotationValue(obj)
 		annotations[annotationName] = annotationValue
 	}
 
@@ -184,9 +184,8 @@ func (h *StatefulSetHandler) updateRef(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		annotationName := SecretRestartAnnotationPrefix + obj.Name
-		annotationValue := string(obj.UID) + "/" + obj.ResourceVersion
-		annotations[annotationName] = annotationValue
+		annotationName := GenStatefulSetRestartAnnotationKey(obj)
+		annotations[annotationName] = GenStatefulSetRestartAnnotationValue(obj)
 	}
 
 	if len(annotations) == 0 {
@@ -205,4 +204,19 @@ func (h *StatefulSetHandler) updateRef(ctx context.Context) error {
 
 	restartLogger.Info("Update StatefulSet annotations", "Name", h.Sts.Name, "Namespace", h.Sts.Namespace, "Annotations", annotations)
 	return h.Client.Patch(ctx, h.Sts, patch)
+}
+
+func GenStatefulSetRestartAnnotationValue(obj client.Object) string {
+	return string(obj.GetUID()) + "/" + obj.GetResourceVersion()
+}
+
+func GenStatefulSetRestartAnnotationKey(obj client.Object) string {
+	switch obj := obj.(type) {
+	case *corev1.ConfigMap:
+		return ConfigMapRestartAnnotationPrefix + obj.Name
+	case *corev1.Secret:
+		return SecretRestartAnnotationPrefix + obj.Name
+	default:
+		panic("unsupported object type for restart annotation")
+	}
 }

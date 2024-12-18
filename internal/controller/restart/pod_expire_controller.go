@@ -34,6 +34,8 @@ func (r *PodExpireReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	podExpireLogger.Info("Reconcile Pod", "Pod", pod.Name, "Namespace", pod.Namespace)
+
 	annotations := pod.GetAnnotations()
 
 	if annotations == nil {
@@ -41,7 +43,7 @@ func (r *PodExpireReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, nil
 	}
 
-	podExpireLogger.V(5).Info("Found expiry annotations", "Pod", pod.Name, "Namespace", pod.Namespace)
+	podExpireLogger.Info("Found expiry annotations", "Pod", pod.Name, "Namespace", pod.Namespace)
 
 	var minTime *time.Time
 	for key, value := range annotations {

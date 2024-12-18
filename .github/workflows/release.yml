@@ -127,6 +127,5 @@ jobs:
           password: ${{ secrets.QUAY_PASSWORD }}
 
       - name: Build and push operator
-
         run: |
           make docker-buildx

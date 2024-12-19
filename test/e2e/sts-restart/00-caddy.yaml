@@ -59,8 +59,8 @@ spec:
           name: http
         resources:
           limits:
-            cpu: "50m"
-            memory: "50Mi"
+            cpu: "500m"
+            memory: "500Mi"
         readinessProbe:
           httpGet:
             path: /
@@ -71,8 +71,8 @@ spec:
           httpGet:
             path: /
             port: http
-          initialDelaySeconds: 15
-          periodSeconds: 20
+          initialDelaySeconds: 10
+          periodSeconds: 15
         volumeMounts:
         - name: caddyfile
           mountPath: /etc/caddy/Caddyfile
@@ -106,8 +106,8 @@ spec:
     image: registry.access.redhat.com/ubi9-minimal:latest
     resources:
       limits:
-        memory: "50Mi"
-        cpu: "50m"
+        memory: "100Mi"
+        cpu: "100m"
     command:
     - sh
     - -c

@@ -1,0 +1,48 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caddyfile
+data:
+  Caddyfile: |
+    :80 {
+      root * /wwwroot/
+      file_server
+
+      # read env basic auth snippet from https://caddyserver.com/docs/caddyfile/directives/http.basicauth
+      {$BASIC_AUTH}
+
+      respond "Welcome, user: {http.auth.user.id}." 200
+    }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: assert-caddy-cm-update
+spec:
+  restartPolicy: Never
+  containers:
+  - name: assert-caddy-cm-update
+    image: registry.access.redhat.com/ubi9-minimal:latest
+    resources:
+      limits:
+        memory: "100Mi"
+        cpu: "100m"
+    command:
+    - sh
+    - -c
+    - |
+      EXPECTED="Welcome, user: Bob."
+      while true; do
+        ACTUAL=$(curl -s -u Bob:hiccup http://caddy:80/auth/user)
+        # check EXPECTED ~= ACTUAL
+        if echo "$ACTUAL" | grep -q "$EXPECTED"; then
+          echo "assertion passed"
+          exit 0
+        else
+          echo "assertion failed"
+          echo "EXPECTED: $EXPECTED"
+          echo "ACTUAL: $ACTUAL"
+          sleep 5
+        fi
+      done

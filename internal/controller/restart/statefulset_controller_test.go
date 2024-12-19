@@ -129,7 +129,7 @@ var _ = Describe("StatefulsetController", func() {
 				if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(sts), updatedSts); err != nil {
 					return false
 				}
-				return updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == expectedValue
+				return updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == expectedValue
 			}, time.Second*5, time.Millisecond*500).Should(BeTrue())
 		})
 
@@ -161,7 +161,7 @@ var _ = Describe("StatefulsetController", func() {
 				if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(sts), updatedSts); err != nil {
 					return false
 				}
-				return updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == expectedValue
+				return updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == expectedValue
 			}, time.Second*5, time.Millisecond*500).Should(BeTrue())
 		})
 
@@ -199,7 +199,7 @@ var _ = Describe("StatefulsetController", func() {
 				if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(sts), updatedSts); err != nil {
 					return false
 				}
-				return updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == expectedValue
+				return updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == expectedValue
 			}, time.Second*5, time.Millisecond*500).Should(BeTrue())
 		})
 
@@ -235,7 +235,7 @@ var _ = Describe("StatefulsetController", func() {
 				if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(sts), updatedSts); err != nil {
 					return false
 				}
-				return updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == expectedValue
+				return updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == expectedValue
 			}, time.Second*5, time.Millisecond*500).Should(BeTrue())
 		})
 
@@ -283,8 +283,8 @@ var _ = Describe("StatefulsetController", func() {
 				if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(sts), updatedSts); err != nil {
 					return false
 				}
-				return updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == expectedCmValue &&
-					updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == expectedSecretValue
+				return updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == expectedCmValue &&
+					updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == expectedSecretValue
 			}, time.Second*5, time.Millisecond*500).Should(BeTrue())
 		})
 
@@ -332,8 +332,8 @@ var _ = Describe("StatefulsetController", func() {
 				if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(sts), updatedSts); err != nil {
 					return false
 				}
-				return updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == expectedCmValue &&
-					updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == expectedSecretValue
+				return updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == expectedCmValue &&
+					updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == expectedSecretValue
 			}, time.Second*5, time.Millisecond*500).Should(BeTrue())
 
 			By("update configmap")
@@ -357,8 +357,8 @@ var _ = Describe("StatefulsetController", func() {
 				if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(sts), updatedSts); err != nil {
 					return false
 				}
-				return updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == newExpectedCmValue &&
-					updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == newExpectedSecretValue
+				return updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)] == newExpectedCmValue &&
+					updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)] == newExpectedSecretValue
 			}, time.Second*5, time.Millisecond*500).Should(BeTrue())
 		})
 
@@ -443,7 +443,7 @@ var _ = Describe("StatefulsetController", func() {
 			latestCm := &corev1.ConfigMap{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: cm.Name, Namespace: cm.Namespace}, latestCm)).To(Succeed())
 			expectedValue := restart.GenStatefulSetRestartAnnotationValue(latestCm)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(expectedValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(expectedValue))
 		})
 
 		It("should update annotations when statefulset has secret refs", func() {
@@ -476,7 +476,7 @@ var _ = Describe("StatefulsetController", func() {
 			latestSecret := &corev1.Secret{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, latestSecret)).To(Succeed())
 			expectedValue := restart.GenStatefulSetRestartAnnotationValue(latestSecret)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedValue))
 		})
 
 		It("should update annotations when statefulset has configmap volume mount", func() {
@@ -518,7 +518,7 @@ var _ = Describe("StatefulsetController", func() {
 			latestCm := &corev1.ConfigMap{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: cm.Name, Namespace: cm.Namespace}, latestCm)).To(Succeed())
 			expectedValue := restart.GenStatefulSetRestartAnnotationValue(latestCm)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(expectedValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(expectedValue))
 		})
 
 		It("should update annotations when statefulset has secret volume mount", func() {
@@ -554,7 +554,7 @@ var _ = Describe("StatefulsetController", func() {
 			latestSecret := &corev1.Secret{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, latestSecret)).To(Succeed())
 			expectedValue := restart.GenStatefulSetRestartAnnotationValue(latestSecret)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedValue))
 		})
 
 		It("should update annotations when statefulset has configmap and secret refs", func() {
@@ -598,12 +598,12 @@ var _ = Describe("StatefulsetController", func() {
 			latestCm := &corev1.ConfigMap{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: cm.Name, Namespace: cm.Namespace}, latestCm)).To(Succeed())
 			expectedCmValue := restart.GenStatefulSetRestartAnnotationValue(latestCm)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(expectedCmValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(expectedCmValue))
 
 			latestSecret := &corev1.Secret{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, latestSecret)).To(Succeed())
 			expectedSecretValue := restart.GenStatefulSetRestartAnnotationValue(latestSecret)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedSecretValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedSecretValue))
 		})
 
 		It("should update annotations when statefulset has volume ref configmap and secret with updated", func() {
@@ -654,12 +654,12 @@ var _ = Describe("StatefulsetController", func() {
 			latestCm := &corev1.ConfigMap{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: cm.Name, Namespace: cm.Namespace}, latestCm)).To(Succeed())
 			expectedCmValue := restart.GenStatefulSetRestartAnnotationValue(latestCm)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(expectedCmValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(expectedCmValue))
 
 			latestSecret := &corev1.Secret{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, latestSecret)).To(Succeed())
 			expectedSecretValue := restart.GenStatefulSetRestartAnnotationValue(latestSecret)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedSecretValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedSecretValue))
 
 			By("update configmap")
 			cm.Data["key"] = "new-value"
@@ -679,12 +679,12 @@ var _ = Describe("StatefulsetController", func() {
 			latestCm = &corev1.ConfigMap{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: cm.Name, Namespace: cm.Namespace}, latestCm)).To(Succeed())
 			newExpectedCmValue := restart.GenStatefulSetRestartAnnotationValue(latestCm)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(newExpectedCmValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(cm)]).To(Equal(newExpectedCmValue))
 
 			latestSecret = &corev1.Secret{}
 			Expect(c.Get(ctx, types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, latestSecret)).To(Succeed())
 			newExpectedSecretValue := restart.GenStatefulSetRestartAnnotationValue(latestSecret)
-			Expect(updatedSts.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(newExpectedSecretValue))
+			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(newExpectedSecretValue))
 		})
 	})
 })

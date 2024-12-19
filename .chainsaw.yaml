@@ -4,12 +4,12 @@ metadata:
   name: custom-config
 spec:
   timeouts:
-    apply: 300s
-    assert: 600s
-    cleanup: 240s
-    delete: 240s
+    apply: 200s
+    assert: 120s
+    cleanup: 60s
+    delete: 60s
     error: 180s
-    exec: 300s
-  skipDelete: false
+    exec: 120s
+  # skipDelete: true
   failFast: true
   forceTerminationGracePeriod: 10s

@@ -9,6 +9,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -41,6 +42,7 @@ type PodEnrichmentReconciler struct {
 }
 
 // +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;update;patch
+// +kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch
 
 func (r *PodEnrichmentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	pod := &corev1.Pod{}
@@ -127,21 +129,26 @@ func (p *PodHandler) getNodeAddress(ctx context.Context) (string, error) {
 }
 
 func (p *PodHandler) updateNodeAddrToPodMeta(ctx context.Context, nodeAddress string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		// get the latest version of the pod
+		if err := p.Client.Get(ctx, client.ObjectKey{Namespace: p.Pod.Namespace, Name: p.Pod.Name}, p.Pod); err != nil {
+			if apierrors.IsNotFound(err) {
+				logger.Info("Pod not found, skipping", "pod", p.Pod.Name, "namespace", p.Pod.Namespace)
+				return nil
+			}
+			return err
+		}
 
-	annonations := p.Pod.GetAnnotations()
+		annotations := p.Pod.GetAnnotations()
+		if annotations == nil {
+			annotations = make(map[string]string)
+		}
 
-	if annonations == nil {
-		annonations = make(map[string]string)
-	}
+		annotations[PodenrichmentNodeAddressAnnotationName] = nodeAddress
+		p.Pod.SetAnnotations(annotations)
 
-	annonations[PodenrichmentNodeAddressAnnotationName] = nodeAddress
-
-	p.Pod.SetAnnotations(annonations)
-	if err := p.Client.Update(ctx, p.Pod); err != nil {
-		return err
-	}
-
-	return nil
+		return p.Client.Update(ctx, p.Pod)
+	})
 }
 
 func (p *PodHandler) Reconcile(ctx context.Context) (ctrl.Result, error) {

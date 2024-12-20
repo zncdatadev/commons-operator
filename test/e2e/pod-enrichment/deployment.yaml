@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy
+spec:
+  selector:
+    matchLabels:
+      app: caddy
+  template:
+    metadata:
+      labels:
+        app: caddy
+        enrichment.kubedoop.dev/enable: "true"
+    spec:
+      containers:
+      - name: caddy
+        image: caddy:2
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

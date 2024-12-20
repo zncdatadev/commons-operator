@@ -1,0 +1,31 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: pod-enrichment
+  labels:
+    enrichment.kubedoop.dev/enable: "true"
+spec:
+  steps:
+  - try:
+    - apply:
+        file: deployment.yaml
+    - sleep:
+        duration: 5s
+    - script:
+        env:
+        - name: NAMESPACE
+          value: ($namespace)
+        content: |
+          # Get node name addresses from the cluster, get address of type is Hostname
+          NODE_NAME=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="Hostname")].address}')
+
+          # check pod by label and assert pod annotation enrichment.kubedoop.dev/node-address value is equal to node name
+          POD_NAME=$(kubectl get pods -n $NAMESPACE -l app=caddy -o jsonpath='{.items[0].metadata.name}')
+          NODE_ADDRESS=$(kubectl get pod $POD_NAME -n $NAMESPACE -o jsonpath='{.metadata.annotations.enrichment\.kubedoop\.dev/node-address}')
+          if [ "$NODE_ADDRESS" != "$NODE_NAME" ]; then
+            echo "Pod annotation enrichment.kubedoop.dev/node-address value is not equal to node name"
+            echo "Node name: $NODE_NAME, Pod annotation enrichment.kubedoop.dev/node-address: $NODE_ADDRESS"
+            exit 1
+          fi
+        check:
+          ($error == null): true

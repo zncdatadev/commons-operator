@@ -36,6 +36,11 @@ func (r *PodExpireReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	podExpireLogger.Info("Reconcile Pod", "Pod", pod.Name, "Namespace", pod.Namespace)
 
+	if pod.DeletionTimestamp != nil {
+		podExpireLogger.V(5).Info("Pod is being deleted, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
+		return ctrl.Result{}, nil
+	}
+
 	annotations := pod.GetAnnotations()
 
 	if annotations == nil {

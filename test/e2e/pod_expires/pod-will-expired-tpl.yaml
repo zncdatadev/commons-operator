@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: caddy-will-expired
+  annotations:
+    restarter.kubedoop.dev/expires-at.foo: $NOW_AFTER_5s
+  labels:
+    name: caddy-will-expired
+spec:
+  containers:
+  - name: caddy
+    image: caddy:2
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"

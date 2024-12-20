@@ -145,11 +145,15 @@ func (h *StatefulSetHandler) getRefConfigMapRefs() []string {
 
 	return configMaps
 }
-
 func (h *StatefulSetHandler) getSecret(ctx context.Context, name, namespace string) (*corev1.Secret, error) {
 	obj := &corev1.Secret{}
 	err := h.Client.Get(ctx, types.NamespacedName{Namespace: namespace, Name: name}, obj)
 	if err != nil {
+		if client.IgnoreNotFound(err) == nil {
+			restartLogger.Info("Secret not found, ignoring", "name", name, "namespace", namespace, "referenced by", h.Sts.Name)
+			return nil, nil
+		}
+		restartLogger.Error(err, "Failed to get Secret", "name", name, "namespace", namespace, "referenced by", h.Sts.Name)
 		return nil, err
 	}
 	return obj, nil
@@ -159,6 +163,11 @@ func (h *StatefulSetHandler) getConfigMap(ctx context.Context, name, namespace s
 	obj := &corev1.ConfigMap{}
 	err := h.Client.Get(ctx, types.NamespacedName{Namespace: namespace, Name: name}, obj)
 	if err != nil {
+		if client.IgnoreNotFound(err) == nil {
+			restartLogger.Info("ConfigMap not found, ignoring", "name", name, "namespace", namespace, "referenced by", h.Sts.Name)
+			return nil, nil
+		}
+		restartLogger.Error(err, "Failed to get ConfigMap", "name", name, "namespace", namespace, "referenced by", h.Sts.Name)
 		return nil, err
 	}
 	return obj, nil
@@ -173,9 +182,10 @@ func (h *StatefulSetHandler) updateRef(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		annotationName := GenStatefulSetRestartAnnotationKey(obj)
-		annotationValue := GenStatefulSetRestartAnnotationValue(obj)
-		annotations[annotationName] = annotationValue
+		if obj != nil {
+			annotationName := GenStatefulSetRestartAnnotationKey(obj)
+			annotations[annotationName] = GenStatefulSetRestartAnnotationValue(obj)
+		}
 	}
 
 	secretRefs := h.getRefSecretRefs()
@@ -184,8 +194,10 @@ func (h *StatefulSetHandler) updateRef(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		annotationName := GenStatefulSetRestartAnnotationKey(obj)
-		annotations[annotationName] = GenStatefulSetRestartAnnotationValue(obj)
+		if obj != nil {
+			annotationName := GenStatefulSetRestartAnnotationKey(obj)
+			annotations[annotationName] = GenStatefulSetRestartAnnotationValue(obj)
+		}
 	}
 
 	if len(annotations) == 0 {
@@ -194,15 +206,19 @@ func (h *StatefulSetHandler) updateRef(ctx context.Context) error {
 	}
 
 	patch := client.MergeFrom(h.Sts.DeepCopy())
-	if h.Sts.Annotations == nil {
-		h.Sts.Annotations = make(map[string]string)
+
+	if h.Sts.Spec.Template.Annotations == nil {
+		h.Sts.Spec.Template.Annotations = make(map[string]string)
 	}
 
 	for k, v := range annotations {
-		h.Sts.Annotations[k] = v
+		h.Sts.Spec.Template.Annotations[k] = v
 	}
 
-	restartLogger.Info("Update StatefulSet annotations", "Name", h.Sts.Name, "Namespace", h.Sts.Namespace, "Annotations", annotations)
+	restartLogger.Info("Update StatefulSet pod template annotations",
+		"Name", h.Sts.Name,
+		"Namespace", h.Sts.Namespace,
+		"PodTemplateAnnotations", h.Sts.Spec.Template.Annotations)
 	return h.Client.Patch(ctx, h.Sts, patch)
 }
 

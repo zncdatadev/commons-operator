@@ -42,12 +42,11 @@ func (r *PodExpireReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		podExpireLogger.V(5).Info("No expiry annotations, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
 		return ctrl.Result{}, nil
 	}
-
-	podExpireLogger.Info("Found expiry annotations", "Pod", pod.Name, "Namespace", pod.Namespace)
-
+	var watched bool
 	var minTime *time.Time
 	for key, value := range annotations {
 		if strings.HasPrefix(key, constants.PrefixLabelRestarterExpiresAt) {
+			watched = true
 			t, err := time.Parse(time.RFC3339, value)
 			if err != nil {
 				return ctrl.Result{}, fmt.Errorf("failed to parse time: %w", err)
@@ -59,7 +58,18 @@ func (r *PodExpireReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 	}
 
-	if minTime == nil || minTime.Before(time.Now()) {
+	if !watched {
+		podExpireLogger.V(2).Info("No expiry annotations, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
+		return ctrl.Result{}, nil
+	}
+	podExpireLogger.V(10).Info("Found expiry annotations", "Pod", pod.Name, "Namespace", pod.Namespace, "annotations", annotations)
+
+	if minTime == nil {
+		podExpireLogger.V(2).Info("No expiry time, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
+		return ctrl.Result{}, nil
+	}
+
+	if minTime.Before(time.Now()) {
 		err := r.Client.SubResource("eviction").Create(ctx, pod, &policyv1.Eviction{})
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to evict pod: %w", err)

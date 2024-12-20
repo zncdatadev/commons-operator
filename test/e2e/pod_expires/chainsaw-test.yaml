@@ -1,0 +1,35 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: pod-expires
+spec:
+
+  steps:
+  - try:
+    - apply:
+        file: pod-expired.yaml
+    - sleep:
+        duration: 1s
+    - error:
+        file: pod-expired.yaml
+  - try:
+    - script:
+        env:
+        - name: NAMESPACE
+          value: ($namespace)
+        content: |
+          # if os is linux, then use date -d, if os is macos, then use date -v
+          if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            NOW_AFTER_5s=$(date -d "+5 seconds" -u +"%Y-%m-%dT%H:%M:%SZ")
+          elif [[ "$OSTYPE" == "darwin"* ]]; then
+            NOW_AFTER_5s=$(date -v+5S -u +"%Y-%m-%dT%H:%M:%SZ")
+          fi
+
+          # use envsubst to replace $NOW_AFTER_5s in pod-will-expired-tpl.yaml
+          # then apply the file by stdin
+
+          envsubst < pod-will-expired-tpl.yaml | kubectl -n $NAMESPACE apply -f -
+    - sleep:
+        duration: 5s
+    - error:
+        file: pod-will-expired-tpl.yaml

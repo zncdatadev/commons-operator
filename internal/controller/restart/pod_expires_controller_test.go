@@ -19,9 +19,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
-var _ = Describe("PodExpireReconciler", func() {
+var _ = Describe("PodExpiresReconciler", func() {
 	var (
-		fakeReconciler *restart.PodExpireReconciler
+		fakeReconciler *restart.PodExpiresReconciler
 		pod            *corev1.Pod
 		fakeClient     client.Client
 	)
@@ -96,7 +96,7 @@ var _ = Describe("PodExpireReconciler", func() {
 		BeforeEach(func() {
 			ctx = context.Background()
 			fakeClient = fake.NewClientBuilder().WithScheme(scheme.Scheme).Build()
-			fakeReconciler = &restart.PodExpireReconciler{
+			fakeReconciler = &restart.PodExpiresReconciler{
 				Client: fakeClient,
 				Schema: fakeClient.Scheme(),
 			}

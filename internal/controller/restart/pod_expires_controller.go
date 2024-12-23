@@ -9,16 +9,17 @@ import (
 	"github.com/zncdatadev/operator-go/pkg/constants"
 	corev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var (
-	podExpireLogger = ctrl.Log.WithName("controllers").WithName("PodExpire")
+	podExpiresLogger = ctrl.Log.WithName("controllers").WithName("PodExpires")
 )
 
-type PodExpireReconciler struct {
+type PodExpiresReconciler struct {
 	client.Client
 	Schema *runtime.Scheme
 }
@@ -26,7 +27,7 @@ type PodExpireReconciler struct {
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=pods/eviction,verbs=create
 
-func (r *PodExpireReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *PodExpiresReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
 	pod := &corev1.Pod{}
 
@@ -34,17 +35,17 @@ func (r *PodExpireReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	podExpireLogger.Info("Reconcile Pod", "Pod", pod.Name, "Namespace", pod.Namespace)
+	podExpiresLogger.V(5).Info("Reconcile Pod", "Pod", pod.Name, "Namespace", pod.Namespace)
 
 	if pod.DeletionTimestamp != nil {
-		podExpireLogger.V(5).Info("Pod is being deleted, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
+		podExpiresLogger.V(5).Info("Pod is being deleted, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
 		return ctrl.Result{}, nil
 	}
 
 	annotations := pod.GetAnnotations()
 
 	if annotations == nil {
-		podExpireLogger.V(5).Info("No expiry annotations, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
+		podExpiresLogger.V(5).Info("No annotations, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
 		return ctrl.Result{}, nil
 	}
 	var watched bool
@@ -64,33 +65,43 @@ func (r *PodExpireReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	if !watched {
-		podExpireLogger.V(2).Info("No expiry annotations, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
+		podExpiresLogger.V(5).Info("No expiry annotations, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
 		return ctrl.Result{}, nil
 	}
-	podExpireLogger.V(10).Info("Found expiry annotations", "Pod", pod.Name, "Namespace", pod.Namespace, "annotations", annotations)
+
+	podExpiresLogger.Info("Reconcile pod with expiry annotations", "Pod", pod.Name, "Namespace", pod.Namespace, "annotations", annotations)
 
 	if minTime == nil {
-		podExpireLogger.V(2).Info("No expiry time, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
+		podExpiresLogger.V(1).Info("No expiry time, skip it", "Pod", pod.Name, "Namespace", pod.Namespace)
 		return ctrl.Result{}, nil
 	}
 
 	if minTime.Before(time.Now()) {
-		err := r.Client.SubResource("eviction").Create(ctx, pod, &policyv1.Eviction{})
+
+		// naming eviction object with pod name
+		eviction := &policyv1.Eviction{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      pod.Name,
+				Namespace: pod.Namespace,
+			},
+		}
+
+		err := r.Client.SubResource("eviction").Create(ctx, pod, eviction)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to evict pod: %w", err)
 		}
-		podExpireLogger.Info("Evict pod immediately", "Pod", pod.Name, "Namespace", pod.Namespace)
+		podExpiresLogger.Info("Evict pod immediately", "Pod", pod.Name, "Namespace", pod.Namespace)
 		return ctrl.Result{}, nil
 	}
 
 	delay_time := time.Until(*minTime)
-	podExpireLogger.Info("Evict pod after delay", "Pod", pod.Name, "Namespace", pod.Namespace, "Delay", delay_time)
+	podExpiresLogger.Info("Evict pod after delay", "Pod", pod.Name, "Namespace", pod.Namespace, "Delay", delay_time)
 
 	return ctrl.Result{RequeueAfter: delay_time}, nil
 }
 
-func (r *PodExpireReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *PodExpiresReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.Pod{}).Named("podExpire").
+		For(&corev1.Pod{}).Named("podExpires").
 		Complete(r)
 }

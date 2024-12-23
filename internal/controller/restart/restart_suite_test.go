@@ -80,7 +80,7 @@ var _ = BeforeSuite(func() {
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
-	err = (&restart.PodExpireReconciler{
+	err = (&restart.PodExpiresReconciler{
 		Client: k8sManager.GetClient(),
 		Schema: k8sManager.GetScheme(),
 	}).SetupWithManager(k8sManager)

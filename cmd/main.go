@@ -163,11 +163,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := (&restart.PodExpireReconciler{
+	if err := (&restart.PodExpiresReconciler{
 		Client: mgr.GetClient(),
 		Schema: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "PodExpireReconciler")
+		setupLog.Error(err, "unable to create controller", "controller", "PodExpiresReconciler")
 		os.Exit(1)
 	}
 

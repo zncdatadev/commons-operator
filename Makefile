@@ -1,4 +1,3 @@
-
 # VERSION refers to the application version.
 VERSION ?= 0.0.0-dev
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
@@ -274,7 +273,7 @@ CHAINSAW = $(LOCALBIN)/chainsaw
 # Create a kind cluster
 .PHONY: kind-create
 kind-create: kind ## Create a kind cluster.
-	$(KIND) create cluster --config $(KIND_CONFIG) --image $(KIND_IMAGE) --name $(KIND_CLUSTER_NAME) --kubeconfig $(KIND_KUBECONFIG) --wait 120s
+	$(KIND) create cluster --image $(KIND_IMAGE) --name $(KIND_CLUSTER_NAME) --kubeconfig $(KIND_KUBECONFIG) --wait 120s
 
 .PHONY: kind-delete
 kind-delete: kind ## Delete a kind cluster.
@@ -308,15 +307,14 @@ $(CHAINSAW): $(LOCALBIN)
 	}
 
 .PHONY: chainsaw-setup
-chainsaw-setup: ## Run the chainsaw setup
-	make docker-build
+chainsaw-setup: docker-build ## Run the chainsaw setup
 	$(KIND) --name $(KIND_CLUSTER_NAME) load docker-image $(IMG)
-	KUBECONFIG=$(KIND_KUBECONFIG) make deploy
+	KUBECONFIG=$(KIND_KUBECONFIG) $(MAKE) deploy
 
 .PHONY: chainsaw-test
 chainsaw-test: chainsaw ## Run the chainsaw test
-	KUBECONFIG=$(KIND_KUBECONFIG) $(CHAINSAW) test --cluster cluster-1=$(KIND_KUBECONFIG) --test-dir ./test/e2e/
+	KUBECONFIG=$(KIND_KUBECONFIG) $(CHAINSAW) test --config ./test/chainsaw/.chainsaw.yaml --test-dir ./test/chainsaw/
 
 .PHONY: chainsaw-cleanup
 chainsaw-cleanup: ## Run the chainsaw cleanup
-	KUBECONFIG=$(KIND_KUBECONFIG) make undeploy
+	KUBECONFIG=$(KIND_KUBECONFIG) $(MAKE) undeploy

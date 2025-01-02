@@ -1,7 +1,14 @@
 # VERSION refers to the application version.
 VERSION ?= 0.0.0-dev
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
+# The version only effects unit tests.
 ENVTEST_K8S_VERSION = 1.26.1
+# KIND_K8S_VERSION refers to the version of k8s to be used by kind.
+# The version only effects e2e tests.
+# When run `make kind-create`, the version of k8s will be used to create the kind cluster,
+# and the target kubeconfig file will be named as `./kind-kubeconfig-$(KIND_K8S_VERSION)`.
+# So if you want to use the target cluster, to run `export KUBECONFIG=./kind-kubeconfig-$(KIND_K8S_VERSION)`.
+KIND_K8S_VERSION ?= 1.26.15
 
 # REGISTRY refers to the container registry where the image will be pushed.
 REGISTRY ?= quay.io/zncdatadev
@@ -260,12 +267,11 @@ endif
 ##@ Chainsaw-E2E
 
 # Tool Versions
-KINDTEST_K8S_VERSION ?= 1.26.15
 CHAINSAW_VERSION ?= v0.2.11
 
-KIND_IMAGE ?= kindest/node:v${KINDTEST_K8S_VERSION}
-KIND_KUBECONFIG ?= ./kind-kubeconfig-$(KINDTEST_K8S_VERSION)
-KIND_CLUSTER ?= ${PROJECT_NAME}-$(KINDTEST_K8S_VERSION)
+KIND_IMAGE ?= kindest/node:v${KIND_K8S_VERSION}
+KIND_KUBECONFIG ?= ./kind-kubeconfig-$(KIND_K8S_VERSION)
+KIND_CLUSTER ?= ${PROJECT_NAME}-$(KIND_K8S_VERSION)
 KIND_CONFIG ?= test/e2e/kind-config.yaml
 
 CHAINSAW = $(LOCALBIN)/chainsaw

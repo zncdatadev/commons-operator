@@ -34,6 +34,10 @@ const (
 
 	certmanagerVersion = "v1.16.0"
 	certmanagerURLTmpl = "https://github.com/jetstack/cert-manager/releases/download/%s/cert-manager.yaml"
+
+	registry    = "quay.io/zncdatadev"
+	projectName = "commons-operator"
+	devVersion  = "0.0.0-dev"
 )
 
 func warnError(err error) {
@@ -92,7 +96,7 @@ func IsPrometheusCRDsInstalled() bool {
 	if err != nil {
 		return false
 	}
-	crdList := GetNonEmptyLines(string(output))
+	crdList := GetNonEmptyLines(output)
 	for _, crd := range prometheusCRDs {
 		for _, line := range crdList {
 			if strings.Contains(line, crd) {
@@ -153,7 +157,7 @@ func IsCertManagerCRDsInstalled() bool {
 	}
 
 	// Check if any of the Cert Manager CRDs are present
-	crdList := GetNonEmptyLines(string(output))
+	crdList := GetNonEmptyLines(output)
 	for _, crd := range certManagerCRDs {
 		for _, line := range crdList {
 			if strings.Contains(line, crd) {
@@ -248,4 +252,12 @@ func UncommentCode(filename, target, prefix string) error {
 	// false positive
 	// nolint:gosec
 	return os.WriteFile(filename, out.Bytes(), 0644)
+}
+
+func GetProjectImg() string {
+	version, ok := os.LookupEnv("VERSION")
+	if !ok {
+		version = devVersion
+	}
+	return fmt.Sprintf("%s/%s:%s", registry, projectName, version)
 }

@@ -319,7 +319,7 @@ chainsaw-setup: docker-build ## Run the chainsaw setup
 
 .PHONY: chainsaw-test
 chainsaw-test: chainsaw ## Run the chainsaw test
-	KUBECONFIG=$(KIND_KUBECONFIG) $(CHAINSAW) test --config ./test/chainsaw/.chainsaw.yaml --test-dir ./test/chainsaw/
+	KUBECONFIG=$(KIND_KUBECONFIG) $(CHAINSAW) test --config ./test/e2e/chainsaw/.chainsaw.yaml --test-dir ./test/e2e/chainsaw/
 
 .PHONY: chainsaw-cleanup
 chainsaw-cleanup: ## Run the chainsaw cleanup

@@ -126,7 +126,7 @@ docker-push: ## Push docker image with the manager.
 # - have enabled BuildKit. More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 # - be able to push the image to your registry (i.e. if you do not set a valid value via IMG=<myregistry/image:<tag>> then the export will fail)
 # To adequately provide solutions that are compatible with multiple platforms, you should consider using this option.
-PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x,linux/ppc64le
+PLATFORMS ?= linux/arm64,linux/amd64
 .PHONY: docker-buildx
 docker-buildx: ## Build and push docker image for the manager for cross-platform support
 	# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
@@ -265,7 +265,7 @@ CHAINSAW_VERSION ?= v0.2.11
 
 KIND_IMAGE ?= kindest/node:v${KINDTEST_K8S_VERSION}
 KIND_KUBECONFIG ?= ./kind-kubeconfig-$(KINDTEST_K8S_VERSION)
-KIND_CLUSTER_NAME ?= ${PROJECT_NAME}-$(KINDTEST_K8S_VERSION)
+KIND_CLUSTER ?= ${PROJECT_NAME}-$(KINDTEST_K8S_VERSION)
 KIND_CONFIG ?= test/e2e/kind-config.yaml
 
 CHAINSAW = $(LOCALBIN)/chainsaw
@@ -273,11 +273,11 @@ CHAINSAW = $(LOCALBIN)/chainsaw
 # Create a kind cluster
 .PHONY: kind-create
 kind-create: kind ## Create a kind cluster.
-	$(KIND) create cluster --image $(KIND_IMAGE) --name $(KIND_CLUSTER_NAME) --kubeconfig $(KIND_KUBECONFIG) --wait 120s
+	$(KIND) create cluster --image $(KIND_IMAGE) --name $(KIND_CLUSTER) --kubeconfig $(KIND_KUBECONFIG) --wait 120s
 
 .PHONY: kind-delete
 kind-delete: kind ## Delete a kind cluster.
-	$(KIND) delete cluster --name $(KIND_CLUSTER_NAME)
+	$(KIND) delete cluster --name $(KIND_CLUSTER)
 
 # chainsaw
 
@@ -308,7 +308,7 @@ $(CHAINSAW): $(LOCALBIN)
 
 .PHONY: chainsaw-setup
 chainsaw-setup: docker-build ## Run the chainsaw setup
-	$(KIND) --name $(KIND_CLUSTER_NAME) load docker-image $(IMG)
+	$(KIND) --name $(KIND_CLUSTER) load docker-image $(IMG)
 	KUBECONFIG=$(KIND_KUBECONFIG) $(MAKE) deploy
 
 .PHONY: chainsaw-test

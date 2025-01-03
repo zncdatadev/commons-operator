@@ -18,6 +18,10 @@ resources:
   kind: AuthenticationClass
   path: github.com/zncdatadev/commons-operator/api/authentication/v1alpha1
   version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 - api:
     crdVersion: v1
     namespaced: true

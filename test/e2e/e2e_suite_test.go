@@ -97,7 +97,8 @@ var _ = BeforeSuite(func() {
 			Expect(utils.InstallCertManager()).To(Succeed(), "Failed to install CertManager")
 			_, _ = fmt.Fprintf(GinkgoWriter, "Waiting for CertManager to be ready...\n")
 			// Expect(utils.WaitForCertManagerToBeReady()).To(Succeed(), "CertManager is not ready")
-			// When cert-manager crds with cert not ready, to create issuer, it will raise x509: certificate signed by unknown authority
+			// When cert-manager crds with cert not ready, to create issuer,
+			// it will raise x509: certificate signed by unknown authority
 			// So, we need retry to wait for cert-manager to be ready
 			Eventually(func(g Gomega) {
 				g.Expect(utils.WaitForCertManagerToBeReady()).To(Succeed(), "CertManager is not ready")

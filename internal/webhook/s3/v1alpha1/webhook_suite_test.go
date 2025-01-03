@@ -33,7 +33,7 @@ import (
 	admissionv1 "k8s.io/api/admission/v1"
 
 	// +kubebuilder:scaffold:imports
-	authenticationv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1"
+	s3v1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/s3/v1alpha1"
 	apimachineryruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -72,7 +72,7 @@ func TestAPIs(t *testing.T) {
 
 	RegisterFailHandler(Fail)
 
-	RunSpecs(t, "Authentication Webhook Suite")
+	RunSpecs(t, "S3 Webhook Suite")
 }
 
 var _ = BeforeSuite(func() {
@@ -96,7 +96,7 @@ var _ = BeforeSuite(func() {
 	Expect(cfg).NotTo(BeNil())
 
 	scheme := apimachineryruntime.NewScheme()
-	err = authenticationv1alpha1.AddToScheme(scheme)
+	err = s3v1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	err = admissionv1.AddToScheme(scheme)
@@ -122,7 +122,7 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).NotTo(HaveOccurred())
 
-	err = SetupAuthenticationClassWebhookWithManager(mgr)
+	err = SetupS3ConnectionWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:webhook

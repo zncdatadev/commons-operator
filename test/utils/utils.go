@@ -171,10 +171,18 @@ func WaitForCertManagerToBeReady() error {
 	}
 
 	issuerFile := path.Join(os.TempDir(), "test-issuer.yaml")
-	defer os.Remove(issuerFile)
+	defer func() {
+		if err := os.Remove(issuerFile); err != nil {
+			warnError(err)
+		}
+	}()
 
 	certificateFile := path.Join(os.TempDir(), "test-certificate.yaml")
-	defer os.Remove(certificateFile)
+	defer func() {
+		if err := os.Remove(certificateFile); err != nil {
+			warnError(err)
+		}
+	}()
 
 	if err := WriteResourceToJSON(issuer, issuerFile); err != nil {
 		return err

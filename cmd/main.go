@@ -26,7 +26,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	authenticationv1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1"
-	s3v1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1"
+	s3v1alpha1 "github.com/zncdatadev/operator-go/pkg/apis/s3/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -40,13 +40,8 @@ import (
 	"github.com/zncdatadev/commons-operator/internal/controller/pod_enrichment"
 	"github.com/zncdatadev/commons-operator/internal/controller/restart"
 	webhookauthenticationv1alpha1 "github.com/zncdatadev/commons-operator/internal/webhook/authentication/v1alpha1"
-
+	webhooks3v1alpha1 "github.com/zncdatadev/commons-operator/internal/webhook/s3/v1alpha1"
 	// +kubebuilder:scaffold:imports
-
-	// Now we need to import the constants package to fix olm bundle generate error
-	// later refactoring with constants feature, we will use it.
-	_ "github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1"
-	_ "github.com/zncdatadev/operator-go/pkg/apis/s3/v1alpha1"
 )
 
 var (
@@ -181,6 +176,13 @@ func main() {
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = webhookauthenticationv1alpha1.SetupAuthenticationClassWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "AuthenticationClass")
+			os.Exit(1)
+		}
+	}
+	// nolint:goconst
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err = webhooks3v1alpha1.SetupS3ConnectionWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "S3Connection")
 			os.Exit(1)
 		}
 	}

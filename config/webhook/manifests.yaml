@@ -30,6 +30,26 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /mutate-s3-kubedoop-dev-v1alpha1-s3bucket
+  failurePolicy: Fail
+  name: ms3bucket-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - s3.kubedoop.dev
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - s3buckets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /mutate-s3-kubedoop-dev-v1alpha1-s3connection
   failurePolicy: Fail
   name: ms3connection-v1alpha1.kb.io
@@ -69,6 +89,26 @@ webhooks:
     - UPDATE
     resources:
     - authenticationclasses
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-s3-kubedoop-dev-v1alpha1-s3bucket
+  failurePolicy: Fail
+  name: vs3bucket-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - s3.kubedoop.dev
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - s3buckets
   sideEffects: None
 - admissionReviewVersions:
   - v1

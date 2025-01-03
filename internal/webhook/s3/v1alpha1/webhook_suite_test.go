@@ -125,6 +125,9 @@ var _ = BeforeSuite(func() {
 	err = SetupS3ConnectionWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = SetupS3BucketWebhookWithManager(mgr)
+	Expect(err).NotTo(HaveOccurred())
+
 	// +kubebuilder:scaffold:webhook
 
 	go func() {

@@ -17,6 +17,7 @@ resources:
   group: authentication
   kind: AuthenticationClass
   path: github.com/zncdatadev/operator-go/pkg/apis/authentication/v1alpha1
+  # path: github.com/zncdatadev/commons-operator/api/authentication/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -30,6 +31,7 @@ resources:
   group: s3
   kind: S3Connection
   path: github.com/zncdatadev/operator-go/pkg/apis/s3/v1alpha1
+  # path: github.com/zncdatadev/commons-operator/api/s3/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -43,5 +45,10 @@ resources:
   group: s3
   kind: S3Bucket
   path: github.com/zncdatadev/operator-go/pkg/apis/s3/v1alpha1
+  # path: github.com/zncdatadev/commons-operator/api/s3/v1alpha1
   version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 version: "3"

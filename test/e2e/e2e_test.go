@@ -58,8 +58,8 @@ var _ = Describe("Manager", Ordered, func() {
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to install CRDs")
 
-		By("delay 10 seconds to wait for the CRDs to be installed")
-		time.Sleep(10 * time.Second)
+		By("delay 5 seconds to wait for the CRDs to be installed")
+		time.Sleep(5 * time.Second)
 
 		By("deploying the controller-manager")
 		cmd = exec.Command("make", "deploy", fmt.Sprintf("IMG=%s", utils.GetProjectImg()))

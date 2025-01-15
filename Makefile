@@ -243,26 +243,31 @@ mv $(1) $(1)-$(3) ;\
 ln -sf $(1)-$(3) $(1)
 endef
 
-HELM_DEPENDS ?= commons-operator listener-operator secret-operator
 TEST_NAMESPACE = kubedoop-operators
+HELM_DEPENDS ?= ""
+
 
 .PHONY: helm-install-depends
 helm-install-depends: helm ## Install the helm chart depends.
-	$(HELM) repo add kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
-ifneq ($(strip $(HELM_DEPENDS)),)
-	for dep in $(HELM_DEPENDS); do \
-		$(HELM) upgrade --install --create-namespace --namespace $(TEST_NAMESPACE) --wait $$dep kubedoop/$$dep --version $(VERSION); \
-	done
-endif
+	# install cert-manage
+	KUBECONFIG=$(KIND_KUBECONFIG) kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
+	@if [ ! -z "$(strip $(HELM_DEPENDS))" ]; then \
+		$(HELM) repo add kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/; \
+		for dep in $(HELM_DEPENDS); do \
+			$(HELM) upgrade --install --create-namespace --namespace $(TEST_NAMESPACE) --wait $$dep kubedoop/$$dep --version $(VERSION); \
+		done; \
+	fi
 
 ## helm uninstall depends
 .PHONY: helm-uninstall-depends
 helm-uninstall-depends: helm ## Uninstall the helm chart depends.
-ifneq ($(strip $(HELM_DEPENDS)),)
-	for dep in $(HELM_DEPENDS); do \
-		$(HELM) uninstall --namespace $(TEST_NAMESPACE) $$dep; \
-	done
-endif
+	# uninstall cert-manage
+	KUBECONFIG=$(KIND_KUBECONFIG) kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
+	@if [ ! -z "$(strip $(HELM_DEPENDS))" ]; then \
+		for dep in $(HELM_DEPENDS); do \
+			$(HELM) uninstall --namespace $(TEST_NAMESPACE) $$dep; \
+		done; \
+	fi
 
 ##@ Chainsaw-E2E
 
@@ -313,7 +318,7 @@ $(CHAINSAW): $(LOCALBIN)
 	}
 
 .PHONY: chainsaw-setup
-chainsaw-setup: docker-build ## Run the chainsaw setup
+chainsaw-setup: docker-build helm-install-depends ## Run the chainsaw setup
 	$(KIND) --name $(KIND_CLUSTER) load docker-image $(IMG)
 	KUBECONFIG=$(KIND_KUBECONFIG) $(MAKE) deploy
 

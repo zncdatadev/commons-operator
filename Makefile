@@ -2,7 +2,8 @@
 VERSION ?= 0.0.0-dev
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 # The version only effects unit tests.
-ENVTEST_K8S_VERSION = 1.26.1
+# You can find the list of released envtest-k8s versions with `Release envtest` from https://github.com/kubernetes-sigs/controller-tools/releases
+ENVTEST_K8S_VERSION = 1.32.0
 # KIND_K8S_VERSION refers to the version of k8s to be used by kind.
 # The version only effects e2e tests.
 # When run `make kind-create`, the version of k8s will be used to create the kind cluster,
@@ -190,12 +191,12 @@ HELM = $(LOCALBIN)/helm
 KIND = $(LOCALBIN)/kind
 
 ## Tool Versions
-KUSTOMIZE_VERSION ?= v5.5.0
-CONTROLLER_TOOLS_VERSION ?= v0.16.5
-ENVTEST_VERSION ?= release-0.19
-GOLANGCI_LINT_VERSION ?= v1.62.0
-HELM_VERSION ?= v3.16.2
-KIND_VERSION ?= v0.24.0
+KUSTOMIZE_VERSION ?= v5.6.0
+CONTROLLER_TOOLS_VERSION ?= v0.17.1
+ENVTEST_VERSION ?= release-0.20
+GOLANGCI_LINT_VERSION ?= v1.63.4
+HELM_VERSION ?= v3.17.0
+KIND_VERSION ?= v0.26.0
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
@@ -267,7 +268,7 @@ endif
 ##@ Chainsaw-E2E
 
 # Tool Versions
-CHAINSAW_VERSION ?= v0.2.11
+CHAINSAW_VERSION ?= v0.2.12
 
 KIND_IMAGE ?= kindest/node:v${KIND_K8S_VERSION}
 KIND_KUBECONFIG ?= ./kind-kubeconfig-$(KIND_K8S_VERSION)

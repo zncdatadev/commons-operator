@@ -41,7 +41,7 @@ jobs:
       - name: Run linter
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.61
+          version: v1.63
 
   golang-test:
     name: Golang Test
@@ -73,6 +73,7 @@ jobs:
           '1.29.12',
           '1.30.8',
           '1.31.4',
+          '1.32.0'
         ]
     steps:
       - name: Clone the code
@@ -104,6 +105,7 @@ jobs:
           '1.29.12',
           '1.30.8',
           '1.31.4',
+          '1.32.0'
         ]
     steps:
       - name: Clone the code

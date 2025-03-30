@@ -14,16 +14,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/kubectl/pkg/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	ctrlclient "sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	fakeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
 var _ = Describe("PodExpiresReconciler", func() {
 	var (
 		fakeReconciler *restart.PodExpiresReconciler
 		pod            *corev1.Pod
-		fakeClient     client.Client
+		fakeClient     ctrlclient.Client
 	)
 
 	BeforeEach(func() {
@@ -95,7 +94,7 @@ var _ = Describe("PodExpiresReconciler", func() {
 	Context("Pod expiration with fake client", func() {
 		BeforeEach(func() {
 			ctx = context.Background()
-			fakeClient = fake.NewClientBuilder().WithScheme(scheme.Scheme).Build()
+			fakeClient = fakeclient.NewClientBuilder().WithScheme(scheme.Scheme).Build()
 			fakeReconciler = &restart.PodExpiresReconciler{
 				Client: fakeClient,
 				Schema: fakeClient.Scheme(),

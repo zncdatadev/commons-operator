@@ -125,7 +125,7 @@ func (p *PodHandler) getNodeAddress(ctx context.Context) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("Node %s has no address", node.Name)
+	return "", fmt.Errorf("node %s has no address", node.Name)
 }
 
 func (p *PodHandler) updateNodeAddrToPodMeta(ctx context.Context, nodeAddress string) error {

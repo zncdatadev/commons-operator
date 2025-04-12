@@ -142,7 +142,7 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- $(CONTAINER_TOOL) buildx create --name $(PROJECT_NAME)-builder
 	$(CONTAINER_TOOL) buildx use $(PROJECT_NAME)-builder
-	- $(CONTAINER_TOOL) buildx build --platform=$(PLATFORMS) --tag ${IMG} --metadata-file ${BUILDX_METADATA_FILE} -f Dockerfile.cross .
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG} --metadata-file ${BUILDX_METADATA_FILE} -f Dockerfile.cross .
 	- $(CONTAINER_TOOL) buildx rm $(PROJECT_NAME)-builder
 	rm Dockerfile.cross
 

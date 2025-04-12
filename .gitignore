@@ -43,3 +43,5 @@ deploy/helm/commons-operator-*
 
 # Ignore chart-release directory
 .cr-**
+
+docker-digests.json

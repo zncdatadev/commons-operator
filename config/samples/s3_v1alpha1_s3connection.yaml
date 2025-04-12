@@ -23,5 +23,3 @@ spec:
           caCert:
             secretClass: tls
             webPIK: {}
-        mutual:
-          certSecretClass: tls

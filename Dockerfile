@@ -11,7 +11,7 @@ COPY go.sum go.sum
 RUN go mod download
 
 COPY cmd/main.go cmd/main.go
-COPY internal/controller/ internal/controller/
+COPY internal/ internal/
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o manager cmd/main.go
 

@@ -9,7 +9,7 @@ on:
 
 
 env:
-  VERSION: ${{ github.ref_name }}
+  VERSION: ${{ github.ref_type == 'tag' && github.ref_name || '0.0.0-dev' }}
 
 
 jobs:

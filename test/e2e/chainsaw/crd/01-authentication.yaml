@@ -21,8 +21,6 @@ spec:
             caCert:
               secretClass: tls
               webPki: {}
-          mutual:
-            certSecretClass: tls
     tls:
       clientCertSecretClass: tls
     static:
@@ -53,5 +51,3 @@ spec:
             caCert:
               secretClass: tls
               webPki: {}
-          mutual:
-            certSecretClass: tls

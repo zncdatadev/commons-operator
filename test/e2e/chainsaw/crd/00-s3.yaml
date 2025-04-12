@@ -20,8 +20,6 @@ spec:
         caCert:
           secretClass: tls
           webPki: {}
-      mutual:
-        certSecretClass: tls
 
 ---
 apiVersion: s3.kubedoop.dev/v1alpha1

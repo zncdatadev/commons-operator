@@ -13,6 +13,7 @@ KIND_K8S_VERSION ?= 1.26.15
 
 # REGISTRY refers to the container registry where the image will be pushed.
 REGISTRY ?= quay.io/zncdatadev
+OCI_REGISTRY ?= oci://quay.io/kubedoopcharts
 PROJECT_NAME = commons-operator
 
 # Image URL to use all building/pushing image targets
@@ -151,6 +152,16 @@ build-installer: manifests generate kustomize ## Generate a consolidated YAML wi
 	mkdir -p dist
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default > dist/install.yaml
+
+.PHONY: chart ## Generate helm chart for the operator.
+chart: manifests kustomize ## Generate helm chart for the operator.
+	$(KUSTOMIZE) build config/crd > deploy/helm/$(PROJECT_NAME)/crds/crds.yaml
+
+.PHONY: chart-publish ## Publish helm chart for the operator.
+chart-publish: helm chart ## Publish helm chart for the operator.
+	mkdir -p target/charts
+	$(HELM) package deploy/helm/$(PROJECT_NAME) --version $(VERSION) --app-version $(VERSION) --destination target/charts
+	# $(HELM) push target/charts/$(PROJECT_NAME)-$(VERSION).tgz $(OCI_REGISTRY)
 
 ##@ Deployment
 

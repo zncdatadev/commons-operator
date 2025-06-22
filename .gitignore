@@ -45,3 +45,5 @@ deploy/helm/commons-operator-*
 .cr-**
 
 docker-digests.json
+
+target

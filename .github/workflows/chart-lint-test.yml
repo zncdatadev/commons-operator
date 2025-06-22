@@ -14,8 +14,13 @@ jobs:
   check-crds-sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Clone the code
         uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: Check CRDs sync
         run: |
           # Use `make manfest` to generate the CRDs

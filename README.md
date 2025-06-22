@@ -13,18 +13,12 @@ together seamlessly. Based on Kubernetes, it runs everywhere – on prem or in t
 
 ## Quick Start
 
-### Add helm repository
+### Add commons-operator
 
 > Please make sure helm version is v3.0.0+
 
 ```bash
-helm repo add kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
-```
-
-### Add commons-operator
-
-```bash
-helm install commons-operator kubedoop/commons-operator
+helm install commons-operator oci://quay.io/kubedoopcharts
 ```
 
 ### Deploy commons operator

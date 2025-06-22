@@ -1,11 +1,10 @@
 ## Reference: https://github.com/helm/chart-testing-action
 name: Linting and Testing
 on:
-  pull_request:
   push:
     branches:
-      - main
-      - release-*
+      - "main"
+  pull_request:
 
 permissions:
   contents: read
@@ -23,8 +22,8 @@ jobs:
           go-version-file: go.mod
       - name: Check CRDs sync
         run: |
-          # Use `make manfest` to generate the CRDs
-          make manifest
+          # Use `make manifests` to generate the CRDs
+          make manifests
           # Check if the CRDs are in sync with the manifests
           if ! git diff --exit-code; then
             echo "CRDs are not in sync with the manifests."

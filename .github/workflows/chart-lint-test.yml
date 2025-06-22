@@ -40,7 +40,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run ah lint
-        working-directory: ./charts
+        working-directory: deploy/helm
         run: ah lint
 
   lint-test:

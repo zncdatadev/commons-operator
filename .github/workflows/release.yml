@@ -83,7 +83,7 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Create KinD clustet
+      - name: Create KinD cluster
         run: kind create cluster --image kindest/node:v${{ matrix.k8s-version }}
 
       - name: Run test-e2e
@@ -115,7 +115,7 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Create KinD clustet
+      - name: Create KinD cluster
         env:
           KIND_K8S_VERSION: ${{ matrix.k8s-version}}
           KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}

@@ -18,7 +18,7 @@ together seamlessly. Based on Kubernetes, it runs everywhere – on prem or in t
 > Please make sure helm version is v3.0.0+
 
 ```bash
-helm install commons-operator oci://quay.io/kubedoopcharts
+helm install commons-operator oci://quay.io/kubedoopcharts/commons-operator
 ```
 
 ### Deploy commons operator

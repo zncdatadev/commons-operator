@@ -19,9 +19,7 @@ please use `kubectl` to upgrade CRDs manually from [templates/crds](templates/cr
 To install the chart with the release name `commons-operator`:
 
 ```bash
-helm repo add kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
-
-helm install commons-operator kubedoop/commons-operator
+helm install commons-operator oci://quay.io/kubedoopcharts/commons-operator
 ```
 
 ## Usage

@@ -154,7 +154,7 @@ build-installer: manifests generate kustomize ## Generate a consolidated YAML wi
 	$(KUSTOMIZE) build config/default > dist/install.yaml
 
 .PHONY: chart-sync ## Generate helm chart for the operator.
-chart: manifests kustomize ## Generate helm chart for the operator.
+chart-sync: manifests kustomize ## Generate helm chart for the operator.
 	$(KUSTOMIZE) build config/crd > deploy/helm/$(PROJECT_NAME)/crds/crds.yaml
 
 .PHONY: chart-package ## Package helm chart for the operator.

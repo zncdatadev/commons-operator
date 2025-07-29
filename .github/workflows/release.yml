@@ -230,6 +230,16 @@ jobs:
     if: ${{ github.repository_owner == 'zncdatadev' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Clone the code
+        uses: actions/checkout@v4
+
+      - name: Login to quay.io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_CHART_USERNAME }}
+          password: ${{ secrets.QUAY_CHART_PASSWORD }}
+
       - name: Build and push oci chart
         run: |
           make chart-publish

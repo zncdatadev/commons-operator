@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "main"
+      - feat/sync-chart-index
   pull_request:
 
 permissions:

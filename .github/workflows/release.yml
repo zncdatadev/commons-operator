@@ -243,3 +243,42 @@ jobs:
       - name: Build and push oci chart
         run: |
           make chart-publish
+
+      - name: Clone helm charts repository
+        uses: actions/checkout@v4
+        with:
+          repository: zncdatadev/kubedoop-helm-charts
+          ref: gh-pages
+          token: ${{ secrets.HELM_CHARTS_REPO_TOKEN }}
+          path: kubedoop-helm-charts
+
+      - name: Update helm charts index
+        run: |
+          OCI_REGISTRY="oci://quay.io/kubedoopcharts"
+
+          # Ensure chart index.yaml exists
+          if [ ! -f kubedoop-helm-charts/index.yaml ]; then
+            echo "index.yaml not found"
+            exit 1
+          fi
+
+          # Get chart package file from the target directory
+          CHART_PACKAGE=$(ls target/charts/*.tgz | xargs -n 1 basename)
+
+          # Regenerate the index.yaml file for the helm charts repository
+          helm repo index --url $OCI_REGISTRY --merge kubedoop-helm-charts/index.yaml target/charts
+          # Replace .tgz in URL with OCI tag (remove .tgz suffix)
+          sed -i "s|$OCI_REGISTRY/$CHART_PACKAGE|$OCI_REGISTRY/${CHART_PACKAGE%.tgz}|" target/charts/index.yaml
+
+          # Copy the updated index.yaml to the kubedoop-helm-charts directory
+          cp target/charts/index.yaml kubedoop-helm-charts/index.yaml
+
+          # Push index.yaml to the kubedoop-helm-charts repository
+          cd kubedoop-helm-charts
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add index.yaml
+          git commit -m "Update index"
+          git push origin gh-pages

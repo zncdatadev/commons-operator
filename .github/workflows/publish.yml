@@ -79,21 +79,12 @@ jobs:
           CHART_PACKAGE=$(ls target/charts/*.tgz | xargs -n 1 basename)
 
           # Regenerate the index.yaml file for the helm charts repository
-          helm repo index --url $OCI_REGISTRY --merge kubedoop-helm-charts/index.yaml target/
+          helm repo index --url $OCI_REGISTRY --merge kubedoop-helm-charts/index.yaml target/charts
           # Replace .tgz in URL with OCI tag (remove .tgz suffix)
-          sed -i "s|$OCI_REGISTRY/$CHART_PACKAGE|$OCI_REGISTRY/${CHART_PACKAGE%.tgz}|" target/index.yaml
-
-          # Check repo can be loaded
-          if ! helm repo add cache file://$(pwd)/target/; then
-            echo "New index.yaml file can't be used as a file"
-            exit 1
-          else
-            # Remove the cache
-            helm repo remove cache
-          fi
+          sed -i "s|$OCI_REGISTRY/$CHART_PACKAGE|$OCI_REGISTRY/${CHART_PACKAGE%.tgz}|" target/charts/index.yaml
 
           # Copy the updated index.yaml to the kubedoop-helm-charts directory
-          cp target/index.yaml kubedoop-helm-charts/index.yaml
+          cp target/charts/index.yaml kubedoop-helm-charts/index.yaml
 
           # Push index.yaml to the kubedoop-helm-charts repository
           cd kubedoop-helm-charts
@@ -102,5 +93,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add index.yaml
-          git commit -m "Update helm charts index"
+          git commit -m "Update index"
           git push origin gh-pages

@@ -262,8 +262,14 @@ jobs:
             exit 1
           fi
 
-          # Get chart package file from the target directory
-          CHART_PACKAGE=$(ls target/charts/*.tgz | xargs -n 1 basename)
+          # Get chart package file from the target directory, ensuring exactly one exists
+          CHART_PACKAGES=$(ls target/charts/*.tgz)
+          if [ $(echo "$CHART_PACKAGES" | wc -l) -ne 1 ]; then
+            echo "Expected exactly one chart package, found: $CHART_PACKAGES"
+            exit 1
+          fi
+          CHART_PACKAGE=$(basename $CHART_PACKAGES)
+
 
           # Regenerate the index.yaml file for the helm charts repository
           helm repo index --url $OCI_REGISTRY --merge kubedoop-helm-charts/index.yaml target/charts

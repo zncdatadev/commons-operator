@@ -62,6 +62,8 @@ jobs:
         with:
           repository: zncdatadev/kubedoop-helm-charts
           ref: gh-pages
+          # Use PAT for authentication, must be a repo content rw scope token
+          # Subsequent commits to the repository require read and write permissions
           token: ${{ secrets.HELM_CHARTS_REPO_TOKEN }}
           path: kubedoop-helm-charts
 

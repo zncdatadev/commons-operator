@@ -99,4 +99,10 @@ jobs:
 
           git add index.yaml
           git commit -m "Update index"
-          git push origin gh-pages
+          # Only commit and push if there are changes
+          if ! git diff --cached --quiet; then
+            git commit -m "Update index"
+            git push origin gh-pages
+          else
+            echo "No changes to commit."
+          fi

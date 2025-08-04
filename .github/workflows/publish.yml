@@ -91,7 +91,7 @@ jobs:
           # foo-12.0.1.tgz -> CHART_NAME=foo, CHART_VERSION=12.0.1
           # my-chart-2-operator-1.0.0.tgz -> CHART_NAME=my-chart-2-operator, CHART_VERSION=1.0.0
           # Strategy: Find the last occurrence of -[digit] pattern, that's where version starts
-          CHART_NAME=$(echo $CHART_PACKAGE | sed 's/-[0-9]*\..*\.tgz$//')
+          CHART_NAME=$(echo $CHART_PACKAGE | sed 's/-[0-9]\+\..*\.tgz$//')
           CHART_VERSION=$(echo $CHART_PACKAGE | sed "s/^$CHART_NAME-\(.*\)\.tgz$/\1/")
 
           # Regenerate the index.yaml file for the helm charts repository

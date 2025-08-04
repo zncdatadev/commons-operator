@@ -272,11 +272,16 @@ jobs:
           fi
           CHART_PACKAGE=$(basename $CHART_PACKAGES)
 
+          # Extract chart name and version from package filename
+          # For commons-operator-0.0.0-dev.tgz -> CHART_NAME=commons-operator, CHART_VERSION=0.0.0-dev
+          # For commons-operator-1.2.3.tgz -> CHART_NAME=commons-operator, CHART_VERSION=1.2.3
+          CHART_NAME=$(echo $CHART_PACKAGE | sed 's/-[0-9].*\.tgz$//')
+          CHART_VERSION=$(echo $CHART_PACKAGE | sed "s/^$CHART_NAME-\(.*\)\.tgz$/\1/")
 
           # Regenerate the index.yaml file for the helm charts repository
           helm repo index --url $OCI_REGISTRY --merge kubedoop-helm-charts/index.yaml target/charts
           # Replace .tgz in URL with OCI tag (remove .tgz suffix)
-          sed -i "s|$OCI_REGISTRY/$CHART_PACKAGE|$OCI_REGISTRY/${CHART_PACKAGE%.tgz}|" target/charts/index.yaml
+          sed -i "s|$OCI_REGISTRY/$CHART_PACKAGE|$OCI_REGISTRY/$CHART_NAME:$CHART_VERSION|" target/charts/index.yaml
 
           # Copy the updated index.yaml to the kubedoop-helm-charts directory
           cp target/charts/index.yaml kubedoop-helm-charts/index.yaml

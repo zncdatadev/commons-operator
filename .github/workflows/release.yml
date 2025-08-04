@@ -281,6 +281,12 @@ jobs:
           CHART_NAME=$(echo $CHART_PACKAGE | sed 's/-[0-9]\+\..*\.tgz$//')
           CHART_VERSION=$(echo $CHART_PACKAGE | sed "s/^$CHART_NAME-\(.*\)\.tgz$/\1/")
 
+          # Validate extracted CHART_NAME and CHART_VERSION
+          if [ -z "$CHART_NAME" ] || [ -z "$CHART_VERSION" ]; then
+            echo "Failed to extract CHART_NAME or CHART_VERSION from package filename: $CHART_PACKAGE"
+            exit 1
+          fi
+
           # Regenerate the index.yaml file for the helm charts repository
           helm repo index --url $OCI_REGISTRY --merge kubedoop-helm-charts/index.yaml target/charts
           # Replace .tgz in URL with OCI tag (remove .tgz suffix)

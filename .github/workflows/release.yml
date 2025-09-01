@@ -220,24 +220,35 @@ jobs:
       - name: Fetch all tags
         run: git fetch --tags --force
 
+      - name: Get commit range
+        id: commit-range
+        run: |
+          # Get current tag's commit
+          CURRENT_TAG="${{ github.ref_name }}"
+          CURRENT_COMMIT=$(git rev-list -n1 "$CURRENT_TAG")
+          echo "current_commit=$CURRENT_COMMIT" >> "$GITHUB_OUTPUT"
+
+          # Get previous tag if exists
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -v "^${CURRENT_TAG}$" | head -n1 || true)
+
+          if [[ -z "$PREVIOUS_TAG" ]]; then
+            # If this is the first tag, get the first commit
+            SINCE_COMMIT=$(git rev-list --max-parents=0 HEAD)
+            echo "First release - using first commit: $SINCE_COMMIT"
+          else
+            SINCE_COMMIT=$(git rev-list -n1 "$PREVIOUS_TAG")
+            echo "Using previous tag $PREVIOUS_TAG commit: $SINCE_COMMIT"
+          fi
+          echo "since_commit=$SINCE_COMMIT" >> "$GITHUB_OUTPUT"
+
       - name: Check chart changes
         id: check-changes
         run: |
-          # Get current and previous tag
-          CURRENT_TAG="${{ github.ref_name }}"
-          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -A1 "^${CURRENT_TAG}$" | tail -n1)
-
-          # First release detection
-          if [[ "$PREVIOUS_TAG" == "$CURRENT_TAG" || -z "$PREVIOUS_TAG" ]]; then
-            echo "First release detected - marking all charts as changed"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "Comparing with previous tag: $PREVIOUS_TAG"
-
-          # Check for changes in chart directory
-          if ! changed=$(ct list-changed --chart-dirs deploy/helm --target-branch "$PREVIOUS_TAG"); then
+          # Check for changes in chart directory using both --since and --target-branch parameters
+          if ! changed=$(ct list-changed \
+            --chart-dirs deploy/helm \
+            --since "${{ steps.commit-range.outputs.since_commit }}" \
+            --target-branch "${{ github.ref }}"); then
             echo "Failed to check for changes"
             exit 1
           fi

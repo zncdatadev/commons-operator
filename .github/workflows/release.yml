@@ -217,26 +217,50 @@ jobs:
         id: lint
         uses: helm/chart-testing-action@v2.7.0
 
-      - name: Run chart-testing (list-changed)
-        id: list-changed
+      - name: Fetch all tags
+        run: git fetch --tags --force
+
+      - name: Check chart changes
+        id: check-changes
         run: |
-          changed=$(ct list-changed --chart-dirs deploy/helm --target-branch ${{ github.event.repository.default_branch }})
-          if [[ -n "$changed" ]]; then
+          # Get current and previous tag
+          CURRENT_TAG="${{ github.ref_name }}"
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -A1 "^${CURRENT_TAG}$" | tail -n1)
+
+          # First release detection
+          if [[ "$PREVIOUS_TAG" == "$CURRENT_TAG" || -z "$PREVIOUS_TAG" ]]; then
+            echo "First release detected - marking all charts as changed"
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Comparing with previous tag: $PREVIOUS_TAG"
+
+          # Check for changes in chart directory
+          if ! changed=$(ct list-changed --chart-dirs deploy/helm --target-branch "$PREVIOUS_TAG"); then
+            echo "Failed to check for changes"
+            exit 1
+          fi
+
+          if [[ -n "$changed" ]]; then
+            echo "Changed charts detected: $changed"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No chart changes detected"
           fi
 
       - name: Run chart-testing (lint)
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.check-changes.outputs.changed == 'true'
         run: ct lint --debug --config ./.github/configs/ct-lint.yaml
 
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.check-changes.outputs.changed == 'true'
         uses: helm/kind-action@v1.12.0
         with:
           cluster_name: kind  # Default cluster name is 'chart-testing'
 
       - name: Load images to cluster
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.check-changes.outputs.changed == 'true'
         run: |
           make docker-build
           make csi-docker-build
@@ -244,7 +268,7 @@ jobs:
 
       - name: Run chart-testing (install)
         id: ct-test
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.check-changes.outputs.changed == 'true'
         run: |
           ct install --config ./.github/configs/ct-install.yaml
           # Save success result to github output

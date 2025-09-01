@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/onsi/ginkgo/v2 v2.25.1
+	github.com/onsi/ginkgo/v2 v2.25.2
 	github.com/onsi/gomega v1.38.2
 	github.com/zncdatadev/operator-go v0.12.4
 	k8s.io/api v0.34.0

@@ -217,12 +217,40 @@ jobs:
         id: lint
         uses: helm/chart-testing-action@v2.7.0
 
+      - name: Fetch all tags
+        run: git fetch --tags --force
+
+      - name: Get previous tag
+        id: previoustag
+        run: |
+          # List all tags sorted by version (assuming semantic versioning)
+          # and get the previous tag relative to the current one
+          CURRENT_TAG="${{ github.ref_name }}"
+          PREVIOUS_TAG=$(git tag -l | sort -V | grep -B1 "^${CURRENT_TAG}$" | head -n1 || echo "")
+
+          if [[ -z "$PREVIOUS_TAG" ]]; then
+            echo "First tag detected"
+          else
+            echo "Previous tag: ${PREVIOUS_TAG}"
+            echo "previous_tag=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --chart-dirs deploy/helm --target-branch ${{ github.event.repository.default_branch }})
-          if [[ -n "$changed" ]]; then
+          PREVIOUS_TAG="${{ steps.previoustag.outputs.previous_tag }}"
+
+          if [[ -z "$PREVIOUS_TAG" ]]; then
+            echo "First tag detected - considering all charts as changed"
             echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            changed=$(ct list-changed --target-branch "$PREVIOUS_TAG")
+            if [[ -n "$changed" ]]; then
+              echo "Changed charts: $changed"
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "No chart changes detected"
+            fi
           fi
 
       - name: Run chart-testing (lint)

@@ -220,33 +220,23 @@ jobs:
       - name: Fetch all tags
         run: git fetch --tags --force
 
-      - name: Get previous tag
-        id: previoustag
+      - name: Check chart changes
+        id: check-changes
         run: |
-          # List all tags sorted by version (assuming semantic versioning)
-          # and get the previous tag relative to the current one
-          CURRENT_TAG="${{ github.ref_name }}"
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || echo "")
+          # Get previous tag if exists (sorted by version number)
+          PREV_TAG=$(git tag --sort=-v:refname | grep -v "^${{ github.ref_name }}$" | head -n1 || true)
 
-          if [[ -z "$PREVIOUS_TAG" ]]; then
-            echo "First tag detected"
-          else
-            echo "Previous tag: ${PREVIOUS_TAG}"
-            echo "tag=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
+          if [[ -z "$PREV_TAG" ]]; then
+            echo "First release - all charts will be tested"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          PREVIOUS_TAG="${{ steps.previoustag.outputs.tag }}"
-
-          if [[ -z "$PREVIOUS_TAG" ]]; then
-            echo "First tag detected - considering all charts as changed"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            changed=$(ct list-changed --chart-dirs deploy/helm --target-branch "$PREVIOUS_TAG")
+          echo "Comparing with previous tag: $PREV_TAG"
+          # Check for changes in chart directory
+          if changed=$(ct list-changed --chart-dirs deploy/helm --target-branch "$PREV_TAG"); then
             if [[ -n "$changed" ]]; then
-              echo "Changed charts: $changed"
+              echo "Changed charts detected: $changed"
               echo "changed=true" >> "$GITHUB_OUTPUT"
             else
               echo "No chart changes detected"
@@ -254,17 +244,17 @@ jobs:
           fi
 
       - name: Run chart-testing (lint)
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.check-changes.outputs.changed == 'true'
         run: ct lint --debug --config ./.github/configs/ct-lint.yaml
 
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.check-changes.outputs.changed == 'true'
         uses: helm/kind-action@v1.12.0
         with:
           cluster_name: kind  # Default cluster name is 'chart-testing'
 
       - name: Load images to cluster
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.check-changes.outputs.changed == 'true'
         run: |
           make docker-build
           make csi-docker-build
@@ -272,7 +262,7 @@ jobs:
 
       - name: Run chart-testing (install)
         id: ct-test
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.check-changes.outputs.changed == 'true'
         run: |
           ct install --config ./.github/configs/ct-install.yaml
           # Save success result to github output

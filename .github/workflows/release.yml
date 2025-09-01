@@ -223,24 +223,30 @@ jobs:
       - name: Check chart changes
         id: check-changes
         run: |
-          # Get previous tag if exists (sorted by version number)
-          PREV_TAG=$(git tag --sort=-v:refname | grep -v "^${{ github.ref_name }}$" | head -n1 || true)
+          # Get current and previous tag
+          CURRENT_TAG="${{ github.ref_name }}"
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -A1 "^${CURRENT_TAG}$" | tail -n1)
 
-          if [[ -z "$PREV_TAG" ]]; then
-            echo "First release - all charts will be tested"
+          # First release detection
+          if [[ "$PREVIOUS_TAG" == "$CURRENT_TAG" || -z "$PREVIOUS_TAG" ]]; then
+            echo "First release detected - marking all charts as changed"
             echo "changed=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          echo "Comparing with previous tag: $PREV_TAG"
+          echo "Comparing with previous tag: $PREVIOUS_TAG"
+
           # Check for changes in chart directory
-          if changed=$(ct list-changed --chart-dirs deploy/helm --target-branch "$PREV_TAG"); then
-            if [[ -n "$changed" ]]; then
-              echo "Changed charts detected: $changed"
-              echo "changed=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "No chart changes detected"
-            fi
+          if ! changed=$(ct list-changed --chart-dirs deploy/helm --target-branch "$PREVIOUS_TAG"); then
+            echo "Failed to check for changes"
+            exit 1
+          fi
+
+          if [[ -n "$changed" ]]; then
+            echo "Changed charts detected: $changed"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No chart changes detected"
           fi
 
       - name: Run chart-testing (lint)

@@ -54,7 +54,10 @@ var _ = BeforeSuite(func() {
 	ctx, cancel = context.WithCancel(context.TODO())
 	By("bootstrapping test environment")
 
-	testEnv = &envtest.Environment{ErrorIfCRDPathMissing: true}
+	testEnv = &envtest.Environment{
+		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "..", "config", "crd", "bases")},
+		ErrorIfCRDPathMissing: true,
+	}
 
 	var err error
 

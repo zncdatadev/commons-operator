@@ -1,0 +1,132 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-authentication-kubedoop-dev-v1alpha1-authenticationclass
+  failurePolicy: Fail
+  name: mauthenticationclass-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - authentication.kubedoop.dev
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - authenticationclasses
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-s3-kubedoop-dev-v1alpha1-s3bucket
+  failurePolicy: Fail
+  name: ms3bucket-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - s3.kubedoop.dev
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - s3buckets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-s3-kubedoop-dev-v1alpha1-s3connection
+  failurePolicy: Fail
+  name: ms3connection-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - s3.kubedoop.dev
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - s3connections
+  sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-authentication-kubedoop-dev-v1alpha1-authenticationclass
+  failurePolicy: Fail
+  name: vauthenticationclass-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - authentication.kubedoop.dev
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - authenticationclasses
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-s3-kubedoop-dev-v1alpha1-s3bucket
+  failurePolicy: Fail
+  name: vs3bucket-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - s3.kubedoop.dev
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - s3buckets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-s3-kubedoop-dev-v1alpha1-s3connection
+  failurePolicy: Fail
+  name: vs3connection-v1alpha1.kb.io
+  rules:
+  - apiGroups:
+    - s3.kubedoop.dev
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - s3connections
+  sideEffects: None

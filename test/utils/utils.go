@@ -19,9 +19,11 @@ package utils
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	ginkgo "github.com/onsi/ginkgo/v2" //nolint:golint,revive
@@ -32,7 +34,7 @@ const (
 	prometheusOperatorURL     = "https://github.com/prometheus-operator/prometheus-operator/" +
 		"releases/download/%s/bundle.yaml"
 
-	certmanagerVersion = "v1.16.0"
+	certmanagerVersion = "v1.16.2"
 	certmanagerURLTmpl = "https://github.com/jetstack/cert-manager/releases/download/%s/cert-manager.yaml"
 
 	registry    = "quay.io/zncdatadev"
@@ -115,6 +117,7 @@ func UninstallCertManager() {
 	if _, err := Run(cmd); err != nil {
 		warnError(err)
 	}
+
 }
 
 // InstallCertManager installs the cert manager bundle.
@@ -130,6 +133,80 @@ func InstallCertManager() error {
 		"--for", "condition=Available",
 		"--namespace", "cert-manager",
 		"--timeout", "5m",
+	)
+
+	_, err := Run(cmd)
+	return err
+}
+
+// https://cert-manager.io/docs/concepts/webhook/#webhook-connection-problems-shortly-after-cert-manager-installation
+// https://cert-manager.io/docs/installation/kubectl/#verify
+func WaitForCertManagerToBeReady() error {
+	// init Issuer and Certificate
+	issuer := map[string]interface{}{
+		"apiVersion": "cert-manager.io/v1",
+		"kind":       "Issuer",
+		"metadata": map[string]interface{}{
+			"name":      "test-selfsigned-issuer",
+			"namespace": "cert-manager",
+		},
+		"spec": map[string]interface{}{
+			"selfSigned": map[string]interface{}{},
+		},
+	}
+	certificate := map[string]interface{}{
+		"apiVersion": "cert-manager.io/v1",
+		"kind":       "Certificate",
+		"metadata": map[string]interface{}{
+			"name":      "test-selfsigned-certificate",
+			"namespace": "cert-manager",
+		},
+		"spec": map[string]interface{}{
+			"dnsNames":   []string{"test.example.com"},
+			"secretName": "test-selfsigned-certificate",
+			"issuerRef": map[string]interface{}{
+				"name": "test-selfsigned-issuer",
+			},
+		},
+	}
+
+	issuerFile := path.Join(os.TempDir(), "test-issuer.yaml")
+	defer func() {
+		if err := os.Remove(issuerFile); err != nil {
+			warnError(err)
+		}
+	}()
+
+	certificateFile := path.Join(os.TempDir(), "test-certificate.yaml")
+	defer func() {
+		if err := os.Remove(certificateFile); err != nil {
+			warnError(err)
+		}
+	}()
+
+	if err := WriteResourceToJSON(issuer, issuerFile); err != nil {
+		return err
+	}
+
+	if err := WriteResourceToJSON(certificate, certificateFile); err != nil {
+		return err
+	}
+
+	// apply the resources
+	cmd := exec.Command("kubectl", "apply", "-f", issuerFile)
+	if _, err := Run(cmd); err != nil {
+		return err
+	}
+	cmd = exec.Command("kubectl", "apply", "-f", certificateFile)
+	if _, err := Run(cmd); err != nil {
+		return err
+	}
+
+	// wait for the certificate to be ready
+	cmd = exec.Command("kubectl", "wait", "certificate", "test-selfsigned-certificate",
+		"--for", "condition=Ready",
+		"--namespace", "cert-manager",
+		"--timeout", "2s",
 	)
 
 	_, err := Run(cmd)
@@ -260,4 +337,18 @@ func GetProjectImg() string {
 		version = devVersion
 	}
 	return fmt.Sprintf("%s/%s:%s", registry, projectName, version)
+}
+
+func WriteResourceToJSON(resource map[string]interface{}, filename string) error {
+	jsonData, err := json.Marshal(resource)
+	if err != nil {
+		return fmt.Errorf("error marshaling resource to JSON: %w", err)
+	}
+
+	err = os.WriteFile(filename, jsonData, 0644)
+	if err != nil {
+		return fmt.Errorf("error writing JSON to file: %w", err)
+	}
+
+	return nil
 }

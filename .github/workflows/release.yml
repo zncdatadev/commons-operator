@@ -223,23 +223,43 @@ jobs:
       - name: Get commit range
         id: commit-range
         run: |
-          # Get current tag's commit
+          # Get current and previous tag
           CURRENT_TAG="${{ github.ref_name }}"
-          CURRENT_COMMIT=$(git rev-list -n1 "$CURRENT_TAG")
-          echo "current_commit=$CURRENT_COMMIT" >> "$GITHUB_OUTPUT"
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -A1 "^${CURRENT_TAG}$" | tail -n1)
 
-          # Get previous tag if exists
-          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -v "^${CURRENT_TAG}$" | head -n1 || true)
-
-          if [[ -z "$PREVIOUS_TAG" ]]; then
-            # If this is the first tag, get the first commit
-            SINCE_COMMIT=$(git rev-list --max-parents=0 HEAD)
-            echo "First release - using first commit: $SINCE_COMMIT"
-          else
-            SINCE_COMMIT=$(git rev-list -n1 "$PREVIOUS_TAG")
-            echo "Using previous tag $PREVIOUS_TAG commit: $SINCE_COMMIT"
+          # First release detection
+          if [[ "$PREVIOUS_TAG" == "$CURRENT_TAG" || -z "$PREVIOUS_TAG" ]]; then
+            echo "First release detected - marking all charts as changed"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "target_branch=main" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-          echo "since_commit=$SINCE_COMMIT" >> "$GITHUB_OUTPUT"
+
+          # Get previous tag commit
+          PREVIOUS_COMMIT=$(git rev-list -n 1 "$PREVIOUS_TAG")
+
+          # Get the branch name(s) of the previous commit, prefer release branches, then main, then others
+          PREVIOUS_BRANCHES=$(git branch -r --contains "$PREVIOUS_COMMIT" | sed 's/^[ *]*//')
+
+          # Define branch priority: release branches (sorted), then main, then others
+          PRIORITY_BRANCH=""
+          # 1. Find release branches (sorted lexicographically)
+          RELEASE_BRANCH=$(echo "$PREVIOUS_BRANCHES" | grep -E 'release' | sort | head -n1)
+          if [[ -n "$RELEASE_BRANCH" ]]; then
+            PRIORITY_BRANCH="$RELEASE_BRANCH"
+          else
+            # 2. Fallback to main
+            MAIN_BRANCH=$(echo "$PREVIOUS_BRANCHES" | grep -E '^main$')
+            if [[ -n "$MAIN_BRANCH" ]]; then
+              PRIORITY_BRANCH="$MAIN_BRANCH"
+            else
+              # 3. Fallback to the first other branch
+              PRIORITY_BRANCH=$(echo "$PREVIOUS_BRANCHES" | head -n1)
+            fi
+          fi
+
+          echo "target_branch=$PRIORITY_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "since_commit=$PREVIOUS_COMMIT" >> "$GITHUB_OUTPUT"
 
       - name: Check chart changes
         id: check-changes
@@ -248,7 +268,7 @@ jobs:
           if ! changed=$(ct list-changed \
             --chart-dirs deploy/helm \
             --since "${{ steps.commit-range.outputs.since_commit }}" \
-            --target-branch "${{ github.ref }}"); then
+            --target-branch "${{ steps.commit-range.outputs.target_branch }}"); then
             echo "Failed to check for changes"
             exit 1
           fi

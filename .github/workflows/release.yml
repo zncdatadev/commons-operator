@@ -237,19 +237,21 @@ jobs:
 
           # Get previous tag commit
           PREVIOUS_COMMIT=$(git rev-list -n 1 "$PREVIOUS_TAG")
+          echo "Current commit for previous tag ($PREVIOUS_TAG): $PREVIOUS_COMMIT"
 
           # Get the branch name(s) of the previous commit, prefer release branches, then main, then others
           PREVIOUS_BRANCHES=$(git branch -r --contains "$PREVIOUS_COMMIT" | sed 's/^[ *]*//')
+          echo "Found branches containing the previous commit: $PREVIOUS_BRANCHES"
 
           # Define branch priority: release branches (sorted), then main, then others
           PRIORITY_BRANCH=""
           # 1. Find release branches (sorted lexicographically)
-          RELEASE_BRANCH=$(echo "$PREVIOUS_BRANCHES" | grep -E 'release' | sort | head -n1)
+          RELEASE_BRANCH=$(echo "$PREVIOUS_BRANCHES" | grep -E 'origin/release' | sort | head -n1)
           if [[ -n "$RELEASE_BRANCH" ]]; then
             PRIORITY_BRANCH="$RELEASE_BRANCH"
           else
             # 2. Fallback to main
-            MAIN_BRANCH=$(echo "$PREVIOUS_BRANCHES" | grep -E '^main$')
+            MAIN_BRANCH=$(echo "$PREVIOUS_BRANCHES" | grep -E '^origin/main$')
             if [[ -n "$MAIN_BRANCH" ]]; then
               PRIORITY_BRANCH="$MAIN_BRANCH"
             else
@@ -257,6 +259,10 @@ jobs:
               PRIORITY_BRANCH=$(echo "$PREVIOUS_BRANCHES" | head -n1)
             fi
           fi
+
+          echo "Removing 'origin/' from branches"
+          PRIORITY_BRANCH=$(echo "$PRIORITY_BRANCH" | sed 's|^origin/||')
+          echo "Selected target branch for comparison: $PRIORITY_BRANCH"
 
           echo "target_branch=$PRIORITY_BRANCH" >> "$GITHUB_OUTPUT"
           echo "since_commit=$PREVIOUS_COMMIT" >> "$GITHUB_OUTPUT"

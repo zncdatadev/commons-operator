@@ -333,7 +333,7 @@ jobs:
           done
 
           # Install listener-operator chart
-          helm install --create-namespace --namespace commons-operators --wait listener-operator deploy/helm/listener-operator
+          helm install --create-namespace --namespace commons-operators --wait listener-operator deploy/helm/commons-operator
 
           # E2E tests
           make chainsaw

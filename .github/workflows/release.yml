@@ -323,7 +323,7 @@ jobs:
         if: steps.ct-test.outputs.ct_tested == 'true'
         run: |
           # Add kubedoop helm repo
-          helm repo add kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
+          helm repo add --force-update kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
 
           HELM_DEPENDENCIES=()
 

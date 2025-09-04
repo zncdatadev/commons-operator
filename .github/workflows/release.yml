@@ -288,7 +288,11 @@ jobs:
 
       - name: Run chart-testing (lint)
         if: steps.check-changes.outputs.changed == 'true'
-        run: ct lint --debug --config ./.github/configs/ct-lint.yaml
+        run: |
+          ct lint \
+            --since "${{ steps.commit-range.outputs.since_commit }}" \
+            --target-branch "${{ steps.commit-range.outputs.target_branch }}" \
+            --config ./.github/configs/ct-lint.yaml
 
       - name: Create kind cluster
         if: steps.check-changes.outputs.changed == 'true'
@@ -300,14 +304,16 @@ jobs:
         if: steps.check-changes.outputs.changed == 'true'
         run: |
           make docker-build
-          make csi-docker-build
           kind load docker-image quay.io/zncdatadev/commons-operator:${{ env.VERSION }}
 
       - name: Run chart-testing (install)
         id: ct-test
         if: steps.check-changes.outputs.changed == 'true'
         run: |
-          ct install --config ./.github/configs/ct-install.yaml
+          ct install \
+            --since "${{ steps.commit-range.outputs.since_commit }}" \
+            --target-branch "${{ steps.commit-range.outputs.target_branch }}" \
+            --config ./.github/configs/ct-install.yaml
           # Save success result to github output
           if [[ $? -eq 0 ]]; then
             echo "ct_tested=true" >> "$GITHUB_OUTPUT"

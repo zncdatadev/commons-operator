@@ -259,15 +259,14 @@ mv $(1) $(1)-$(3) ;\
 ln -sf $(1)-$(3) $(1)
 endef
 
-HELM_DEPENDS ?= commons-operator listener-operator secret-operator
+HELM_DEPENDS ?= ""
 TEST_NAMESPACE = kubedoop-operators
 
 .PHONY: helm-install-depends
 helm-install-depends: helm ## Install the helm chart depends.
-	$(HELM) repo add --force-update kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
 ifneq ($(strip $(HELM_DEPENDS)),)
 	for dep in $(HELM_DEPENDS); do \
-		$(HELM) upgrade --install --create-namespace --namespace $(TEST_NAMESPACE) --wait $$dep kubedoop/$$dep --version $(VERSION); \
+		$(HELM) upgrade --install --create-namespace --namespace $(TEST_NAMESPACE) --wait  $$dep oci://quay.io/kubedoopcharts/$$dep --version $(VERSION); \
 	done
 endif
 

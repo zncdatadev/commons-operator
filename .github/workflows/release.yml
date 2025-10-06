@@ -60,6 +60,7 @@ jobs:
           make test
 
 
+
   test-e2e:
     name: E2E Test
     runs-on: ubuntu-latest
@@ -93,8 +94,8 @@ jobs:
         run: kind delete cluster
 
 
-  chainsaw-e2e:
-    name: E2E chainsaw
+  chainsaw-test:
+    name: Chainsaw Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -122,23 +123,17 @@ jobs:
           KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
         run: make kind-create
 
-      - name: Setup Chainsaw
+      - name: Chainsaw test setup
         env:
           KIND_K8S_VERSION: ${{ matrix.k8s-version }}
           KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
         run: make chainsaw-setup
 
-      - name: Run chainsaw-test
+      - name: Test with Chainsaw
         env:
           KIND_K8S_VERSION: ${{ matrix.k8s-version }}
           KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
         run: make chainsaw-test
-
-      - name: Delete KinD cluster
-        env:
-          KIND_K8S_VERSION: ${{ matrix.k8s-version }}
-          KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-        run: make kind-delete
 
 
   release-image:
@@ -152,7 +147,7 @@ jobs:
       - golang-lint
       - golang-test
       - test-e2e
-      - chainsaw-e2e
+      - chainsaw-test
     steps:
       - name: Clone the code
         uses: actions/checkout@v5
@@ -304,7 +299,7 @@ jobs:
         if: steps.check-changes.outputs.changed == 'true'
         run: |
           make docker-build
-          kind load docker-image quay.io/zncdatadev/commons-operator:${{ env.VERSION }}
+          kind load docker-image quay.io/zncdatadev/commons-operator:$VERSION
 
       - name: Run chart-testing (install)
         id: ct-test
@@ -314,26 +309,24 @@ jobs:
             --since "${{ steps.commit-range.outputs.since_commit }}" \
             --target-branch "${{ steps.commit-range.outputs.target_branch }}" \
             --config ./.github/configs/ct-install.yaml
+          exit_code=$?
           # Save success result to github output
-          if [[ $? -eq 0 ]]; then
+          if [[ $exit_code -eq 0 ]]; then
             echo "ct_tested=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run e2e with chart
         if: steps.ct-test.outputs.ct_tested == 'true'
         run: |
-          # Add kubedoop helm repo
-          helm repo add --force-update kubedoop https://zncdatadev.github.io/kubedoop-helm-charts/
-
           HELM_DEPENDENCIES=()
 
           # Install dependencies
           for dep in "${HELM_DEPENDENCIES[@]}"; do
-            helm upgrade --install --create-namespace --namespace kubedoop-operators --wait $dep kubedoop/$dep
+            helm upgrade --install --create-namespace --namespace kubedoop-operators --wait $dep oci://quay.io/kubedoopcharts/$dep --version $VERSION
           done
 
-          # Install listener-operator chart
-          helm install --create-namespace --namespace commons-operators --wait listener-operator deploy/helm/commons-operator
+          # Install commons-operator chart
+          helm install --create-namespace --namespace commons-operators --wait commons-operator ./deploy/helm/commons-operator
 
           # E2E tests
           make chainsaw

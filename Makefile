@@ -338,7 +338,7 @@ setup-chainsaw-e2e: chainsaw ## Run the chainsaw setup
 	endif
 
 .PHONY: chainsaw-e2e
-chainsaw-test: chainsaw ## Run the chainsaw test
+chainsaw-e2e: ## Run the chainsaw e2e tests
 	KUBECONFIG=$(CHAINSAW_KUBECONFIG) $(CHAINSAW) test --config ./test/e2e/chainsaw/.chainsaw.yaml --test-dir ./test/e2e/chainsaw/
 
 .PHONY: cleanup-chainsaw-e2e

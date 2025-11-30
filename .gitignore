@@ -29,7 +29,8 @@ Dockerfile.cross
 
 api
 
-kind-kubeconfig*
+# Ignore kubeconfig files
+.kubeconfig*
 
 # !!! Important !!!
 # We need github/zncdatadev/operator-go api module to generate olm bundle manifest,
@@ -39,11 +40,7 @@ kind-kubeconfig*
 # We do not need the vendor directory in the root directory, so we ignore it.
 .vendor
 
-deploy/helm/commons-operator-*
-
 # Ignore chart-release directory
 .cr-**
-
-docker-digests.json
 
 target

@@ -1,5 +1,8 @@
+//go:build e2e
+// +build e2e
+
 /*
-Copyright 2024 foo.
+Copyright 2024 zncdatadev.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -46,12 +49,19 @@ var _ = Describe("Manager", Ordered, func() {
 	var controllerPodName string
 
 	// Before running the tests, set up the environment by creating the namespace,
-	// installing CRDs, and deploying the controller.
+	// enforce the restricted security policy to the namespace, installing CRDs,
+	// and deploying the controller.
 	BeforeAll(func() {
 		By("creating manager namespace")
 		cmd := exec.Command("kubectl", "create", "ns", namespace)
 		_, err := utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to create namespace")
+
+		By("labeling the namespace to enforce the restricted security policy")
+		cmd = exec.Command("kubectl", "label", "--overwrite", "ns", namespace,
+			"pod-security.kubernetes.io/enforce=restricted")
+		_, err = utils.Run(cmd)
+		Expect(err).NotTo(HaveOccurred(), "Failed to label namespace with restricted policy")
 
 		By("installing CRDs")
 		cmd = exec.Command("make", "install")
@@ -59,7 +69,7 @@ var _ = Describe("Manager", Ordered, func() {
 		Expect(err).NotTo(HaveOccurred(), "Failed to install CRDs")
 
 		By("deploying the controller-manager")
-		cmd = exec.Command("make", "deploy", fmt.Sprintf("IMG=%s", utils.GetProjectImg()))
+		cmd = exec.Command("make", "deploy", fmt.Sprintf("IMG=%s", projectImage))
 		_, err = utils.Run(cmd)
 		Expect(err).NotTo(HaveOccurred(), "Failed to deploy the controller-manager")
 	})
@@ -172,54 +182,66 @@ var _ = Describe("Manager", Ordered, func() {
 			_, err := utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred(), "Failed to create ClusterRoleBinding")
 
-			// delete the rolebinding after the test
-			defer func() {
-				cmd = exec.Command("kubectl", "delete", "clusterrolebinding", metricsRoleBindingName, "-n", namespace)
-				_, err = utils.Run(cmd)
-				Expect(err).NotTo(HaveOccurred(), "Failed to delete ClusterRoleBinding")
-			}()
-
 			By("validating that the metrics service is available")
 			cmd = exec.Command("kubectl", "get", "service", metricsServiceName, "-n", namespace)
 			_, err = utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred(), "Metrics service should exist")
-
-			By("validating that the ServiceMonitor for Prometheus is applied in the namespace")
-			cmd = exec.Command("kubectl", "get", "ServiceMonitor", "-n", namespace)
-			_, err = utils.Run(cmd)
-			Expect(err).NotTo(HaveOccurred(), "ServiceMonitor should exist")
 
 			By("getting the service account token")
 			token, err := serviceAccountToken()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(token).NotTo(BeEmpty())
 
-			By("waiting for the metrics endpoint to be ready")
-			verifyMetricsEndpointReady := func(g Gomega) {
-				cmd := exec.Command("kubectl", "get", "endpoints", metricsServiceName, "-n", namespace)
+			By("ensuring the controller pod is ready")
+			verifyControllerPodReady := func(g Gomega) {
+				cmd := exec.Command("kubectl", "get", "pod", controllerPodName, "-n", namespace,
+					"-o", "jsonpath={.status.conditions[?(@.type=='Ready')].status}")
 				output, err := utils.Run(cmd)
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(output).To(ContainSubstring("8443"), "Metrics endpoint is not ready")
+				g.Expect(output).To(Equal("True"), "Controller pod not ready")
 			}
-			Eventually(verifyMetricsEndpointReady).Should(Succeed())
+			Eventually(verifyControllerPodReady, 3*time.Minute, time.Second).Should(Succeed())
 
 			By("verifying that the controller manager is serving the metrics server")
 			verifyMetricsServerStarted := func(g Gomega) {
 				cmd := exec.Command("kubectl", "logs", controllerPodName, "-n", namespace)
 				output, err := utils.Run(cmd)
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(output).To(ContainSubstring("controller-runtime.metrics\tServing metrics server"),
+				g.Expect(output).To(ContainSubstring("Serving metrics server"),
 					"Metrics server not yet started")
 			}
-			Eventually(verifyMetricsServerStarted).Should(Succeed())
+			Eventually(verifyMetricsServerStarted, 3*time.Minute, time.Second).Should(Succeed())
+
+			// +kubebuilder:scaffold:e2e-metrics-webhooks-readiness
 
 			By("creating the curl-metrics pod to access the metrics endpoint")
 			cmd = exec.Command("kubectl", "run", "curl-metrics", "--restart=Never",
 				"--namespace", namespace,
-				"--image=curlimages/curl:7.78.0",
-				"--", "/bin/sh", "-c", fmt.Sprintf(
-					"curl -v -k -H 'Authorization: Bearer %s' https://%s.%s.svc.cluster.local:8443/metrics",
-					token, metricsServiceName, namespace))
+				"--image=curlimages/curl:latest",
+				"--overrides",
+				fmt.Sprintf(`{
+					"spec": {
+						"containers": [{
+							"name": "curl",
+							"image": "curlimages/curl:latest",
+							"command": ["/bin/sh", "-c"],
+							"args": ["curl -v -k -H 'Authorization: Bearer %s' https://%s.%s.svc.cluster.local:8443/metrics"],
+							"securityContext": {
+								"readOnlyRootFilesystem": true,
+								"allowPrivilegeEscalation": false,
+								"capabilities": {
+									"drop": ["ALL"]
+								},
+								"runAsNonRoot": true,
+								"runAsUser": 1000,
+								"seccompProfile": {
+									"type": "RuntimeDefault"
+								}
+							}
+						}],
+						"serviceAccountName": "%s"
+					}
+				}`, token, metricsServiceName, namespace, serviceAccountName))
 			_, err = utils.Run(cmd)
 			Expect(err).NotTo(HaveOccurred(), "Failed to create curl-metrics pod")
 
@@ -235,10 +257,13 @@ var _ = Describe("Manager", Ordered, func() {
 			Eventually(verifyCurlUp, 5*time.Minute).Should(Succeed())
 
 			By("getting the metrics by checking curl-metrics logs")
-			metricsOutput := getMetricsOutput()
-			Expect(metricsOutput).To(ContainSubstring(
-				"controller_runtime_reconcile_total",
-			))
+			verifyMetricsAvailable := func(g Gomega) {
+				metricsOutput, err := getMetricsOutput()
+				g.Expect(err).NotTo(HaveOccurred(), "Failed to retrieve logs from curl pod")
+				g.Expect(metricsOutput).NotTo(BeEmpty())
+				g.Expect(metricsOutput).To(ContainSubstring("< HTTP/1.1 200 OK"))
+			}
+			Eventually(verifyMetricsAvailable, 2*time.Minute).Should(Succeed())
 		})
 
 		// +kubebuilder:scaffold:e2e-webhooks-checks
@@ -246,7 +271,8 @@ var _ = Describe("Manager", Ordered, func() {
 		// TODO: Customize the e2e test suite with scenarios specific to your project.
 		// Consider applying sample/CR(s) and check their status and/or verifying
 		// the reconciliation by using the metrics, i.e.:
-		// metricsOutput := getMetricsOutput()
+		// metricsOutput, err := getMetricsOutput()
+		// Expect(err).NotTo(HaveOccurred(), "Failed to retrieve logs from curl pod")
 		// Expect(metricsOutput).To(ContainSubstring(
 		//    fmt.Sprintf(`controller_runtime_reconcile_total{controller="%s",result="success"} 1`,
 		//    strings.ToLower(<Kind>),
@@ -296,13 +322,10 @@ func serviceAccountToken() (string, error) {
 }
 
 // getMetricsOutput retrieves and returns the logs from the curl pod used to access the metrics endpoint.
-func getMetricsOutput() string {
+func getMetricsOutput() (string, error) {
 	By("getting the curl-metrics logs")
 	cmd := exec.Command("kubectl", "logs", "curl-metrics", "-n", namespace)
-	metricsOutput, err := utils.Run(cmd)
-	Expect(err).NotTo(HaveOccurred(), "Failed to retrieve logs from curl pod")
-	Expect(metricsOutput).To(ContainSubstring("< HTTP/1.1 200 OK"))
-	return metricsOutput
+	return utils.Run(cmd)
 }
 
 // tokenRequest is a simplified representation of the Kubernetes TokenRequest API response,

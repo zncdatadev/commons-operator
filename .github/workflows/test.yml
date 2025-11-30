@@ -48,14 +48,19 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Create KinD cluster
-        run: kind create cluster --image kindest/node:v${{ matrix.k8s-version }}
+      - name: Install the latest version of kind
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-$(go env GOARCH)
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
 
-      - name: Run test-e2e
-        run: make test-e2e
+      - name: Verify kind installation
+        run: kind version
 
-      - name: Delete KinD cluster
-        run: kind delete cluster
+      - name: Running Test e2e
+        run: |
+          go mod tidy
+          make test-e2e
 
 
   chainsaw-e2e:
@@ -85,22 +90,16 @@ jobs:
         env:
           KIND_K8S_VERSION: ${{ matrix.k8s-version}}
           KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-        run: make kind-create
+        run: make setup-chainsaw-cluster
 
       - name: Setup Chainsaw
         env:
           KIND_K8S_VERSION: ${{ matrix.k8s-version }}
           KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-        run: make chainsaw-setup
+        run: make setup-chainsaw-e2e
 
-      - name: Run chainsaw-test
+      - name: Run chainsaw-e2e
         env:
           KIND_K8S_VERSION: ${{ matrix.k8s-version }}
           KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-        run: make chainsaw-test
-
-      - name: Delete KinD cluster
-        env:
-          KIND_K8S_VERSION: ${{ matrix.k8s-version }}
-          KUBECONFIG: kind-kubeconfig-${{ matrix.k8s-version }}
-        run: make kind-delete
+        run: make chainsaw-e2e

@@ -331,11 +331,11 @@ setup-chainsaw-cluster: ## Set up a Kind cluster for e2e tests if it does not ex
 setup-chainsaw-e2e: chainsaw docker-build ## Run the chainsaw setup
 	$(KIND) --name $(CHAINSAW_CLUSTER) load docker-image "$(IMG)"
 	KUBECONFIG=$(CHAINSAW_KUBECONFIG) $(MAKE) deploy
-	ifneq ($(strip $(HELM_DEPENDS)),)
+	@if [ -n "$(strip $(HELM_DEPENDS))" ]; then \
 		for dep in $(HELM_DEPENDS); do \
 			$(HELM) upgrade --install --create-namespace --namespace $(TEST_NAMESPACE) --wait  $$dep oci://quay.io/kubedoopcharts/$$dep --version $(VERSION); \
-		done
-	endif
+		done; \
+	fi
 
 .PHONY: chainsaw-e2e
 chainsaw-e2e: ## Run the chainsaw e2e tests
@@ -344,11 +344,11 @@ chainsaw-e2e: ## Run the chainsaw e2e tests
 .PHONY: cleanup-chainsaw-e2e
 cleanup-chainsaw-e2e: ## Run the chainsaw cleanup
 	KUBECONFIG=$(CHAINSAW_KUBECONFIG) $(MAKE) undeploy
-	ifneq ($(strip $(HELM_DEPENDS)),)
+	@if [ -n "$(strip $(HELM_DEPENDS))" ]; then \
 		for dep in $(HELM_DEPENDS); do \
 			$(HELM) uninstall --namespace $(TEST_NAMESPACE) $$dep; \
-		done
-	endif
+		done; \
+	fi
 
 .PHONY: cleanup-chainsaw-cluster
 cleanup-chainsaw-cluster: ## Tear down the Kind cluster used for chainsaw e2e tests

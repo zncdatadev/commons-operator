@@ -328,7 +328,7 @@ setup-chainsaw-cluster: ## Set up a Kind cluster for e2e tests if it does not ex
 	esac
 
 .PHONY: setup-chainsaw-e2e
-setup-chainsaw-e2e: chainsaw ## Run the chainsaw setup
+setup-chainsaw-e2e: chainsaw docker-build ## Run the chainsaw setup
 	$(KIND) --name $(CHAINSAW_CLUSTER) load docker-image "$(IMG)"
 	KUBECONFIG=$(CHAINSAW_KUBECONFIG) $(MAKE) deploy
 	ifneq ($(strip $(HELM_DEPENDS)),)

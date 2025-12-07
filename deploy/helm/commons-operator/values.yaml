@@ -89,9 +89,10 @@ healthProbe:
   bindAddress: ":8081"
 
 # ServiceMonitor configuration for Prometheus Operator
+# Default disabled, enable if you are already installing ServiceMonitor CRD !
 serviceMonitor:
   # Enable ServiceMonitor
-  enabled: true
+  enabled: false
   # Additional labels for ServiceMonitor
   # Example: to make it discoverable by a specific Prometheus instance
   # additionalLabels:

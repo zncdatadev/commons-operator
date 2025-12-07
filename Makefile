@@ -280,8 +280,9 @@ helm-crd-sync: manifests kustomize ## Sync CRDs to helm chart for the operator
 	"$(KUSTOMIZE)" build config/crd > deploy/helm/$(PROJECT_NAME)/crds/crds.yaml
 
 .PHONY: helm-chart-package ## Package helm chart for the operator.
-helm-chart-package: helm-crd-sync ## Package helm chart for the operator.
+helm-chart-package: ## Package helm chart for the operator.
 	mkdir -p target/charts
+	rm -rf target/charts/*.tgz
 	"$(HELM)" package deploy/helm/$(PROJECT_NAME) --version $(VERSION) --app-version $(VERSION) --destination target/charts
 
 .PHONY: helm-chart-publish ## Publish helm chart for the operator.

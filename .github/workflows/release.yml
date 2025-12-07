@@ -189,8 +189,33 @@ jobs:
         uses: ./.github/actions/sign-image
 
 
+  check-crds-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the code
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Check CRDs sync
+        run: |
+          # Use `make manifests` to generate the CRDs
+          make manifests
+          # Check if the CRDs are in sync with the manifests
+          if ! git diff --exit-code; then
+            echo "CRDs are not in sync with the manifests."
+            echo "Please run 'make manifest' to update the CRDs."
+            exit 1
+          fi
+
+
   chart-linter-artifacthub:
     runs-on: ubuntu-latest
+    needs:
+      - check-crds-sync
     container:
       image: public.ecr.aws/artifacthub/ah:v1.14.0
       options: --user 1001
@@ -204,6 +229,8 @@ jobs:
 
   chart-lint-test:
     runs-on: ubuntu-latest
+    needs:
+      - check-crds-sync
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -326,6 +353,11 @@ jobs:
             echo "ct_tested=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Build helm chart
+        if: steps.ct-test.outputs.ct_tested == 'true'
+        run: |
+          make helm-chart-package
+
       - name: Run e2e with chart
         if: steps.ct-test.outputs.ct_tested == 'true'
         run: |
@@ -336,8 +368,8 @@ jobs:
             helm upgrade --install --create-namespace --namespace kubedoop-operators --wait $dep oci://quay.io/kubedoopcharts/$dep --version $VERSION
           done
 
-          # Install commons-operator chart
-          helm install --create-namespace --namespace commons-operators --wait commons-operator ./deploy/helm/commons-operator
+          # Install packaged operator chart
+          helm install --create-namespace --namespace commons-operators --wait commons-operator ./target/charts/commons-operator-$VERSION.tgz
 
           # E2E tests
           make chainsaw
@@ -364,7 +396,7 @@ jobs:
 
       - name: Build and push oci chart
         run: |
-          make chart-publish
+          make helm-chart-publish
 
       - name: Clone helm charts repository
         uses: actions/checkout@v6

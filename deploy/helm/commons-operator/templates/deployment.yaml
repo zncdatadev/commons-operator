@@ -37,7 +37,11 @@ spec:
           args:
             {{- if .Values.metrics.enabled }}
             - --metrics-bind-address=:{{ include "operator.metricsPort" . }}
-            - --metrics-secure={{ .Values.metrics.secure }}
+            {{- if .Values.metrics.secure }}
+            - --metrics-secure=true
+            {{- else }}
+            - --metrics-secure=false
+            {{- end }}
             {{- end }}
             - --health-probe-bind-address={{ .Values.healthProbe.bindAddress | default ":8081" }}
           ports:

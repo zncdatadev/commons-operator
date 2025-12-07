@@ -15,8 +15,8 @@ spec:
       scheme: {{ include "operator.metricsScheme" . }}
       interval: {{ .Values.serviceMonitor.interval }}
       scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
-      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       {{- if .Values.metrics.secure }}
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       {{- with .Values.serviceMonitor.tlsConfig }}
       tlsConfig:
         {{- toYaml . | nindent 8 }}

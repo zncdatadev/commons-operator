@@ -65,3 +65,46 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Metrics service configuration
+metrics:
+  # Enable metrics service
+  enabled: false
+  # Use HTTPS for metrics (if false, will use HTTP)
+  # When secure is true, the default port is 8443 (HTTPS)
+  # When secure is false, the default port is 8080 (HTTP)
+  secure: true
+  # Service configuration
+  service:
+    # Service port (will default to 8443 for HTTPS, 8080 for HTTP if not specified)
+    port: ""
+    # Service type
+    type: ClusterIP
+    # Service annotations
+    annotations: {}
+
+# Health probe configuration
+healthProbe:
+  # Health probe bind address
+  bindAddress: ":8081"
+
+# ServiceMonitor configuration for Prometheus Operator
+serviceMonitor:
+  # Enable ServiceMonitor
+  enabled: false
+  # Additional labels for ServiceMonitor
+  # Example: to make it discoverable by a specific Prometheus instance
+  # additionalLabels:
+  #   prometheus: kube-prometheus
+  additionalLabels: {}
+  # Scrape interval
+  interval: 30s
+  # Scrape timeout
+  scrapeTimeout: 10s
+  # Metrics path
+  path: /metrics
+  # TLS configuration (only used when metrics.secure is true)
+  tlsConfig:
+    # Skip TLS verification (not recommended for production)
+    # For production, consider using cert-manager to manage certificates
+    insecureSkipVerify: true

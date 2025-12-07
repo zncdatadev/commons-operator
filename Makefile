@@ -267,13 +267,8 @@ endef
 ##@ Helm Charts
 
 OCI_REGISTRY ?= oci://quay.io/kubedoopcharts
-HELM = $(LOCALBIN)/helm
-HELM_VERSION ?= v3.17.0
+HELM = helm
 
-.PHONY: helm
-helm: $(HELM) ## Download helm locally if necessary.
-$(HELM): $(LOCALBIN)
-	$(call go-install-tool,$(HELM),helm.sh/helm/v3/cmd/helm,$(HELM_VERSION))
 
 .PHONY: helm-crd-sync ## Sync CRDs to helm chart for the operator.
 helm-crd-sync: manifests kustomize ## Sync CRDs to helm chart for the operator

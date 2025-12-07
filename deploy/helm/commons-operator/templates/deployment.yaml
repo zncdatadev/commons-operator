@@ -47,7 +47,7 @@ spec:
               protocol: TCP
             {{- end }}
             - name: healthz
-              containerPort: 8081
+              containerPort: {{ include "operator.healthProbePort" . }}
               protocol: TCP
           livenessProbe:
             httpGet:

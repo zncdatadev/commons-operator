@@ -81,3 +81,11 @@ Get metrics scheme based on secure setting
 {{- define "operator.metricsScheme" -}}
 {{- ternary "https" "http" .Values.metrics.secure }}
 {{- end }}
+
+{{/*
+Get health probe port from bind address
+*/}}
+{{- define "operator.healthProbePort" -}}
+{{- $bindAddress := .Values.healthProbe.bindAddress | default ":8081" }}
+{{- regexFind "[0-9]+$" $bindAddress }}
+{{- end }}

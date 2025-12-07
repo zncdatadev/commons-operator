@@ -13,14 +13,10 @@ spec:
     - path: {{ .Values.serviceMonitor.path }}
       port: {{ include "operator.metricsPortName" . }}
       scheme: {{ include "operator.metricsScheme" . }}
-      {{- if .Values.serviceMonitor.interval }}
       interval: {{ .Values.serviceMonitor.interval }}
-      {{- end }}
-      {{- if .Values.serviceMonitor.scrapeTimeout }}
       scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
-      {{- end }}
-      {{- if .Values.metrics.secure }}
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      {{- if .Values.metrics.secure }}
       {{- with .Values.serviceMonitor.tlsConfig }}
       tlsConfig:
         {{- toYaml . | nindent 8 }}

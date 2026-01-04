@@ -73,7 +73,7 @@ metrics:
   # Use HTTPS for metrics (if false, will use HTTP)
   # When secure is true, the default port is 8443 (HTTPS)
   # When secure is false, the default port is 8080 (HTTP)
-  secure: true
+  secure: false
   # Service configuration
   service:
     # Service port (will default to 8443 for HTTPS, 8080 for HTTP if not specified)

@@ -1,5 +1,5 @@
 
-FROM quay.io/zncdatadev/go-devel:1.25.3-kubedoop0.0.0-dev AS builder
+FROM quay.io/zncdatadev/go-devel:1.25.5-kubedoop0.0.0-dev AS builder
 
 ARG TARGETOS
 ARG TARGETARCH

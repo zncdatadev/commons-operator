@@ -5,12 +5,12 @@ go 1.25.5
 require (
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo/v2 v2.27.5
-	github.com/onsi/gomega v1.38.3
-	github.com/zncdatadev/operator-go v0.12.5
+	github.com/onsi/gomega v1.39.0
+	github.com/zncdatadev/operator-go v0.12.6
 	k8s.io/api v0.35.0
 	k8s.io/apimachinery v0.35.0
 	k8s.io/client-go v0.35.0
-	k8s.io/kubectl v0.34.0
+	k8s.io/kubectl v0.35.0
 	sigs.k8s.io/controller-runtime v0.23.0
 )
 

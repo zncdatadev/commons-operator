@@ -48,6 +48,11 @@ spec:
             properties:
               provider:
                 properties:
+                  kerberos:
+                    properties:
+                      kerberosStorageClass:
+                        type: string
+                    type: object
                   ldap:
                     properties:
                       bindCredentials:

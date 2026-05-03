@@ -20,14 +20,14 @@ import (
 )
 
 const (
-	testAppLabel      = "test"
+	testAppLabelValue      = "test"
 	testDataKey       = "key"
 	testEnvVarName    = "TEST"
-	testEnvSecretName = "TEST_SECRET"
-	testConfigVolume  = "config-volume"
-	testConfigMount   = "/etc/config"
-	testSecretVolume  = "secret-volume"
-	testSecretMount   = "/etc/secret"
+	testSecretEnvVarName = "TEST_SECRET"
+	testConfigVolumeName  = "config-volume"
+	testConfigMountPath   = "/etc/config"
+	testSecretVolumeName  = "secret-volume"
+	testSecretMountPath   = "/etc/secret"
 )
 
 var _ = Describe("StatefulsetController", func() {
@@ -57,19 +57,19 @@ var _ = Describe("StatefulsetController", func() {
 			Spec: appv1.StatefulSetSpec{
 				Selector: &metav1.LabelSelector{
 					MatchLabels: map[string]string{
-						"app": testAppLabel,
+						"app": testAppLabelValue,
 					},
 				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
 						Labels: map[string]string{
-							"app": testAppLabel,
+							"app": testAppLabelValue,
 						},
 					},
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
-								Name:  testAppLabel,
+								Name:  testAppLabelValue,
 								Image: "nginx",
 							},
 						},
@@ -181,7 +181,7 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: testConfigVolume,
+					Name: testConfigVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						ConfigMap: &corev1.ConfigMapVolumeSource{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -194,8 +194,8 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      testConfigVolume,
-					MountPath: testConfigMount,
+					Name:      testConfigVolumeName,
+					MountPath: testConfigMountPath,
 				},
 			}
 
@@ -219,7 +219,7 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: testSecretVolume,
+					Name: testSecretVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: secret.Name,
@@ -230,8 +230,8 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      testSecretVolume,
-					MountPath: testSecretMount,
+					Name:      testSecretVolumeName,
+					MountPath: testSecretMountPath,
 				},
 			}
 
@@ -267,7 +267,7 @@ var _ = Describe("StatefulsetController", func() {
 					},
 				},
 				{
-					Name: testEnvSecretName,
+					Name: testSecretEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -316,7 +316,7 @@ var _ = Describe("StatefulsetController", func() {
 					},
 				},
 				{
-					Name: testEnvSecretName,
+					Name: testSecretEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -497,7 +497,7 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: testConfigVolume,
+					Name: testConfigVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						ConfigMap: &corev1.ConfigMapVolumeSource{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -509,8 +509,8 @@ var _ = Describe("StatefulsetController", func() {
 			}
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      testConfigVolume,
-					MountPath: testConfigMount,
+					Name:      testConfigVolumeName,
+					MountPath: testConfigMountPath,
 				},
 			}
 			Expect(c.Create(ctx, sts)).To(Succeed())
@@ -535,7 +535,7 @@ var _ = Describe("StatefulsetController", func() {
 		It("should update annotations when statefulset has secret volume mount", func() {
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: testSecretVolume,
+					Name: testSecretVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: secret.Name,
@@ -545,8 +545,8 @@ var _ = Describe("StatefulsetController", func() {
 			}
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      testSecretVolume,
-					MountPath: testSecretMount,
+					Name:      testSecretVolumeName,
+					MountPath: testSecretMountPath,
 				},
 			}
 			Expect(c.Create(ctx, sts)).To(Succeed())
@@ -582,7 +582,7 @@ var _ = Describe("StatefulsetController", func() {
 					},
 				},
 				{
-					Name: testEnvSecretName,
+					Name: testSecretEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -620,7 +620,7 @@ var _ = Describe("StatefulsetController", func() {
 		It("should update annotations when statefulset has volume ref configmap and secret with updated", func() {
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: testConfigVolume,
+					Name: testConfigVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						ConfigMap: &corev1.ConfigMapVolumeSource{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -630,7 +630,7 @@ var _ = Describe("StatefulsetController", func() {
 					},
 				},
 				{
-					Name: testSecretVolume,
+					Name: testSecretVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: secret.Name,
@@ -641,12 +641,12 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      testConfigVolume,
-					MountPath: testConfigMount,
+					Name:      testConfigVolumeName,
+					MountPath: testConfigMountPath,
 				},
 				{
-					Name:      testSecretVolume,
-					MountPath: testSecretMount,
+					Name:      testSecretVolumeName,
+					MountPath: testSecretMountPath,
 				},
 			}
 			Expect(c.Create(ctx, sts)).To(Succeed())

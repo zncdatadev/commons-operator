@@ -20,14 +20,14 @@ import (
 )
 
 const (
-	testAppLabelValue      = "test"
-	testDataKey       = "key"
-	testEnvVarName    = "TEST"
+	testName             = "test"
+	testDataKey          = "key"
+	testEnvVarName       = "TEST"
 	testSecretEnvVarName = "TEST_SECRET"
-	testConfigVolumeName  = "config-volume"
-	testConfigMountPath   = "/etc/config"
-	testSecretVolumeName  = "secret-volume"
-	testSecretMountPath   = "/etc/secret"
+	testConfigVolumeName = "config-volume"
+	testConfigMountPath  = "/etc/config"
+	testSecretVolumeName = "secret-volume"
+	testSecretMountPath  = "/etc/secret"
 )
 
 var _ = Describe("StatefulsetController", func() {
@@ -57,19 +57,19 @@ var _ = Describe("StatefulsetController", func() {
 			Spec: appv1.StatefulSetSpec{
 				Selector: &metav1.LabelSelector{
 					MatchLabels: map[string]string{
-						"app": testAppLabelValue,
+						"app": testName,
 					},
 				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
 						Labels: map[string]string{
-							"app": testAppLabelValue,
+							"app": testName,
 						},
 					},
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
-								Name:  testAppLabelValue,
+								Name:  testName,
 								Image: "nginx",
 							},
 						},
@@ -676,7 +676,7 @@ var _ = Describe("StatefulsetController", func() {
 			cm.Data[testDataKey] = "new-value"
 			Expect(c.Update(ctx, cm)).To(Succeed())
 
-			By("update configmap")
+			By("update secret")
 			secret.Data[testDataKey] = []byte("new-value")
 			Expect(c.Update(ctx, secret)).To(Succeed())
 

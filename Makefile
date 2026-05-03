@@ -1,5 +1,5 @@
 # VERSION refers to the application version.
-VERSION ?= 0.0.0-dev
+VERSION ?= 0.4.0
 
 # REGISTRY refers to the container registry where the image will be pushed.
 REGISTRY ?= quay.io/zncdatadev

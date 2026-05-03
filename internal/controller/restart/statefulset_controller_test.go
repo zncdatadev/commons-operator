@@ -19,6 +19,17 @@ import (
 	"github.com/zncdatadev/commons-operator/internal/controller/restart"
 )
 
+const (
+	testAppLabel      = "test"
+	testDataKey       = "key"
+	testEnvVarName    = "TEST"
+	testEnvSecretName = "TEST_SECRET"
+	testConfigVolume  = "config-volume"
+	testConfigMount   = "/etc/config"
+	testSecretVolume  = "secret-volume"
+	testSecretMount   = "/etc/secret"
+)
+
 var _ = Describe("StatefulsetController", func() {
 	var (
 		sts    *appv1.StatefulSet
@@ -46,19 +57,19 @@ var _ = Describe("StatefulsetController", func() {
 			Spec: appv1.StatefulSetSpec{
 				Selector: &metav1.LabelSelector{
 					MatchLabels: map[string]string{
-						"app": "test",
+						"app": testAppLabel,
 					},
 				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
 						Labels: map[string]string{
-							"app": "test",
+							"app": testAppLabel,
 						},
 					},
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
-								Name:  "test",
+								Name:  testAppLabel,
 								Image: "nginx",
 							},
 						},
@@ -72,7 +83,7 @@ var _ = Describe("StatefulsetController", func() {
 				Name:      "test-cm",
 				Namespace: ns.Name,
 			},
-			Data: map[string]string{"key": "value"},
+			Data: map[string]string{testDataKey: "value"},
 		}
 
 		secret = &corev1.Secret{
@@ -80,7 +91,7 @@ var _ = Describe("StatefulsetController", func() {
 				Name:      "test-secret",
 				Namespace: ns.Name,
 			},
-			Data: map[string][]byte{"key": []byte("value")},
+			Data: map[string][]byte{testDataKey: []byte("value")},
 		}
 
 	})
@@ -106,13 +117,13 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].Env = []corev1.EnvVar{
 				{
-					Name: "TEST",
+					Name: testEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: cm.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
@@ -138,13 +149,13 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].Env = []corev1.EnvVar{
 				{
-					Name: "TEST",
+					Name: testEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: secret.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
@@ -170,7 +181,7 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: "config-volume",
+					Name: testConfigVolume,
 					VolumeSource: corev1.VolumeSource{
 						ConfigMap: &corev1.ConfigMapVolumeSource{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -183,8 +194,8 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      "config-volume",
-					MountPath: "/etc/config",
+					Name:      testConfigVolume,
+					MountPath: testConfigMount,
 				},
 			}
 
@@ -208,7 +219,7 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: "secret-volume",
+					Name: testSecretVolume,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: secret.Name,
@@ -219,8 +230,8 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      "secret-volume",
-					MountPath: "/etc/secret",
+					Name:      testSecretVolume,
+					MountPath: testSecretMount,
 				},
 			}
 
@@ -245,24 +256,24 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].Env = []corev1.EnvVar{
 				{
-					Name: "TEST",
+					Name: testEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: cm.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
 				{
-					Name: "TEST_SECRET",
+					Name: testEnvSecretName,
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: secret.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
@@ -294,24 +305,24 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].Env = []corev1.EnvVar{
 				{
-					Name: "TEST",
+					Name: testEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: cm.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
 				{
-					Name: "TEST_SECRET",
+					Name: testEnvSecretName,
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: secret.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
@@ -337,11 +348,11 @@ var _ = Describe("StatefulsetController", func() {
 			}, time.Second*5, time.Millisecond*500).Should(BeTrue())
 
 			By("update configmap")
-			cm.Data["key"] = "new-value"
+			cm.Data[testDataKey] = "new-value"
 			Expect(k8sClient.Update(ctx, cm)).To(Succeed())
 
 			By("update secret")
-			secret.Data["key"] = []byte("new-value")
+			secret.Data[testDataKey] = []byte("new-value")
 			Expect(k8sClient.Update(ctx, secret)).To(Succeed())
 
 			latestCm = &corev1.ConfigMap{}
@@ -416,13 +427,13 @@ var _ = Describe("StatefulsetController", func() {
 		It("should update annotations when statefulset has configmap refs", func() {
 			sts.Spec.Template.Spec.Containers[0].Env = []corev1.EnvVar{
 				{
-					Name: "TEST",
+					Name: testEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: cm.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
@@ -449,13 +460,13 @@ var _ = Describe("StatefulsetController", func() {
 		It("should update annotations when statefulset has secret refs", func() {
 			sts.Spec.Template.Spec.Containers[0].Env = []corev1.EnvVar{
 				{
-					Name: "TEST",
+					Name: testEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: secret.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
@@ -486,7 +497,7 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: "config-volume",
+					Name: testConfigVolume,
 					VolumeSource: corev1.VolumeSource{
 						ConfigMap: &corev1.ConfigMapVolumeSource{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -498,8 +509,8 @@ var _ = Describe("StatefulsetController", func() {
 			}
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      "config-volume",
-					MountPath: "/etc/config",
+					Name:      testConfigVolume,
+					MountPath: testConfigMount,
 				},
 			}
 			Expect(c.Create(ctx, sts)).To(Succeed())
@@ -524,7 +535,7 @@ var _ = Describe("StatefulsetController", func() {
 		It("should update annotations when statefulset has secret volume mount", func() {
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: "secret-volume",
+					Name: testSecretVolume,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: secret.Name,
@@ -534,8 +545,8 @@ var _ = Describe("StatefulsetController", func() {
 			}
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      "secret-volume",
-					MountPath: "/etc/secret",
+					Name:      testSecretVolume,
+					MountPath: testSecretMount,
 				},
 			}
 			Expect(c.Create(ctx, sts)).To(Succeed())
@@ -560,24 +571,24 @@ var _ = Describe("StatefulsetController", func() {
 		It("should update annotations when statefulset has configmap and secret refs", func() {
 			sts.Spec.Template.Spec.Containers[0].Env = []corev1.EnvVar{
 				{
-					Name: "TEST",
+					Name: testEnvVarName,
 					ValueFrom: &corev1.EnvVarSource{
 						ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: cm.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
 				{
-					Name: "TEST_SECRET",
+					Name: testEnvSecretName,
 					ValueFrom: &corev1.EnvVarSource{
 						SecretKeyRef: &corev1.SecretKeySelector{
 							LocalObjectReference: corev1.LocalObjectReference{
 								Name: secret.Name,
 							},
-							Key: "key",
+							Key: testDataKey,
 						},
 					},
 				},
@@ -609,7 +620,7 @@ var _ = Describe("StatefulsetController", func() {
 		It("should update annotations when statefulset has volume ref configmap and secret with updated", func() {
 			sts.Spec.Template.Spec.Volumes = []corev1.Volume{
 				{
-					Name: "config-volume",
+					Name: testConfigVolume,
 					VolumeSource: corev1.VolumeSource{
 						ConfigMap: &corev1.ConfigMapVolumeSource{
 							LocalObjectReference: corev1.LocalObjectReference{
@@ -619,7 +630,7 @@ var _ = Describe("StatefulsetController", func() {
 					},
 				},
 				{
-					Name: "secret-volume",
+					Name: testSecretVolume,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: secret.Name,
@@ -630,12 +641,12 @@ var _ = Describe("StatefulsetController", func() {
 
 			sts.Spec.Template.Spec.Containers[0].VolumeMounts = []corev1.VolumeMount{
 				{
-					Name:      "config-volume",
-					MountPath: "/etc/config",
+					Name:      testConfigVolume,
+					MountPath: testConfigMount,
 				},
 				{
-					Name:      "secret-volume",
-					MountPath: "/etc/secret",
+					Name:      testSecretVolume,
+					MountPath: testSecretMount,
 				},
 			}
 			Expect(c.Create(ctx, sts)).To(Succeed())
@@ -662,11 +673,11 @@ var _ = Describe("StatefulsetController", func() {
 			Expect(updatedSts.Spec.Template.Annotations[restart.GenStatefulSetRestartAnnotationKey(secret)]).To(Equal(expectedSecretValue))
 
 			By("update configmap")
-			cm.Data["key"] = "new-value"
+			cm.Data[testDataKey] = "new-value"
 			Expect(c.Update(ctx, cm)).To(Succeed())
 
 			By("update configmap")
-			secret.Data["key"] = []byte("new-value")
+			secret.Data[testDataKey] = []byte("new-value")
 			Expect(c.Update(ctx, secret)).To(Succeed())
 
 			result, err = r.Reconcile(ctx, ctrl.Request{NamespacedName: req})

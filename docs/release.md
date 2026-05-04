@@ -112,10 +112,12 @@ runs the following jobs:
 - **E2E Test** — Runs end-to-end tests across multiple Kubernetes versions
   (1.33, 1.34, 1.35)
 - **Chainsaw Test** — Runs Chainsaw E2E tests across multiple Kubernetes versions
+- **CRD Sync Check** — Verifies CRDs are in sync with manifests
+- **Chart Linter (Artifact Hub)** — Validates Helm chart metadata
+- **Chart Lint & Test** — Validates and tests the Helm chart
 - **Release Image** — Builds and pushes multi-arch Docker image to
   `quay.io/zncdatadev/commons-operator:<version>`, and signs the image with
   Cosign
-- **Chart Lint & Test** — Validates and tests the Helm chart
 - **Release Chart** — Publishes the Helm chart to
   `quay.io/kubedoopcharts/commons-operator:<version>` (OCI registry) and
   updates the [kubedoop-helm-charts](https://github.com/zncdatadev/kubedoop-helm-charts)
@@ -153,7 +155,8 @@ git tag 0.4.0-dev upstream/release-0.4
 git push upstream 0.4.0-dev
 # Wait for workflow to pass
 
-# Step 4: Tag and publish (stable version, can only be published once)git pull --rebase upstream release-0.4
+# Step 4: Tag and publish (stable version, can only be published once)
+git pull --rebase upstream release-0.4
 git tag 0.4.0 upstream/release-0.4
 git push upstream 0.4.0
 ```

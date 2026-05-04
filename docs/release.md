@@ -75,6 +75,7 @@ git push upstream x.y.z-dev
 ```
 
 Wait for the release workflow to complete. Verify:
+
 - All jobs pass successfully
 - Docker image is available at
   `quay.io/zncdatadev/commons-operator:x.y.z-dev`

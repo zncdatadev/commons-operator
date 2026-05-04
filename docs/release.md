@@ -24,13 +24,23 @@ The `VERSION` in `Makefile` and `version`/`appVersion` in `Chart.yaml` are devel
 
 ### 1. Create Release Branch (if it does not exist)
 
-Create a release branch from the latest `main`:
+Create a release branch from the latest `main` on the upstream repository to avoid local code being out of sync.
+
+**Via GitHub WebUI:** Navigate to the repository page, click "Branch" → "New branch", name it `release-0.x` and base it on `main`.
+
+**Via GitHub API / gh CLI:**
 
 ```bash
-git checkout main
-git pull --rebase upstream main
-git checkout -b release-0.x
-git push upstream release-0.x
+git api repos/zncdatadev/commons-operator/git/refs \
+  -f ref=refs/heads/release-0.x \
+  -f sha=$(gh api repos/zncdatadev/commons-operator/git/ref/heads/main --jq .object.sha)
+```
+
+Then sync locally:
+
+```bash
+git fetch upstream
+git checkout release-0.x
 ```
 
 ### 2. Merge Stabilization Changes

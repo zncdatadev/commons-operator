@@ -34,7 +34,14 @@ updated for a release.
 
 ## Release Process
 
-### 1. Create Release Branch (if it does not exist)
+### 1. Prepare Content
+
+Prepare the code to be released before creating the release branch. This
+includes merging bug fixes, dependency upgrades, or other stabilization changes
+into `main` via Pull Request. Wait for CI to pass and code review before
+proceeding.
+
+### 2. Create Release Branch (if it does not exist)
 
 Create a release branch from the latest `main` on the upstream repository to
 avoid local code being out of sync.
@@ -56,12 +63,6 @@ Then sync locally:
 git fetch upstream
 git checkout release-0.x
 ```
-
-### 2. Merge Stabilization Changes
-
-Merge bug fixes, dependency upgrades, or other stabilization changes into the
-release branch via Pull Request from `main` or dedicated fix branches. Wait for
-CI to pass and code review before merging.
 
 ### 3. Pre-release Verification
 
@@ -96,9 +97,6 @@ Once verified, you can proceed to publish the stable version directly.
 There is no need to clean up the `-dev` tag.
 
 ### 4. Tag and Publish
-
-After the pre-release passes, publish the stable version. The stable tag can
-only be published once — re-tagging is **not allowed**.
 
 ```bash
 git pull --rebase upstream release-0.x
@@ -137,7 +135,10 @@ commons-operator follows [Semantic Versioning](https://semver.org/):
 Here is an example of releasing version `0.4.0` on the `release-0.4` branch:
 
 ```bash
-# Step 1: Create release branch on upstream (skip if it does not exist)
+# Step 1: Prepare content on main
+# Merge stabilization changes via PR, wait for CI and review
+
+# Step 2: Create release branch on upstream (skip if it does not exist)
 # Via WebUI or:
 gh api repos/zncdatadev/commons-operator/git/refs \
   -f ref=refs/heads/release-0.4 \
@@ -147,7 +148,7 @@ gh api repos/zncdatadev/commons-operator/git/refs \
 git fetch upstream
 git checkout release-0.4
 
-# Step 2: Merge stabilization changes via PR (skip if release branch is ready)
+# Step 2: Merge stabilization changes via PR (skip if content is ready)
 
 # Step 3: Pre-release verification
 git pull --rebase upstream release-0.4
@@ -155,8 +156,7 @@ git tag 0.4.0-dev upstream/release-0.4
 git push upstream 0.4.0-dev
 # Wait for workflow to pass
 
-# Step 4: Tag and publish (stable version, can only be published once)
-git pull --rebase upstream release-0.4
+# Step 4: Tag and publish (stable version, can only be published once)git pull --rebase upstream release-0.4
 git tag 0.4.0 upstream/release-0.4
 git push upstream 0.4.0
 ```

@@ -92,12 +92,8 @@ git tag x.y.z-dev upstream/release-0.x
 git push upstream x.y.z-dev
 ```
 
-Once verified, clean up the `-dev` tag:
-
-```bash
-git tag -d x.y.z-dev
-git push upstream :refs/tags/x.y.z-dev
-```
+Once verified, you can proceed to publish the stable version directly.
+There is no need to clean up the `-dev` tag.
 
 ### 4. Tag and Publish
 
@@ -157,9 +153,7 @@ git checkout release-0.4
 git pull --rebase upstream release-0.4
 git tag 0.4.0-dev upstream/release-0.4
 git push upstream 0.4.0-dev
-# Wait for workflow to pass, then clean up
-git tag -d 0.4.0-dev
-git push upstream :refs/tags/0.4.0-dev
+# Wait for workflow to pass
 
 # Step 4: Tag and publish (stable version, can only be published once)
 git pull --rebase upstream release-0.4

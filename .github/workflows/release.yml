@@ -248,9 +248,9 @@ jobs:
       - name: Get commit range
         id: commit-range
         run: |
-          # Get current and previous tag
+          # Get current and previous tag (exclude -dev pre-release tags)
           CURRENT_TAG="${{ github.ref_name }}"
-          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -A1 "^${CURRENT_TAG}$" | tail -n1)
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -v '\-dev$' | grep -A1 "^${CURRENT_TAG}$" | tail -n1)
 
           # First release detection
           if [[ "$PREVIOUS_TAG" == "$CURRENT_TAG" || -z "$PREVIOUS_TAG" ]]; then

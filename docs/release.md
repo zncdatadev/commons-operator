@@ -41,38 +41,16 @@ includes merging bug fixes, dependency upgrades, or other stabilization changes
 into `main` via Pull Request. Wait for CI to pass and code review before
 proceeding.
 
-### 2. Create Release Branch (if it does not exist)
+### 2. Pre-release Verification
 
-Create a release branch from the latest `main` on the upstream repository to
-avoid local code being out of sync.
-
-**Via GitHub WebUI:** Navigate to the repository page, click "Branch" →
-"New branch", name it `release-0.x` and base it on `main`.
-
-**Via GitHub API / gh CLI:**
+Before creating the release branch, push a `-dev` suffixed tag on `main` to
+verify the release workflow. This confirms the code can be released correctly
+without needing a release branch.
 
 ```bash
-gh api repos/zncdatadev/commons-operator/git/refs \
-  -f ref=refs/heads/release-0.x \
-  -f sha=$(gh api repos/zncdatadev/commons-operator/git/ref/heads/main --jq .object.sha)
-```
-
-Then sync locally:
-
-```bash
-git fetch upstream
-git checkout release-0.x
-```
-
-### 3. Pre-release Verification
-
-Before publishing a stable version, push a `-dev` suffixed tag to verify the
-release workflow. This allows you to catch and fix issues without affecting the
-official version. The `-dev` tag can be deleted and re-created if needed.
-
-```bash
-git pull --rebase upstream release-0.x
-git tag x.y.z-dev upstream/release-0.x
+git checkout main
+git pull --rebase upstream main
+git tag x.y.z-dev upstream/main
 git push upstream x.y.z-dev
 ```
 
@@ -93,8 +71,31 @@ git tag x.y.z-dev upstream/release-0.x
 git push upstream x.y.z-dev
 ```
 
-Once verified, you can proceed to publish the stable version directly.
-There is no need to clean up the `-dev` tag.
+Once verified, you can proceed to create the release branch and publish the
+stable version directly. There is no need to clean up the `-dev` tag.
+
+### 3. Create Release Branch
+
+Create a release branch on the upstream repository from the same commit that
+was verified by the pre-release.
+
+**Via GitHub WebUI:** Navigate to the repository page, click "Branch" →
+"New branch", name it `release-0.x` and base it on `main`.
+
+**Via GitHub API / gh CLI:**
+
+```bash
+gh api repos/zncdatadev/commons-operator/git/refs \
+  -f ref=refs/heads/release-0.x \
+  -f sha=$(gh api repos/zncdatadev/commons-operator/git/ref/heads/main --jq .object.sha)
+```
+
+Then sync locally:
+
+```bash
+git fetch upstream
+git checkout release-0.x
+```
 
 ### 4. Tag and Publish
 
@@ -138,23 +139,16 @@ Here is an example of releasing version `0.4.0` on the `release-0.4` branch:
 # Step 1: Prepare content on main
 # Merge stabilization changes via PR, wait for CI and review
 
-# Step 2: Create release branch on upstream (skip if it does not exist)
-# Via WebUI or:
-gh api repos/zncdatadev/commons-operator/git/refs \
-  -f ref=refs/heads/release-0.4 \
-  -f sha=$(gh api repos/zncdatadev/commons-operator/git/ref/heads/main --jq .object.sha)
-
-# Sync locally
-git fetch upstream
-git checkout release-0.4
-
-# Step 2: Merge stabilization changes via PR (skip if content is ready)
-
-# Step 3: Pre-release verification
-git pull --rebase upstream release-0.4
-git tag 0.4.0-dev upstream/release-0.4
+# Step 2: Pre-release verification
+git checkout main
+git pull --rebase upstream main
+git tag 0.4.0-dev upstream/main
 git push upstream 0.4.0-dev
 # Wait for workflow to pass
+
+# Step 3: Create release branch on upstream
+git fetch upstream
+git checkout release-0.4
 
 # Step 4: Tag and publish (stable version, can only be published once)git pull --rebase upstream release-0.4
 git tag 0.4.0 upstream/release-0.4

@@ -11,7 +11,7 @@ The release process follows a branch-based workflow:
 
 ## Release Process
 
-### 1. Create Release Branch (if not exists)
+### 1. Create Release Branch (if it does not exist)
 
 Create a release branch from the latest `main`:
 
@@ -24,11 +24,11 @@ git push upstream release-0.x
 
 ### 2. Prepare Version Changes
 
-Create a local branch for version changes and update all relevant files:
+Create a local branch based on the release branch for version changes:
 
 ```bash
-git checkout main
-git pull --rebase upstream main
+git checkout release-0.x
+git pull --rebase upstream release-0.x
 git checkout -b bump/release-x.y.z
 ```
 
@@ -37,8 +37,10 @@ git checkout -b bump/release-x.y.z
 | File | Field | Description |
 |------|-------|-------------|
 | `Makefile` | `VERSION` | Application version (e.g., `VERSION ?= 0.4.0`) |
-| `deploy/helm/commons-operator/Chart.yaml` | `version` | Helm chart version |
-| `deploy/helm/commons-operator/Chart.yaml` | `appVersion` | Helm chart app version |
+| `deploy/helm/commons-operator/Chart.yaml` | `version` | Helm chart version (development placeholder, overridden during release packaging) |
+| `deploy/helm/commons-operator/Chart.yaml` | `appVersion` | Helm chart app version (development placeholder, overridden during release packaging) |
+
+> **Note:** The `version` and `appVersion` in `Chart.yaml` serve as development-time defaults on `main`. During the release, the [`Makefile`](../Makefile) `helm-chart-package` target overrides both values using `--version $(VERSION) --app-version $(VERSION)`, where `VERSION` is derived from the Git tag name in the [Release workflow](../.github/workflows/release.yml). Updating `Chart.yaml` is still recommended so that the values on the release branch reflect the released version.
 
 > **Tip:** You can refer to the previous version's changes on the release branch (e.g., `git diff v0.3.0..release-0.3`) to see exactly which files were modified.
 
@@ -63,7 +65,7 @@ git tag vx.y.z upstream/release-0.x
 git push upstream vx.y.z
 ```
 
-This triggers the [Release workflow](.github/workflows/release.yml) which runs the following jobs:
+This triggers the [Release workflow](../.github/workflows/release.yml) which runs the following jobs:
 
 - **Markdown Lint** — Lints markdown files under `docs/` and `README.*.md`
 - **Golang Lint** — Runs golangci-lint
@@ -87,21 +89,21 @@ commons-operator follows [Semantic Versioning](https://semver.org/):
 Here is an example of releasing version `0.4.0` on the `release-0.4` branch:
 
 ```bash
-# Step 1: Create release branch (skip if already exists)
+# Step 1: Create release branch (skip if it does not exist)
 git checkout main
 git pull --rebase upstream main
 git checkout -b release-0.4
 git push upstream release-0.4
 
-# Step 2: Prepare version changes
-git checkout main
-git pull --rebase upstream main
+# Step 2: Prepare version changes (from the release branch, not main)
+git checkout release-0.4
+git pull --rebase upstream release-0.4
 git checkout -b bump/release-0.4.0
 
 # Update Makefile VERSION
 sed -i 's/VERSION ?= 0.0.0-dev/VERSION ?= 0.4.0/' Makefile
 
-# Update Chart.yaml
+# Update Chart.yaml (recommended for consistency on the release branch)
 sed -i 's/version: 0.0.0-dev/version: 0.4.0/' deploy/helm/commons-operator/Chart.yaml
 sed -i 's/appVersion: 0.0.0-dev/appVersion: 0.4.0/' deploy/helm/commons-operator/Chart.yaml
 

@@ -7,7 +7,18 @@ This document describes the standard release process for commons-operator.
 The release process follows a branch-based workflow:
 
 - **Main branch** (`main`): The default development branch where new features and bug fixes are merged.
-- **Release branch** (`release-x.y`): A long-lived branch for a minor version series (e.g., `release-0.4`). Created from `main` and used to stabilize and release versions within that series.
+- **Release branch** (`release-x.y`): A long-lived branch for a minor version series (e.g., `release-0.4`). Created from `main`, only accepts bug fixes and dependency upgrades, no new features. All release tags are created from this branch to ensure published code is stable and verified.
+
+## How Versioning Works
+
+The release workflow does **not** require manual version changes in source files. The Git tag name serves as the single source of truth for the version number:
+
+1. When a tag (e.g., `0.4.0`) is pushed, the [Release workflow](../.github/workflows/release.yml) sets `VERSION` from `github.ref_name`
+2. **Docker image** — uses `VERSION` directly: `quay.io/zncdatadev/commons-operator:<version>`
+3. **Helm chart** — `helm package --version $(VERSION) --app-version $(VERSION)` overrides the values in `Chart.yaml` during packaging
+4. **Helm chart publish** — pushes to `quay.io/kubedoopcharts/commons-operator:<version>` (OCI registry)
+
+The `VERSION` in `Makefile` and `version`/`appVersion` in `Chart.yaml` are development-time defaults (`0.0.0-dev`) on `main`. They do not need to be updated for a release.
 
 ## Release Process
 
@@ -22,47 +33,19 @@ git checkout -b release-0.x
 git push upstream release-0.x
 ```
 
-### 2. Prepare Version Changes
+### 2. Merge Stabilization Changes
 
-Create a local branch based on the release branch for version changes:
+Merge bug fixes, dependency upgrades, or other stabilization changes into the release branch via Pull Request from `main` or dedicated fix branches. Wait for CI to pass and code review before merging.
 
-```bash
-git checkout release-0.x
-git pull --rebase upstream release-0.x
-git checkout -b bump/release-x.y.z
-```
+### 3. Tag and Publish
 
-#### Files to Update
-
-| File | Field | Description |
-|------|-------|-------------|
-| `Makefile` | `VERSION` | Application version (e.g., `VERSION ?= 0.4.0`) |
-| `deploy/helm/commons-operator/Chart.yaml` | `version` | Helm chart version (development placeholder, overridden during release packaging) |
-| `deploy/helm/commons-operator/Chart.yaml` | `appVersion` | Helm chart app version (development placeholder, overridden during release packaging) |
-
-> **Note:** The `version` and `appVersion` in `Chart.yaml` serve as development-time defaults on `main`. During the release, the [`Makefile`](../Makefile) `helm-chart-package` target overrides both values using `--version $(VERSION) --app-version $(VERSION)`, where `VERSION` is derived from the Git tag name in the [Release workflow](../.github/workflows/release.yml). Updating `Chart.yaml` is still recommended so that the values on the release branch reflect the released version.
-
-> **Tip:** You can refer to the previous version's changes on the release branch (e.g., `git diff v0.3.0..release-0.3`) to see exactly which files were modified.
-
-### 3. Submit and Merge PR
-
-Push the version change branch and create a Pull Request targeting the release branch:
-
-```bash
-git push origin bump/release-x.y.z
-```
-
-Create a PR from `bump/release-x.y.z` to `release-0.x`. Wait for CI to pass and code review before merging.
-
-### 4. Tag and Publish
-
-After the PR is merged, tag the release and push to trigger the automated release workflow:
+When ready to release, tag the latest commit on the release branch and push to trigger the automated release workflow:
 
 ```bash
 git checkout release-0.x
 git pull --rebase upstream release-0.x
-git tag vx.y.z upstream/release-0.x
-git push upstream vx.y.z
+git tag x.y.z upstream/release-0.x
+git push upstream x.y.z
 ```
 
 This triggers the [Release workflow](../.github/workflows/release.yml) which runs the following jobs:
@@ -95,29 +78,13 @@ git pull --rebase upstream main
 git checkout -b release-0.4
 git push upstream release-0.4
 
-# Step 2: Prepare version changes (from the release branch, not main)
+# Step 2: Merge stabilization changes via PR (skip if release branch is ready)
+
+# Step 3: Tag and publish
 git checkout release-0.4
 git pull --rebase upstream release-0.4
-git checkout -b bump/release-0.4.0
-
-# Update Makefile VERSION
-sed -i 's/VERSION ?= 0.0.0-dev/VERSION ?= 0.4.0/' Makefile
-
-# Update Chart.yaml (recommended for consistency on the release branch)
-sed -i 's/version: 0.0.0-dev/version: 0.4.0/' deploy/helm/commons-operator/Chart.yaml
-sed -i 's/appVersion: 0.0.0-dev/appVersion: 0.4.0/' deploy/helm/commons-operator/Chart.yaml
-
-git add -A
-git commit -m "release: 0.4.0"
-git push origin bump/release-0.4.0
-
-# Step 3: Create PR to release-0.4, review and merge
-
-# Step 4: Tag and publish
-git checkout release-0.4
-git pull --rebase upstream release-0.4
-git tag v0.4.0 upstream/release-0.4
-git push upstream v0.4.0
+git tag 0.4.0 upstream/release-0.4
+git push upstream 0.4.0
 ```
 
 ## Troubleshooting
@@ -127,7 +94,6 @@ git push upstream v0.4.0
 If the `chart-lint-test` or `release-chart` job fails, check the workflow logs for details. Common issues include:
 
 - **CRDs out of sync**: Run `make manifests` and `make helm-crd-sync` to regenerate CRDs, then commit the changes.
-- **Chart YAML validation errors**: Ensure `Chart.yaml` has correct `version` and `appVersion` fields.
 - **Previous tag not found**: For the first release on a new release branch, the workflow automatically detects this and marks all charts as changed.
 
 ### Force re-trigger a release
@@ -135,7 +101,7 @@ If the `chart-lint-test` or `release-chart` job fails, check the workflow logs f
 If the release workflow fails and you need to re-trigger after fixing the issue, delete and re-create the tag:
 
 ```bash
-git push upstream :refs/tags/vx.y.z
-git tag vx.y.z upstream/release-0.x
-git push upstream vx.y.z
+git push upstream :refs/tags/x.y.z
+git tag x.y.z upstream/release-0.x
+git push upstream x.y.z
 ```

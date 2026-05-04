@@ -7,31 +7,45 @@ This document describes the standard release process for commons-operator.
 The release process follows a branch-based workflow:
 
 - **Main branch** (`main`): The default development branch where new features and bug fixes are merged.
-- **Release branch** (`release-x.y`): A long-lived branch for a minor version series (e.g., `release-0.4`). Created from `main`, only accepts bug fixes and dependency upgrades, no new features. All release tags are created from this branch to ensure published code is stable and verified.
+- **Release branch** (`release-x.y`): A long-lived branch for a minor version series
+  (e.g., `release-0.4`). Created from `main`, only accepts bug fixes and
+  dependency upgrades, no new features. All release tags are created from this
+  branch to ensure published code is stable and verified.
 
 ## How Versioning Works
 
-The release workflow does **not** require manual version changes in source files. The Git tag name serves as the single source of truth for the version number:
+The release workflow does **not** require manual version changes in source
+files. The Git tag name serves as the single source of truth for the version
+number:
 
-1. When a tag (e.g., `0.4.0`) is pushed, the [Release workflow](../.github/workflows/release.yml) sets `VERSION` from `github.ref_name`
-2. **Docker image** — uses `VERSION` directly: `quay.io/zncdatadev/commons-operator:<version>`
-3. **Helm chart** — `helm package --version $(VERSION) --app-version $(VERSION)` overrides the values in `Chart.yaml` during packaging
-4. **Helm chart publish** — pushes to `quay.io/kubedoopcharts/commons-operator:<version>` (OCI registry)
+1. When a tag (e.g., `0.4.0`) is pushed, the
+   [Release workflow](../.github/workflows/release.yml) sets `VERSION` from
+   `github.ref_name`
+2. **Docker image** — uses `VERSION` directly:
+   `quay.io/zncdatadev/commons-operator:<version>`
+3. **Helm chart** — `helm package --version $(VERSION) --app-version $(VERSION)`
+   overrides the values in `Chart.yaml` during packaging
+4. **Helm chart publish** — pushes to
+   `quay.io/kubedoopcharts/commons-operator:<version>` (OCI registry)
 
-The `VERSION` in `Makefile` and `version`/`appVersion` in `Chart.yaml` are development-time defaults (`0.0.0-dev`) on `main`. They do not need to be updated for a release.
+The `VERSION` in `Makefile` and `version`/`appVersion` in `Chart.yaml` are
+development-time defaults (`0.0.0-dev`) on `main`. They do not need to be
+updated for a release.
 
 ## Release Process
 
 ### 1. Create Release Branch (if it does not exist)
 
-Create a release branch from the latest `main` on the upstream repository to avoid local code being out of sync.
+Create a release branch from the latest `main` on the upstream repository to
+avoid local code being out of sync.
 
-**Via GitHub WebUI:** Navigate to the repository page, click "Branch" → "New branch", name it `release-0.x` and base it on `main`.
+**Via GitHub WebUI:** Navigate to the repository page, click "Branch" →
+"New branch", name it `release-0.x` and base it on `main`.
 
 **Via GitHub API / gh CLI:**
 
 ```bash
-git api repos/zncdatadev/commons-operator/git/refs \
+gh api repos/zncdatadev/commons-operator/git/refs \
   -f ref=refs/heads/release-0.x \
   -f sha=$(gh api repos/zncdatadev/commons-operator/git/ref/heads/main --jq .object.sha)
 ```
@@ -45,11 +59,14 @@ git checkout release-0.x
 
 ### 2. Merge Stabilization Changes
 
-Merge bug fixes, dependency upgrades, or other stabilization changes into the release branch via Pull Request from `main` or dedicated fix branches. Wait for CI to pass and code review before merging.
+Merge bug fixes, dependency upgrades, or other stabilization changes into the
+release branch via Pull Request from `main` or dedicated fix branches. Wait for
+CI to pass and code review before merging.
 
 ### 3. Tag and Publish
 
-When ready to release, tag the latest commit on the release branch and push to trigger the automated release workflow:
+When ready to release, tag the latest commit on the release branch and push to
+trigger the automated release workflow:
 
 ```bash
 git checkout release-0.x
@@ -58,16 +75,23 @@ git tag x.y.z upstream/release-0.x
 git push upstream x.y.z
 ```
 
-This triggers the [Release workflow](../.github/workflows/release.yml) which runs the following jobs:
+This triggers the [Release workflow](../.github/workflows/release.yml) which
+runs the following jobs:
 
 - **Markdown Lint** — Lints markdown files under `docs/` and `README.*.md`
 - **Golang Lint** — Runs golangci-lint
 - **Golang Test** — Runs unit tests
-- **E2E Test** — Runs end-to-end tests across multiple Kubernetes versions (1.33, 1.34, 1.35)
+- **E2E Test** — Runs end-to-end tests across multiple Kubernetes versions
+  (1.33, 1.34, 1.35)
 - **Chainsaw Test** — Runs Chainsaw E2E tests across multiple Kubernetes versions
-- **Release Image** — Builds and pushes multi-arch Docker image to `quay.io/zncdatadev/commons-operator:<version>`, and signs the image with Cosign
+- **Release Image** — Builds and pushes multi-arch Docker image to
+  `quay.io/zncdatadev/commons-operator:<version>`, and signs the image with
+  Cosign
 - **Chart Lint & Test** — Validates and tests the Helm chart
-- **Release Chart** — Publishes the Helm chart to `quay.io/kubedoopcharts/commons-operator:<version>` (OCI registry) and updates the [kubedoop-helm-charts](https://github.com/zncdatadev/kubedoop-helm-charts) index
+- **Release Chart** — Publishes the Helm chart to
+  `quay.io/kubedoopcharts/commons-operator:<version>` (OCI registry) and
+  updates the [kubedoop-helm-charts](https://github.com/zncdatadev/kubedoop-helm-charts)
+  index
 
 ## Versioning Convention
 
@@ -82,16 +106,19 @@ commons-operator follows [Semantic Versioning](https://semver.org/):
 Here is an example of releasing version `0.4.0` on the `release-0.4` branch:
 
 ```bash
-# Step 1: Create release branch (skip if it does not exist)
-git checkout main
-git pull --rebase upstream main
-git checkout -b release-0.4
-git push upstream release-0.4
+# Step 1: Create release branch on upstream (skip if it does not exist)
+# Via WebUI or:
+gh api repos/zncdatadev/commons-operator/git/refs \
+  -f ref=refs/heads/release-0.4 \
+  -f sha=$(gh api repos/zncdatadev/commons-operator/git/ref/heads/main --jq .object.sha)
+
+# Sync locally
+git fetch upstream
+git checkout release-0.4
 
 # Step 2: Merge stabilization changes via PR (skip if release branch is ready)
 
 # Step 3: Tag and publish
-git checkout release-0.4
 git pull --rebase upstream release-0.4
 git tag 0.4.0 upstream/release-0.4
 git push upstream 0.4.0
@@ -101,16 +128,21 @@ git push upstream 0.4.0
 
 ### Chart release failed
 
-If the `chart-lint-test` or `release-chart` job fails, check the workflow logs for details. Common issues include:
+If the `chart-lint-test` or `release-chart` job fails, check the workflow logs
+for details. Common issues include:
 
-- **CRDs out of sync**: Run `make manifests` and `make helm-crd-sync` to regenerate CRDs, then commit the changes.
-- **Previous tag not found**: For the first release on a new release branch, the workflow automatically detects this and marks all charts as changed.
+- **CRDs out of sync**: Run `make manifests` and `make helm-crd-sync` to
+  regenerate CRDs, then commit the changes.
+- **Previous tag not found**: For the first release on a new release branch, the
+  workflow automatically detects this and marks all charts as changed.
 
 ### Force re-trigger a release
 
-If the release workflow fails and you need to re-trigger after fixing the issue, delete and re-create the tag:
+If the release workflow fails and you need to re-trigger after fixing the
+issue, delete both the local and remote tag, then re-create and push:
 
 ```bash
+git tag -d x.y.z
 git push upstream :refs/tags/x.y.z
 git tag x.y.z upstream/release-0.x
 git push upstream x.y.z

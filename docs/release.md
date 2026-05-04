@@ -63,13 +63,48 @@ Merge bug fixes, dependency upgrades, or other stabilization changes into the
 release branch via Pull Request from `main` or dedicated fix branches. Wait for
 CI to pass and code review before merging.
 
-### 3. Tag and Publish
+### 3. Pre-release Verification
 
-When ready to release, tag the latest commit on the release branch and push to
-trigger the automated release workflow:
+Before publishing a stable version, push a `-dev` suffixed tag to verify the
+release workflow. This allows you to catch and fix issues without affecting the
+official version. The `-dev` tag can be deleted and re-created if needed.
 
 ```bash
-git checkout release-0.x
+git pull --rebase upstream release-0.x
+git tag x.y.z-dev upstream/release-0.x
+git push upstream x.y.z-dev
+```
+
+Wait for the release workflow to complete. Verify:
+- All jobs pass successfully
+- Docker image is available at
+  `quay.io/zncdatadev/commons-operator:x.y.z-dev`
+- Helm chart is available at
+  `quay.io/kubedoopcharts/commons-operator:x.y.z-dev`
+
+If the workflow fails, fix the issue, then delete and re-create the `-dev`
+tag:
+
+```bash
+git tag -d x.y.z-dev
+git push upstream :refs/tags/x.y.z-dev
+git tag x.y.z-dev upstream/release-0.x
+git push upstream x.y.z-dev
+```
+
+Once verified, clean up the `-dev` tag:
+
+```bash
+git tag -d x.y.z-dev
+git push upstream :refs/tags/x.y.z-dev
+```
+
+### 4. Tag and Publish
+
+After the pre-release passes, publish the stable version. The stable tag can
+only be published once — re-tagging is **not allowed**.
+
+```bash
 git pull --rebase upstream release-0.x
 git tag x.y.z upstream/release-0.x
 git push upstream x.y.z
@@ -118,7 +153,15 @@ git checkout release-0.4
 
 # Step 2: Merge stabilization changes via PR (skip if release branch is ready)
 
-# Step 3: Tag and publish
+# Step 3: Pre-release verification
+git pull --rebase upstream release-0.4
+git tag 0.4.0-dev upstream/release-0.4
+git push upstream 0.4.0-dev
+# Wait for workflow to pass, then clean up
+git tag -d 0.4.0-dev
+git push upstream :refs/tags/0.4.0-dev
+
+# Step 4: Tag and publish (stable version, can only be published once)
 git pull --rebase upstream release-0.4
 git tag 0.4.0 upstream/release-0.4
 git push upstream 0.4.0
@@ -136,14 +179,16 @@ for details. Common issues include:
 - **Previous tag not found**: For the first release on a new release branch, the
   workflow automatically detects this and marks all charts as changed.
 
-### Force re-trigger a release
+### Re-trigger a pre-release
 
-If the release workflow fails and you need to re-trigger after fixing the
-issue, delete both the local and remote tag, then re-create and push:
+Only `-dev` pre-release tags can be deleted and re-pushed. To re-trigger:
 
 ```bash
-git tag -d x.y.z
-git push upstream :refs/tags/x.y.z
-git tag x.y.z upstream/release-0.x
-git push upstream x.y.z
+git tag -d x.y.z-dev
+git push upstream :refs/tags/x.y.z-dev
+git tag x.y.z-dev upstream/release-0.x
+git push upstream x.y.z-dev
 ```
+
+**Stable versions (`x.y.z` without suffix) cannot be re-tagged.** If a stable
+release fails, you must publish a new patch version (e.g., `x.y.(z+1)`) instead.

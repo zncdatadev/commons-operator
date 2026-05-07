@@ -115,8 +115,8 @@ runs the following jobs:
   (1.33, 1.34, 1.35)
 - **CRD Sync Check** — Verifies CRDs are in sync with manifests
 - **Chart Linter (Artifact Hub)** — Validates Helm chart metadata
-- **Chart Lint Helm** — Validates the Helm chart with ct lint and installs it
-  with ct install
+- **Chart Lint Helm** — Validates the Helm chart with `ct lint` and installs it
+  with `ct install`
 - **Chart E2E** — Runs Chainsaw E2E tests against a Helm-installed release
 - **Release Image** — Builds and pushes multi-arch Docker image to
   `quay.io/zncdatadev/commons-operator:<version>`, and signs the image with

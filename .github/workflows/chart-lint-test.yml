@@ -102,7 +102,7 @@ jobs:
         run: kind load docker-image --name chart-testing quay.io/zncdatadev/commons-operator:$VERSION
 
       - name: Run chart-testing (install)
-        id: ct-test
+
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           ct install --config ./.github/configs/ct-install.yaml

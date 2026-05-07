@@ -110,9 +110,7 @@ runs the following jobs:
 - **Golang Lint** — Runs golangci-lint
 - **Golang Test** — Runs unit tests
 - **E2E Test** — Runs end-to-end tests across multiple Kubernetes versions
-  (1.33, 1.34, 1.35)
 - **Chainsaw Test** — Runs Chainsaw E2E tests across multiple Kubernetes versions
-  (1.33, 1.34, 1.35)
 - **CRD Sync Check** — Verifies CRDs are in sync with manifests
 - **Chart Linter (Artifact Hub)** — Validates Helm chart metadata
 - **Chart Lint Helm** — Validates the Helm chart with `ct lint` and installs it

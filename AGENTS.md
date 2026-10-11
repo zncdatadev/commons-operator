@@ -37,7 +37,7 @@ Provides shared utilities and common platform components for the Kubedoop operat
 
 ### Working In This Directory
 - Standard Kubebuilder operator structure (multigroup layout)
-- Uses `operator-go` framework (`github.com/zncdatadev/operator-go v0.12.6`)
+- Uses `operator-go` framework (`github.com/zncdatadev/operator-go v0.13.0`)
 - Run `make generate` to regenerate CRD manifests and DeepCopy methods
 - Run `make manifests` to update CRD YAML files in `config/crd/`
 - Run `make test` for unit tests
@@ -52,7 +52,7 @@ Provides shared utilities and common platform components for the Kubedoop operat
 ### Common Patterns
 - Controllers in `internal/controller/pod_enrichment/` and `internal/controller/restart/`
 - All CRDs use `v1alpha1` API version
-- Follows `operator-go` GenericReconciler pattern
+- Uses specialized controllers for platform resources
 - Multi-group API layout: `api/<group>/v1alpha1/`
 
 ## Dependencies

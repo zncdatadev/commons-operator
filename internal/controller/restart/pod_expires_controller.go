@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zncdatadev/operator-go/pkg/constants"
+	opconstant "github.com/zncdatadev/operator-go/pkg/constant"
 	corev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -51,7 +51,7 @@ func (r *PodExpiresReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	var watched bool
 	var minTime *time.Time
 	for key, value := range annotations {
-		if strings.HasPrefix(key, constants.PrefixLabelRestarterExpiresAt) {
+		if strings.HasPrefix(key, opconstant.LabelRestarterExpiresAtPrefix) {
 			watched = true
 			t, err := time.Parse(time.RFC3339, value)
 			if err != nil {

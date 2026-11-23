@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/zncdatadev/commons-operator/internal/controller/restart"
-	"github.com/zncdatadev/operator-go/pkg/constants"
+	opconstant "github.com/zncdatadev/operator-go/pkg/constant"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/kubectl/pkg/scheme"
@@ -32,7 +32,7 @@ var _ = Describe("PodExpiresReconciler", func() {
 				Name:      "test-pod",
 				Namespace: "default",
 				Annotations: map[string]string{
-					fmt.Sprintf("%svolume_id", constants.PrefixLabelRestarterExpiresAt): time.Now().Add(-1 * time.Hour).Format(time.RFC3339),
+					fmt.Sprintf("%svolume_id", opconstant.LabelRestarterExpiresAtPrefix): time.Now().Add(-1 * time.Hour).Format(time.RFC3339),
 				},
 			},
 			Spec: corev1.PodSpec{
@@ -68,7 +68,7 @@ var _ = Describe("PodExpiresReconciler", func() {
 		It("should evict expired Pod after 5 seconds", func() {
 			By("Set expiration time to 5 seconds in the future")
 			pod.Annotations = map[string]string{
-				fmt.Sprintf("%svolume_id", constants.PrefixLabelRestarterExpiresAt): time.Now().Add(5 * time.Second).Format(time.RFC3339),
+				fmt.Sprintf("%svolume_id", opconstant.LabelRestarterExpiresAtPrefix): time.Now().Add(5 * time.Second).Format(time.RFC3339),
 			}
 			Expect(k8sClient.Create(ctx, pod)).NotTo(HaveOccurred())
 
@@ -137,7 +137,7 @@ var _ = Describe("PodExpiresReconciler", func() {
 		It("should not evict unexpired Pod", func() {
 			By("Set expiration time to 1 hour in the future")
 			pod.Annotations = map[string]string{
-				fmt.Sprintf("%svolume_id", constants.PrefixLabelRestarterExpiresAt): time.Now().Add(1 * time.Hour).Format(time.RFC3339),
+				fmt.Sprintf("%svolume_id", opconstant.LabelRestarterExpiresAtPrefix): time.Now().Add(1 * time.Hour).Format(time.RFC3339),
 			}
 			err := fakeClient.Update(ctx, pod)
 			Expect(err).NotTo(HaveOccurred())
@@ -163,7 +163,7 @@ var _ = Describe("PodExpiresReconciler", func() {
 		It("should evict expired Pod after 5 seconds", func() {
 			By("Set expiration time to 5 seconds in the future")
 			pod.Annotations = map[string]string{
-				fmt.Sprintf("%svolume_id", constants.PrefixLabelRestarterExpiresAt): time.Now().Add(5 * time.Second).Format(time.RFC3339),
+				fmt.Sprintf("%svolume_id", opconstant.LabelRestarterExpiresAtPrefix): time.Now().Add(5 * time.Second).Format(time.RFC3339),
 			}
 			err := fakeClient.Update(ctx, pod)
 			Expect(err).NotTo(HaveOccurred())

@@ -18,9 +18,9 @@ spec:
           value: ($namespace)
         content: |
           # if os is linux, then use date -d, if os is macos, then use date -v
-          if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+          if [ "$OSTYPE" = "linux-gnu" ] || [ "$OSTYPE" = "linux-musl" ]; then
             NOW_AFTER_5s=$(date -d "+5 seconds" -u +"%Y-%m-%dT%H:%M:%SZ")
-          elif [[ "$OSTYPE" == "darwin"* ]]; then
+          elif [ "$OSTYPE" = "darwin" ]; then
             NOW_AFTER_5s=$(date -v+5S -u +"%Y-%m-%dT%H:%M:%SZ")
           fi
 
